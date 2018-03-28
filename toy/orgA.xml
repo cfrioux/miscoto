@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level2" version="1" level="2">
+<model id="orgA" name="Generated from BioCyc Pathway/Genome Database">
+<listOfUnitDefinitions>
+	<unitDefinition id="mmol_per_gDW_per_hr">
+		<listOfUnits>
+			<unit kind="mole" scale="-3"/>
+			<unit kind="gram" exponent="-1"/>
+			<unit kind="second" multiplier=".00027777" exponent="-1"/>
+		</listOfUnits>
+	</unitDefinition>
+</listOfUnitDefinitions>
+<listOfCompartments>
+  <compartment id="c" name="Cytosol"/>
+</listOfCompartments>
+<listOfSpecies>
+  <species id="a" name="a" compartment="c" boundaryCondition="false"/>
+  <species id="b" name="b" compartment="c" boundaryCondition="false"/>
+  <species id="c" name="c" compartment="c" boundaryCondition="false"/>
+  <species id="d" name="d" compartment="c" boundaryCondition="false"/>
+  <species id="e" name="e" compartment="c" boundaryCondition="false"/>
+  <species id="f" name="f" compartment="c" boundaryCondition="false"/>
+</listOfSpecies>
+<listOfReactions>
+        <reaction id="R_R1" name="R_R1" reversible="false">
+          <listOfReactants>
+              <speciesReference species="a" stoichiometry="1" />
+          </listOfReactants>
+          <listOfProducts>
+              <speciesReference species="c" stoichiometry="1.0000" />
+          </listOfProducts>
+          <kineticLaw>
+              <math xmlns="http://www.w3.org/1998/Math/MathML">
+              <ci>FLUX_VALUE</ci>
+              </math>
+              <listOfParameters>
+              <parameter id="LOWER_BOUND" value="0" units="mmol_per_gDW_per_hr"/>
+              <parameter id="UPPER_BOUND" value="99999" units="mmol_per_gDW_per_hr"/>
+              <parameter id="OBJECTIVE_COEFFICIENT" value="0" />
+              <parameter id="FLUX_VALUE" value="0" units="mmol_per_gDW_per_hr"/>
+              </listOfParameters>
+              </kineticLaw>
+            </reaction>
+        <reaction id="R_R2" name="R_R2" reversible="false">
+          <listOfReactants>
+              <speciesReference species="b" stoichiometry="1" />
+          </listOfReactants>
+          <listOfProducts>
+              <speciesReference species="d" stoichiometry="1.0000" />
+          </listOfProducts>
+          <kineticLaw>
+              <math xmlns="http://www.w3.org/1998/Math/MathML">
+              <ci>FLUX_VALUE</ci>
+              </math>
+              <listOfParameters>
+              <parameter id="LOWER_BOUND" value="0" units="mmol_per_gDW_per_hr"/>
+              <parameter id="UPPER_BOUND" value="99999" units="mmol_per_gDW_per_hr"/>
+              <parameter id="OBJECTIVE_COEFFICIENT" value="0" />
+              <parameter id="FLUX_VALUE" value="0" units="mmol_per_gDW_per_hr"/>
+              </listOfParameters>
+              </kineticLaw>
+            </reaction>
+        <reaction id="R_R3" name="R_R3" reversible="false">
+          <listOfReactants>
+              <speciesReference species="e" stoichiometry="1" />
+          </listOfReactants>
+          <listOfProducts>
+              <speciesReference species="f" stoichiometry="1.0000" />
+          </listOfProducts>
+          <kineticLaw>
+              <math xmlns="http://www.w3.org/1998/Math/MathML">
+              <ci>FLUX_VALUE</ci>
+              </math>
+              <listOfParameters>
+              <parameter id="LOWER_BOUND" value="0" units="mmol_per_gDW_per_hr"/>
+              <parameter id="UPPER_BOUND" value="99999" units="mmol_per_gDW_per_hr"/>
+              <parameter id="OBJECTIVE_COEFFICIENT" value="0" />
+              <parameter id="FLUX_VALUE" value="0" units="mmol_per_gDW_per_hr"/>
+              </listOfParameters>
+              </kineticLaw>
+            </reaction>
+</listOfReactions>
+</model>
+</sbml>
