@@ -60,7 +60,7 @@ minimal solutions
 
     * from SBML files
 ```
-python miscoto_mincom.py -h host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
 ```
 
     * from a pre-computed instance with possibly (additional) seeds or targets
