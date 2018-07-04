@@ -23,7 +23,6 @@ setup(
     name             = 'Miscoto',
     version          = '1.0.0',
     url              = 'https://github.com/cfrioux/miscoto',
-    download_url     = 'https://github.com/cfrioux/miscoto/tarball/1.0.0',
     license          = 'GPLv3+',
     description      = 'Microbiome Screening and COmmunity selection using TOpology',
     long_description = 'MiSCoTo is a Python3 tool to explore microbiomes and select minimal communities within them. It uses Answer Set Programming (ASP) to optimize community selection. \
