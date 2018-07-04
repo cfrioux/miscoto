@@ -1,12 +1,29 @@
-#!python
+#!/usr/bin/env python
+# Copyright (c) 2018, Clemence Frioux <clemence.frioux@inria.fr>
+#
+# This file is part of miscoto.
+#
+# meneco is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# meneco is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with meneco.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+
 import argparse
 import sys
 import os
 from pyasp.asp import *
 from os import listdir
 from os.path import isfile, join
-from src import query, sbml, commons, utils
+from miscoto import query, sbml, commons, utils
 import time
 ###############################################################################
 #
@@ -22,10 +39,12 @@ all minimal solutions
 
 pusage = """
 **1** from SBML files
-python miscoto_mincom.py -h host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
 \n
 **2** from a pre-computed instance with possibly (additional) seeds or targets
 python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
+\n
+Option -o is either 'soup' or 'minexch' depending on the wanted modeling method
 \n
 """
 
