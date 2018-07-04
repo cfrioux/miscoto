@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (c) 2018, Clemence Frioux <clemence.frioux@inria.fr>
 #
-# This file is part of MeneTools.
+# This file is part of miscoto.
 #
 # MeneTools is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
