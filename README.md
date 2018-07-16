@@ -47,6 +47,7 @@ python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml -t tar
 ```
 
     * from a pre-computed instance with possibly (additional) seeds or targets
+    
 ```
 python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
 ```
@@ -59,11 +60,13 @@ compute one minimal solution and or union, intersection, enumeration of all
 minimal solutions
 
     * from SBML files
+    
 ```
 python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
 ```
 
     * from a pre-computed instance with possibly (additional) seeds or targets
+    
 ```
 python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
 ```
