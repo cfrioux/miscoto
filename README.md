@@ -45,9 +45,7 @@ instance pre-created with miscoto_instance.py
 ```
 python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
 ```
-
-    * from a pre-computed instance with possibly (additional) seeds or targets
-    
+    * from a pre-computed instance with possibly (additional) seeds or targets    
 ```
 python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
 ```
@@ -58,15 +56,11 @@ miscoto_instance.py, option: soup = minimal size community in a mixed-bag
 framework or minexch = minimal size and minimal exchange community. Can
 compute one minimal solution and or union, intersection, enumeration of all
 minimal solutions
-
-    * from SBML files
-    
+    * from SBML files   
 ```
 python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
 ```
-
-    * from a pre-computed instance with possibly (additional) seeds or targets
-    
+    * from a pre-computed instance with possibly (additional) seeds or targets    
 ```
 python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
 ```
