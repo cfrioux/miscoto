@@ -3,12 +3,12 @@
 #
 # This file is part of miscoto.
 #
-# meneco is free software: you can redistribute it and/or modify
+# miscoto is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# meneco is distributed in the hope that it will be useful,
+# miscoto is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -59,8 +59,6 @@ requires PyASP package: "pip install PyASP"
 
 
 def cmd_mincom():
-    global start_time, parser
-    start_time = time.time()
     parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
     #parser.add_argument("-h", "--help",
     #                    help="display this message and exit", required=False)
@@ -111,6 +109,7 @@ def cmd_mincom():
 
 def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, seeds_sbml=None, draft_sbml=None,
                 intersection_arg=None, enumeration=None, union_arg=None, optsol=None):
+    start_time = time.time()
     # checking option
     if option == "soup":
         encoding = commons.ASP_SRC_TOPO_SOUP
@@ -118,7 +117,7 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
         encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
     else:
         print("invalid option choice")
-        parser.print_help()
+        print(pusage)
         quit()
 
     # case 1: instance is provided, just read targets and seeds if given
@@ -183,8 +182,8 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
         lp_instance_file = lp_instance.to_file()
 
     else:
-        print("ERROR missing input")
-        parser.print_help()
+        print("ERROR missing input: missing instance or bactsymbionts+targets+seeds")
+        print(pusage)
         quit()
 
 
@@ -320,6 +319,9 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
                     print('\texchange(s) from ' + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(enum_exchanged[fromto]))
             count+=1
         print('\n')
+        print("--- %s seconds ---" % (time.time() - start_time))
+        utils.clean_up()
+        return all_models
 
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)

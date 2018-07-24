@@ -49,6 +49,13 @@ instance pre-created with miscoto_instance.py
 ```
 python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
 ```
+
+```python
+from miscoto import run_scopes
+
+run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml)
+```
+
     * from a pre-computed instance with possibly (additional) seeds or targets    
 ```
 python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
@@ -64,6 +71,14 @@ minimal solutions
 ```
 python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
 ```
+
+```python
+from miscoto import run_mincom
+
+run_mincom(bacterium_met, option, lp_instance_file, targets_sbml, seeds_sbml, draft_sbml,
+                intersection_arg, enumeration, union_arg, optsol)
+```
+
     * from a pre-computed instance with possibly (additional) seeds or targets    
 ```
 python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
@@ -78,4 +93,10 @@ The instance can be modified (usable bacteria with the predicate ``bacteria("xxx
 
 ```
 python miscoto_instance.py [-h] [-m MODELHOST] -s SEEDS [-t TARGETS] -b BACTSYMBIONTS [-o OUTPUT]
+```
+
+```python
+from miscoto import run_instance
+
+run_instance(bacterium_met, seeds_sbml, model_host=None, targets_sbml=None, output=None)
 ```

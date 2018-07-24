@@ -3,12 +3,12 @@
 #
 # This file is part of miscoto.
 #
-# meneco is free software: you can redistribute it and/or modify
+# miscoto is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# meneco is distributed in the hope that it will be useful,
+# miscoto is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -54,8 +54,6 @@ python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
 
 
 def cmd_scopes():
-    global start_time, parser 
-    start_time = time.time()
     parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
     #parser.add_argument("-h", "--help",
     #                    help="display this message and exit", required=False)
@@ -85,6 +83,7 @@ def cmd_scopes():
     run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml)
 
 def run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml):
+    start_time = time.time()
     # case 1: instance is provided, just read targets and seeds if given
     if lp_instance_file_arg:
         delete_lp_instance = False
@@ -145,7 +144,7 @@ def run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, dr
     else:
         print("ERROR missing input")
         print("\n")
-        parser.print_help()
+        print(pusage)
         quit()
 
     print("Computing scopes...")
@@ -212,7 +211,7 @@ def run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, dr
 
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
-    quit()
+    return model
 
 if __name__ == '__main__':
     cmd_scopes()

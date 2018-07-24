@@ -3,12 +3,12 @@
 #
 # This file is part of miscoto.
 #
-# meneco is free software: you can redistribute it and/or modify
+# miscoto is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# meneco is distributed in the hope that it will be useful,
+# miscoto is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -45,8 +45,6 @@ requires PyASP package: "pip install PyASP"
 
 
 def cmd_instance():
-    global start_time
-    start_time = time.time()
     parser = argparse.ArgumentParser(description=message, epilog=requires)
     #parser.add_argument("-h", "--help",
     #                    help="display this message and exit", required=False)
@@ -73,6 +71,7 @@ def cmd_instance():
     run_instance(bacterium_met, seeds_sbml, model_host, targets_sbml, output)
 
 def run_instance(bacterium_met, seeds_sbml, model_host=None, targets_sbml=None, output=None):
+    start_time = time.time()
     if model_host:
         draft_sbml = model_host
         print('Reading host network from ' + draft_sbml)
@@ -114,9 +113,13 @@ def run_instance(bacterium_met, seeds_sbml, model_host=None, targets_sbml=None, 
         all_networks_file = lp_instance.to_file()
     print(os.path.abspath(all_networks_file))
 
+    str_instance = ''
+    for atom in lp_instance:
+        str_instance += (str(atom) + '.\n')
+
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
-    quit()
+    return str_instance
 
 if __name__ == '__main__':
     cmd_instance()
