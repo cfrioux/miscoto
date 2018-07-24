@@ -32,7 +32,7 @@ More information on usage and troubleshooting on Github: https://github.com/cfri
     author           = 'Clemence Frioux',
     author_email     = 'clemence.frioux@gmail.com',
     packages         = ['miscoto'],
-    package_dir      = {'miscoto' : 'src'},
+    package_dir      = {'miscoto' : 'miscoto'},
     package_data     = {'miscoto' : ['encodings/*.lp']},
     scripts          = ['miscoto_instance.py','miscoto_mincom.py','miscoto_scopes.py'],
     install_requires = ['pyasp == 1.4.3']

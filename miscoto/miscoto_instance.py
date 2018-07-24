@@ -20,11 +20,13 @@
 import argparse
 import sys
 import os
-from pyasp.asp import *
+import time
+
+from miscoto import utils, sbml
 from os import listdir
 from os.path import isfile, join
-from miscoto import utils, sbml
-import time
+from pyasp.asp import *
+
 ###############################################################################
 #
 message = """
@@ -41,31 +43,38 @@ requires PyASP package: "pip install PyASP"
 ###############################################################################
 
 
-if __name__ == '__main__':
 
+def cmd_instance():
+    global start_time
     start_time = time.time()
     parser = argparse.ArgumentParser(description=message, epilog=requires)
     #parser.add_argument("-h", "--help",
     #                    help="display this message and exit", required=False)
-    parser.add_argument("-m", "--modelhost",
-                        help="host metabolic network in SBML format", required=False)
-    parser.add_argument("-s", "--seeds",
-                        help="seeds in SBML format", required=True)
-    parser.add_argument("-t", "--targets",
-                        help="targets in SBML format", required=False)
     parser.add_argument("-b", "--bactsymbionts",
                         help="directory of symbionts models, all in sbml format", required=True)
+    parser.add_argument("-s", "--seeds",
+                        help="seeds in SBML format", required=True)
+    parser.add_argument("-m", "--modelhost",
+                        help="host metabolic network in SBML format", required=False)
+    parser.add_argument("-t", "--targets",
+                        help="targets in SBML format", required=False)
     parser.add_argument("-o", "--output",
                         help="output file for instance", required=False)
 
 
 
     args = parser.parse_args()
-
     bacterium_met =  args.bactsymbionts
+    seeds_sbml = args.seeds
+    model_host = args.modelhost
+    targets_sbml = args.targets
+    output = args.output
 
-    if args.modelhost:
-        draft_sbml = args.modelhost
+    run_instance(bacterium_met, seeds_sbml, model_host, targets_sbml, output)
+
+def run_instance(bacterium_met, seeds_sbml, model_host=None, targets_sbml=None, output=None):
+    if model_host:
+        draft_sbml = model_host
         print('Reading host network from ' + draft_sbml)
         draftnet = sbml.readSBMLnetwork_symbionts(draft_sbml, 'host_metab_mod')
         draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
@@ -73,14 +82,12 @@ if __name__ == '__main__':
         print('No host provided')
         draftnet = TermSet()
         draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
-
-    seeds_sbml = args.seeds
+    
     print('Reading seeds from '+ seeds_sbml)
     seeds = sbml.readSBMLspecies(seeds_sbml, 'seed')
     lp_instance = TermSet(draftnet.union(seeds))
 
-    if args.targets:
-        targets_sbml =  args.targets
+    if targets_sbml:
         print('Reading targets from '+ targets_sbml)
         targets = sbml.readSBMLspecies(targets_sbml, 'target')
         lp_instance = TermSet(lp_instance.union(targets))
@@ -101,8 +108,8 @@ if __name__ == '__main__':
     # print(bactfacts)
 
     lp_instance = TermSet(lp_instance.union(bactfacts))
-    if args.output:
-        all_networks_file = lp_instance.to_file(args.output)
+    if output:
+        all_networks_file = lp_instance.to_file(output)
     else:
         all_networks_file = lp_instance.to_file()
     print(os.path.abspath(all_networks_file))
@@ -110,3 +117,6 @@ if __name__ == '__main__':
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
     quit()
+
+if __name__ == '__main__':
+    cmd_instance()

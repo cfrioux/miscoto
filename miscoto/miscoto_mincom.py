@@ -20,11 +20,14 @@
 import argparse
 import sys
 import os
-from pyasp.asp import *
+import time
+
+from miscoto import query, sbml, commons, utils
 from os import listdir
 from os.path import isfile, join
-from miscoto import query, sbml, commons, utils
-import time
+from pyasp.asp import *
+
+
 ###############################################################################
 #
 message = """
@@ -54,16 +57,20 @@ requires PyASP package: "pip install PyASP"
 #
 ###############################################################################
 
-if __name__ == '__main__':
 
+def cmd_mincom():
+    global start_time, parser
     start_time = time.time()
     parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
     #parser.add_argument("-h", "--help",
     #                    help="display this message and exit", required=False)
-    parser.add_argument("-a", "--asp",
-                        help="instance if already created with miscoto_instance", required=False)
+    parser.add_argument("-b", "--bactsymbionts",
+                        help="directory of symbionts models, all in sbml format, ignored if -a instance is provided",
+                        required=True)
     parser.add_argument("-o", "--option",
                         help="subcom option: soup, minexch", required=True)
+    parser.add_argument("-a", "--asp",
+                        help="instance if already created with miscoto_instance", required=False)
     parser.add_argument("--enumeration",
                         help="enumeration of optimal solutions", required=False, action="store_true")
     parser.add_argument("--intersection",
@@ -88,8 +95,22 @@ if __name__ == '__main__':
 
 
     args = parser.parse_args()
+    bacterium_met =  args.bactsymbionts
     option = args.option
+    lp_instance_file = args.asp
+    targets_sbml = args.targets
+    seeds_sbml = args.seeds
+    draft_sbml = args.modelhost
+    intersection_arg = args.intersection
+    enumeration = args.enumeration
+    union_arg = args.union
+    optsol = args.optsol
 
+    run_mincom(bacterium_met, option, lp_instance_file, targets_sbml, seeds_sbml, draft_sbml,
+                intersection_arg, enumeration, union_arg, optsol)
+
+def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, seeds_sbml=None, draft_sbml=None,
+                intersection_arg=None, enumeration=None, union_arg=None, optsol=None):
     # checking option
     if option == "soup":
         encoding = commons.ASP_SRC_TOPO_SOUP
@@ -101,18 +122,16 @@ if __name__ == '__main__':
         quit()
 
     # case 1: instance is provided, just read targets and seeds if given
-    if args.asp:
+    if lp_instance_file:
         delete_lp_instance = False
-        lp_instance_file = args.asp
+        
         print("Instance provided, only seeds and targets will be added if given")
-        if args.targets:
-            targets_sbml = args.targets
+        if targets_sbml:
             print('Reading targets from '+ targets_sbml)
             targetsfacts = sbml.readSBMLspecies(targets_sbml, 'target')
             # for elem in targetsfacts:
             #     print(str(elem))
-        if args.seeds:
-            seeds_sbml = args.seeds
+        if seeds_sbml:
             print('Reading targets from '+ seeds_sbml)
             seedsfacts = sbml.readSBMLspecies(seeds_sbml, 'seed')
             # for elem in targetsfacts:
@@ -125,12 +144,10 @@ if __name__ == '__main__':
                     f.write(str(elem) + '.\n')
 
     # case 2: read inputs from SBML files
-    elif args.bactsymbionts and args.seeds and args.targets:
+    elif bacterium_met and seeds_sbml and targets_sbml:
         delete_lp_instance = True
-
-        bacterium_met =  args.bactsymbionts
-        if args.modelhost:
-            draft_sbml = args.modelhost
+        
+        if draft_sbml:
             print('Reading host network from ' + draft_sbml)
             draftnet = sbml.readSBMLnetwork_symbionts(draft_sbml, 'host_metab_mod')
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
@@ -139,12 +156,12 @@ if __name__ == '__main__':
             draftnet = TermSet()
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
 
-        seeds_sbml = args.seeds
+        
         print('Reading seeds from '+ seeds_sbml)
         seeds = sbml.readSBMLspecies(seeds_sbml, 'seed')
         lp_instance = TermSet(draftnet.union(seeds))
 
-        targets_sbml =  args.targets
+        
         print('Reading targets from '+ targets_sbml)
         targets = sbml.readSBMLspecies(targets_sbml, 'target')
         lp_instance = TermSet(lp_instance.union(targets))
@@ -171,9 +188,9 @@ if __name__ == '__main__':
         quit()
 
 
-    if not args.optsol and not args.union and not args.enumeration and not args.intersection:
+    if not optsol and not union_arg and not enumeration and not intersection_arg:
         print("No choice of solution provided. Will compute one optimal solution by default")
-        args.optsol = True
+        optsol = True
 
     print('\nFinding optimal communities for target production...')
     #ground the instance
@@ -181,7 +198,7 @@ if __name__ == '__main__':
 
 
 # one solution
-    if args.optsol:
+    if optsol:
         print('\n*** ONE MINIMAL SOLUTION ***')
         one_model = query.get_communities_from_g(grounded_instance)
         optimum = ','.join(map(str, one_model.score))
@@ -217,7 +234,7 @@ if __name__ == '__main__':
 
 
 # union of solutions
-    if args.union:
+    if union_arg:
         print('\n*** UNION OF MINIMAL SOLUTION ***')
         try:
             if args.optsol:
@@ -248,9 +265,9 @@ if __name__ == '__main__':
 
 
 # intersection of solutions
-    if args.intersection:
+    if intersection_arg:
         print('\n*** INTERSECTION OF MINIMAL SOLUTION ***')
-        if args.optsol:
+        if optsol:
             intersection = query.get_intersection_communities_from_g(grounded_instance, optimum)
         else:
             intersection = query.get_intersection_communities_from_g_noopti(grounded_instance)
@@ -274,9 +291,9 @@ if __name__ == '__main__':
                 print('\texchange(s) from ' + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(inter_exchanged[fromto]))
 
 # enumeration of all solutions
-    if args.enumeration:
+    if enumeration:
         print('\n*** ENUMERATION OF MINIMAL SOLUTION ***')
-        if args.optsol:
+        if optsol:
             all_models = query.get_all_communities_from_g(grounded_instance, optimum)
         else:
             all_models = query.get_all_communities_from_g_noopti(grounded_instance)
@@ -310,3 +327,6 @@ if __name__ == '__main__':
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
     quit()
+
+if __name__ == '__main__':
+    cmd_mincom()

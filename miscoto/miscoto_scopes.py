@@ -20,11 +20,13 @@
 import argparse
 import sys
 import os
-from pyasp.asp import *
+import time
+
+from miscoto import query, sbml, commons, utils
 from os import listdir
 from os.path import isfile, join
-from miscoto import query, sbml, commons, utils
-import time
+from pyasp.asp import *
+
 ###############################################################################
 #
 message = """
@@ -50,8 +52,9 @@ python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
 #
 ###############################################################################
 
-if __name__ == '__main__':
 
+def cmd_scopes():
+    global start_time, parser 
     start_time = time.time()
     parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
     #parser.add_argument("-h", "--help",
@@ -74,34 +77,36 @@ if __name__ == '__main__':
 
 
     args = parser.parse_args()
+    lp_instance_file_arg = args.asp
+    targets_sbml = args.targets
+    seeds_sbml = args.seeds
+    bacterium_met =  args.bactsymbionts
+    draft_sbml = args.modelhost
+    run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml)
 
+def run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml):
     # case 1: instance is provided, just read targets and seeds if given
-    if args.asp:
+    if lp_instance_file_arg:
         delete_lp_instance = False
-        lp_instance_file = args.asp
         print("Instance provided, only seeds and targets will be added if given")
-        if args.targets:
-            targets_sbml = args.targets
+        if targets_sbml:
             print('Reading targets from '+ targets_sbml)
             targetsfacts = sbml.readSBMLspecies(targets_sbml, 'target')
-        if args.seeds:
-            seeds_sbml = args.seeds
+        if seeds_sbml:
             print('Reading targets from '+ seeds_sbml)
             seedsfacts = sbml.readSBMLspecies(seeds_sbml, 'seed')
 
-            with open(lp_instance_file, "a") as f:
+            with open(lp_instance_file_arg, "a") as f:
                 for elem in targetsfacts:
                     f.write(str(elem) + '.\n')
                 for elem in seedsfacts:
                     f.write(str(elem) + '.\n')
 
     # case 2: read inputs from SBML files
-    elif args.bactsymbionts and args.seeds:
+    elif bacterium_met and seeds_sbml:
         delete_lp_instance = True
 
-        bacterium_met =  args.bactsymbionts
-        if args.modelhost:
-            draft_sbml = args.modelhost
+        if draft_sbml:
             print('Reading host network from ' + draft_sbml)
             draftnet = sbml.readSBMLnetwork_symbionts(draft_sbml, 'host_metab_mod')
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
@@ -110,13 +115,11 @@ if __name__ == '__main__':
             draftnet = TermSet()
             # draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
 
-        seeds_sbml = args.seeds
         print('Reading seeds from '+ seeds_sbml)
         seeds = sbml.readSBMLspecies(seeds_sbml, 'seed')
         lp_instance = TermSet(draftnet.union(seeds))
 
-        if args.targets:
-            targets_sbml =  args.targets
+        if targets_sbml:
             print('Reading targets from '+ targets_sbml)
             targets = sbml.readSBMLspecies(targets_sbml, 'target')
             lp_instance = TermSet(lp_instance.union(targets))
@@ -171,7 +174,7 @@ if __name__ == '__main__':
         elif a.pred() == 'aunproducible':
             com_unprodtargets.append(a.arg(0))
 
-    if args.modelhost or args.asp:
+    if draft_sbml or lp_instance_file_arg:
         print('*** HOST model producibility check ***')
 
         print('Host producible targets => ' + str(len(host_prodtargets)))
@@ -195,11 +198,11 @@ if __name__ == '__main__':
     print("\n".join(com_unprodtargets))
     print('\n')
 
-    if args.modelhost or args.asp:
+    if draft_sbml or lp_instance_file_arg:
         print('Microbiome only (host + symbionts) scope (host metabolites only producible with the microbiome) => ' + str(len(com_scope)))
         print("\n".join(comhost_scope))
         print('\n')
-    if args.asp or not args.modelhost:
+    if lp_instance_file_arg or not draft_sbml:
         print('Microbiome only (symbionts) scope (metabolites only producible with the microbiome) => ' + str(len(com_scope)))
         print("\n".join(com_scope))
         print('\n')
@@ -210,3 +213,6 @@ if __name__ == '__main__':
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
     quit()
+
+if __name__ == '__main__':
+    cmd_scopes()
