@@ -31,7 +31,9 @@ Tool = miscoto_mincom.py
 
 ## Install
 
-Python package (for python pip) coming soon.
+```
+pip install miscoto
+```
 
 ## Usage
 
