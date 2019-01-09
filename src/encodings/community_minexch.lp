@@ -7,8 +7,8 @@
     target_name(M,N,C,O) :- htarget(M,O), species(M,N,C,O).
 
 % metabolites likely to be exchanged
-    not_external(M,N,C,O) :- species(M,N,C,O), not external(C).
-    {exchanged(N,C2,O1,O2) : not_external(M1,N,C1,O1), not_external(M2,N,C2,O2), escope(M1,N,C1,O1), organism(O1), organism(O2), O1!=O2}.
+    %not_external(M,N,C,O) :- species(M,N,C,O), not external(C).
+    {exchanged(N,C2,O1,O2) : species(M1,N,C1,O1), species(_,N,C2,O2), escope(M1,N,C1,O1), organism(O1), organism(O2), O1!=O2}.
 
 % selected symbionts
     {chosen_bacteria(B) : bacteria(B)}.
@@ -25,11 +25,11 @@ escope(M,N,C,O) :- species(M,N,C,O), reactant(M,R,O), reaction(R,O), reversible(
 
 % still unproducible targets despite the exchanged_metabolites
    unproducible_target(M) :- htarget(M,O), species(M,N,C,O), not escope(M,N,C,O).
-:- htarget(M,O), not escope(M,_,_,O).
 
 % newly producible targets
     newly_producible_target(M) :- htarget(M,O), escope(M,_,_,O).
 
+#minimize { 1@3,M : unproducible_target(M) ; 0@2 }.
 #minimize { 1@2,B : chosen_bacteria(B) ; 0@2 }.
 #minimize { 1@1,N,C,O1,O : exchanged(N,C,O1,O) ; 0@1 }.
 #show exchanged/4.

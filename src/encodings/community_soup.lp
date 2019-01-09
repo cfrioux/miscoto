@@ -29,10 +29,10 @@ chosen_org(O) :- draft(O).
 chosen_org(O) :- chosen_bacteria(O).
 
 selescope(M) :- seed(M).
-selescope(M) :- draft(D), product(M,R,D), reaction(R,D),
-           selescope(M2) : reactant(M2,R,D).
-selescope(M) :- draft(D), reactant(M,R,D), reaction(R,D), reversible(R,D),
-           selescope(M2) : product(M2,R,D).
+% selescope(M) :- draft(D), product(M,R,D), reaction(R,D),
+%            selescope(M2) : reactant(M2,R,D).
+% selescope(M) :- draft(D), reactant(M,R,D), reaction(R,D), reversible(R,D),
+%            selescope(M2) : product(M2,R,D).
 selescope(M) :- chosen_org(O), product(M,R,O), reaction(R,O),
            selescope(M2) : reactant(M2,R,O).
 selescope(M) :- chosen_org(O), reactant(M,R,O), reaction(R,O), reversible(R,O),

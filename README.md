@@ -9,6 +9,8 @@ Inputs: metabolic models, seeds (growth medium) and metabolic targets.
 
 Computations can be performed with a set of symbionts or a set of symbionts and a host. In the latter case, targets will be produced by the host, whereas in the former they will be produced by any member of the microbiome.
 
+Important notice: be sure that two identical metabolites have the same name in all metabolic networks. Otherwise inconsistencies might occur between targets predicted as producible under the "soup" modeling and the "minexch" modeling.
+
 Required package:
 * ``pyasp`` (``pip install pyasp`` or ``pip install pyasp --no-cache-dir`` in case of ASP solvers installation issues)
 

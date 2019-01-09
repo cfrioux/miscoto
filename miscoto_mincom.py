@@ -77,7 +77,7 @@ if __name__ == '__main__':
                         required=False)
     parser.add_argument("-b", "--bactsymbionts",
                         help="directory of symbionts models, all in sbml format, ignored if -a instance is provided",
-                        required=True)
+                        required=False)
     parser.add_argument("-s", "--seeds",
                         help="seeds in SBML format",
                         required=False)
@@ -219,10 +219,14 @@ if __name__ == '__main__':
 # union of solutions
     if args.union:
         print('\n*** UNION OF MINIMAL SOLUTION ***')
-        if args.optsol:
-            union = query.get_union_communities_from_g(grounded_instance, optimum)
-        else:
-            union = query.get_union_communities_from_g_noopti(grounded_instance)
+        try:
+            if args.optsol:
+                union = query.get_union_communities_from_g(grounded_instance, optimum)
+            else:
+                union = query.get_union_communities_from_g_noopti(grounded_instance)
+        except IndexError:
+            print("No stable model was found. Possible troubleshooting: no harmony between names for identical metabolites among host and microbes")
+            quit()
         optimum_union = ','.join(map(str, union.score))
         union_bacteria = []
         union_exchanged = {}
