@@ -119,7 +119,8 @@ def run_instance(bacterium_met, seeds_sbml, model_host=None, targets_sbml=None, 
 
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
-    return str_instance
+
+    return lp_instance
 
 if __name__ == '__main__':
     cmd_instance()

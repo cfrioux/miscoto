@@ -62,9 +62,6 @@ def cmd_mincom():
     parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
     #parser.add_argument("-h", "--help",
     #                    help="display this message and exit", required=False)
-    parser.add_argument("-b", "--bactsymbionts",
-                        help="directory of symbionts models, all in sbml format, ignored if -a instance is provided",
-                        required=True)
     parser.add_argument("-o", "--option",
                         help="subcom option: soup, minexch", required=True)
     parser.add_argument("-a", "--asp",
@@ -110,6 +107,7 @@ def cmd_mincom():
 def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, seeds_sbml=None, draft_sbml=None,
                 intersection_arg=None, enumeration=None, union_arg=None, optsol=None):
     start_time = time.time()
+    results = {}
     # checking option
     if option == "soup":
         encoding = commons.ASP_SRC_TOPO_SOUP
@@ -230,13 +228,17 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
             print('\nMinimal set of exchanges of size => ' + str(sum(len(v) for v in exchanged.values())))
             for fromto in exchanged:
                 print("\texchange(s) from " + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(exchanged[fromto]))
-
+        results['one_model'] = one_model
+        results['exchanged'] = exchanged
+        results['bacteria'] = bacteria
+        results['still_unprod'] = still_unprod
+        results['newly_prod'] = newly_prod
 
 # union of solutions
     if union_arg:
         print('\n*** UNION OF MINIMAL SOLUTION ***')
         try:
-            if args.optsol:
+            if optsol:
                 union = query.get_union_communities_from_g(grounded_instance, optimum)
             else:
                 union = query.get_union_communities_from_g_noopti(grounded_instance)
@@ -261,7 +263,9 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
             print('\nExchanges in union => ' + str(sum(len(v) for v in union_exchanged.values())))
             for fromto in union_exchanged:
                 print('\texchange(s) from ' + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(union_exchanged[fromto]))
-
+        results['union_exchanged'] = union_exchanged
+        results['union_bacteria'] = union_bacteria
+        results['optimum_union'] = optimum_union
 
 # intersection of solutions
     if intersection_arg:
@@ -288,6 +292,9 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
             print('\nExchanges in intersection => ' + str(sum(len(v) for v in inter_exchanged.values())))
             for fromto in inter_exchanged:
                 print('\texchange(s) from ' + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(inter_exchanged[fromto]))
+        results['inter_exchanged'] = inter_exchanged
+        results['inter_bacteria'] = inter_bacteria
+        results['optimum_inter'] = optimum_inter
 
 # enumeration of all solutions
     if enumeration:
@@ -321,7 +328,11 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
         print('\n')
         print("--- %s seconds ---" % (time.time() - start_time))
         utils.clean_up()
-        return all_models
+        results['all_models'] = all_models
+        results['enum_exchanged'] = enum_exchanged
+        results['enum_bacteria'] = enum_bacteria
+
+    return results
 
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)

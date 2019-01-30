@@ -82,8 +82,9 @@ def cmd_scopes():
     draft_sbml = args.modelhost
     run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml)
 
-def run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml):
+def run_scopes(lp_instance_file_arg=None, targets_sbml=None, seeds_sbml=None, bacterium_met=None, draft_sbml=None):
     start_time = time.time()
+    results = {}
     # case 1: instance is provided, just read targets and seeds if given
     if lp_instance_file_arg:
         delete_lp_instance = False
@@ -179,39 +180,47 @@ def run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, dr
         print('Host producible targets => ' + str(len(host_prodtargets)))
         print("\n".join(host_prodtargets))
         print('\n')
+        results['host_prodtargets'] = host_prodtargets
 
         print('Host unproducible targets => ' + str(len(host_unprodtargets)))
         print("\n".join(host_unprodtargets))
         print('\n')
+        results['host_unprodtargets'] = host_unprodtargets
 
         print('Host scope => ' + str(len(host_scope)))
         print("\n".join(host_scope))
         print('\n')
+        results['host_scope'] = host_scope
 
     print('*** MICROBIOME added-value ***')
     print('Microbiome only producible targets => ' + str(len(com_prodtargets)))
     print("\n".join(com_prodtargets))
     print('\n')
+    results['com_prodtargets'] = com_prodtargets
 
     print('Microbiome unproducible targets => ' + str(len(com_unprodtargets)))
     print("\n".join(com_unprodtargets))
     print('\n')
+    results['com_unprodtargets'] = com_unprodtargets
 
     if draft_sbml or lp_instance_file_arg:
         print('Microbiome only (host + symbionts) scope (host metabolites only producible with the microbiome) => ' + str(len(com_scope)))
         print("\n".join(comhost_scope))
         print('\n')
+        results['comhost_scope'] = comhost_scope
     if lp_instance_file_arg or not draft_sbml:
         print('Microbiome only (symbionts) scope (metabolites only producible with the microbiome) => ' + str(len(com_scope)))
         print("\n".join(com_scope))
         print('\n')
+        results['com_scope'] = com_scope
 
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)
 
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
-    return model
+
+    return results
 
 if __name__ == '__main__':
     cmd_scopes()
