@@ -59,9 +59,9 @@ requires PyASP package: "pip install PyASP"
 
 
 def cmd_mincom():
+    """run directly miscoto_mincom from the shell
+    """
     parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
-    #parser.add_argument("-h", "--help",
-    #                    help="display this message and exit", required=False)
     parser.add_argument("-o", "--option",
                         help="subcom option: soup, minexch", required=True)
     parser.add_argument("-a", "--asp",
@@ -87,8 +87,6 @@ def cmd_mincom():
                         help="targets in SBML format",
                         required=False)
 
-
-
     args = parser.parse_args()
     bacterium_met =  args.bactsymbionts
     option = args.option
@@ -96,16 +94,40 @@ def cmd_mincom():
     targets_sbml = args.targets
     seeds_sbml = args.seeds
     draft_sbml = args.modelhost
-    intersection_arg = args.intersection
-    enumeration = args.enumeration
-    union_arg = args.union
-    optsol = args.optsol
+    if args.intersection:
+        intersection_arg = True
+    else:
+        intersection_arg = False
+    if args.enumeration:
+        enumeration_arg = True
+    else:
+        enumeration_arg = False
+    if args.union:
+        union_arg = True
+    else: 
+        union_arg = False
+    if args.optsol:
+        optsol = True
+    else:
+        optsol = False
 
-    run_mincom(bacterium_met, option, lp_instance_file, targets_sbml, seeds_sbml, draft_sbml,
-                intersection_arg, enumeration, union_arg, optsol)
+    run_mincom(option, bacterium_met, lp_instance_file, targets_sbml, seeds_sbml, draft_sbml,
+                intersection_arg, enumeration_arg, union_arg, optsol)
 
-def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, seeds_sbml=None, draft_sbml=None,
-                intersection_arg=None, enumeration=None, union_arg=None, optsol=None):
+def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_file=None, seeds_file=None, host_file=None,
+                intersection=False, enumeration=False, union=False, optsol=False):
+    """Computes community selections in microbiota
+        option (str, optional): Defaults to None. Modeling type: 'soup' for uncompartmentalized, 'minexch' for compartmentalized
+        bacteria_dir (str, optional): Defaults to None. directory with symbionts metabolic networks
+        lp_instance_file (str, optional): Defaults to None. ASP instance file
+        targets_file (str, optional): Defaults to None. targets file
+        seeds_file (str, optional): Defaults to None. seeds file
+        host_file (str, optional): Defaults to None. host metabolic network file
+        intersection (bool, optional): Defaults to False. compute intersection of solutions
+        enumeration (bool, optional): Defaults to False. compute enumeration of solutions
+        union (bool, optional): Defaults to False. compute union of solutions
+        optsol (bool, optional): Defaults to False. compute one optimal solution
+    """
     start_time = time.time()
     results = {}
     # checking option
@@ -120,56 +142,83 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
 
     # case 1: instance is provided, just read targets and seeds if given
     if lp_instance_file:
+        if not os.path.isfile(lp_instance_file) :
+            print('Instance file not found')
+            sys.exit(1)
+            
         delete_lp_instance = False
         
         print("Instance provided, only seeds and targets will be added if given")
-        if targets_sbml:
-            print('Reading targets from '+ targets_sbml)
-            targetsfacts = sbml.readSBMLspecies(targets_sbml, 'target')
-            # for elem in targetsfacts:
-            #     print(str(elem))
-        if seeds_sbml:
-            print('Reading targets from '+ seeds_sbml)
-            seedsfacts = sbml.readSBMLspecies(seeds_sbml, 'seed')
-            # for elem in targetsfacts:
-            #     print(str(elem))
+        if targets_file:
+            print('Reading targets from '+ targets_file)
+            try:
+                targetsfacts = sbml.readSBMLspecies(targets_file, 'target')
+            except FileNotFoundError:
+                print('Targets file not found')
+                sys.exit(1)
+        else:
+            targetsfacts = TermSet()
 
-            with open(lp_instance_file, "a") as f:
-                for elem in targetsfacts:
-                    f.write(str(elem) + '.\n')
-                for elem in seedsfacts:
-                    f.write(str(elem) + '.\n')
+        if seeds_file:
+            print('Reading targets from '+ seeds_file)
+            try:
+                seedsfacts = sbml.readSBMLspecies(seeds_file, 'seed')
+            except FileNotFoundError:
+                print('Seeds file not found')
+                sys.exit(1)
+        else:
+            seedsfacts = TermSet()
+
+        with open(lp_instance_file, "a") as f:
+            for elem in targetsfacts:
+                f.write(str(elem) + '.\n')
+            for elem in seedsfacts:
+                f.write(str(elem) + '.\n')            
 
     # case 2: read inputs from SBML files
-    elif bacterium_met and seeds_sbml and targets_sbml:
+    elif bacteria_dir and seeds_file and targets_file:
+        if not os.path.isdir(bacteria_dir):
+            print("Symbiont directory not found")
+            sys.exit(1)
+
         delete_lp_instance = True
         
-        if draft_sbml:
-            print('Reading host network from ' + draft_sbml)
-            draftnet = sbml.readSBMLnetwork_symbionts(draft_sbml, 'host_metab_mod')
+        if host_file:
+            print('Reading host network from ' + host_file)
+            try:
+                draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
+            except FileNotFoundError:
+                print('Host file not found')
+                sys.exit(1)
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
         else:
             print('No host provided')
             draftnet = TermSet()
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
-
         
-        print('Reading seeds from '+ seeds_sbml)
-        seeds = sbml.readSBMLspecies(seeds_sbml, 'seed')
+        print('Reading seeds from '+ seeds_file)
+        try:
+            seeds = sbml.readSBMLspecies(seeds_file, 'seed')
+        except FileNotFoundError:
+            print('Targets file not found')
+            sys.exit(1)
         lp_instance = TermSet(draftnet.union(seeds))
-
         
-        print('Reading targets from '+ targets_sbml)
-        targets = sbml.readSBMLspecies(targets_sbml, 'target')
+        print('Reading targets from '+ targets_file)
+        try:
+            targets = sbml.readSBMLspecies(targets_file, 'target')
+        except FileNotFoundError:
+            print('Targets file not found')
+            sys.exit(1)
         lp_instance = TermSet(lp_instance.union(targets))
 
-        print('Reading bacterial networks from ' + bacterium_met + '...')
+        print('Reading bacterial networks from ' + bacteria_dir + '...')
         bactfacts = TermSet()
-        onlyfiles = [f for f in listdir(bacterium_met) if isfile(join(bacterium_met, f))]
+        onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
         for bacteria_file in onlyfiles:
             name = os.path.splitext(bacteria_file)[0]
             try:
-                one_bact_model = sbml.readSBMLnetwork_symbionts(bacterium_met+'/'+bacteria_file, name)
+                one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
                 bactfacts = TermSet(bactfacts.union(one_bact_model))
                 bactfacts.add(Term('bacteria', ["\"" + name + "\""]))
                 print('Done for ' + name)
@@ -180,18 +229,22 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
         lp_instance_file = lp_instance.to_file()
 
     else:
-        print("ERROR missing input: missing instance or bactsymbionts+targets+seeds")
+        print("ERROR missing input: missing instance or symbionts/targets/seeds")
         print(pusage)
         quit()
 
 
-    if not optsol and not union_arg and not enumeration and not intersection_arg:
+    if not optsol and not union and not enumeration and not intersection:
         print("No choice of solution provided. Will compute one optimal solution by default")
         optsol = True
 
     print('\nFinding optimal communities for target production...')
     #ground the instance
-    grounded_instance = query.get_grounded_communities_from_file(lp_instance_file, encoding)
+    try:
+        grounded_instance = query.get_grounded_communities_from_file(lp_instance_file, encoding)
+    except OSError:
+        print("Error. Solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp no-cache-dir'")
+        sys.exit(1)
 
 
 # one solution
@@ -219,13 +272,12 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
                     exchanged[(a.arg(2),a.arg(3))].append(a.arg(0))
         print(str(len(newly_prod)) + ' newly producible target(s):')
         print("\n".join(newly_prod))
-        print('\n')
         print('Still ' + str(len(still_unprod)) + ' unproducible target(s):')
         print("\n".join(still_unprod))
-        print('\nMinimal set of bacteria of size ' + str(len(bacteria)))
+        print('Minimal set of bacteria of size ' + str(len(bacteria)))
         print("\n".join(bacteria))
         if len(exchanged) >= 1:
-            print('\nMinimal set of exchanges of size => ' + str(sum(len(v) for v in exchanged.values())))
+            print('Minimal set of exchanges of size => ' + str(sum(len(v) for v in exchanged.values())))
             for fromto in exchanged:
                 print("\texchange(s) from " + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(exchanged[fromto]))
         results['one_model'] = one_model
@@ -235,20 +287,20 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
         results['newly_prod'] = newly_prod
 
 # union of solutions
-    if union_arg:
+    if union:
         print('\n*** UNION OF MINIMAL SOLUTION ***')
         try:
             if optsol:
-                union = query.get_union_communities_from_g(grounded_instance, optimum)
+                union_m = query.get_union_communities_from_g(grounded_instance, optimum)
             else:
-                union = query.get_union_communities_from_g_noopti(grounded_instance)
+                union_m = query.get_union_communities_from_g_noopti(grounded_instance)
         except IndexError:
             print("No stable model was found. Possible troubleshooting: no harmony between names for identical metabolites among host and microbes")
             quit()
-        optimum_union = ','.join(map(str, union.score))
+        optimum_union = ','.join(map(str, union_m.score))
         union_bacteria = []
         union_exchanged = {}
-        for a in union :
+        for a in union_m :
             if a.pred() == 'chosen_bacteria':
                 union_bacteria.append(a.arg(0))
             elif a.pred() == 'exchanged':
@@ -268,16 +320,16 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
         results['optimum_union'] = optimum_union
 
 # intersection of solutions
-    if intersection_arg:
+    if intersection:
         print('\n*** INTERSECTION OF MINIMAL SOLUTION ***')
         if optsol:
-            intersection = query.get_intersection_communities_from_g(grounded_instance, optimum)
+            intersection_m = query.get_intersection_communities_from_g(grounded_instance, optimum)
         else:
-            intersection = query.get_intersection_communities_from_g_noopti(grounded_instance)
-        optimum_inter = ','.join(map(str, intersection.score))
+            intersection_m = query.get_intersection_communities_from_g_noopti(grounded_instance)
+        optimum_inter = ','.join(map(str, intersection_m.score))
         inter_bacteria = []
         inter_exchanged = {}
-        for a in intersection :
+        for a in intersection_m :
             if a.pred() == 'chosen_bacteria':
                 inter_bacteria.append(a.arg(0))
             elif a.pred() == 'exchanged':
@@ -325,8 +377,7 @@ def run_mincom(bacterium_met, option, lp_instance_file=None, targets_sbml=None, 
                 for fromto in enum_exchanged:
                     print('\texchange(s) from ' + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(enum_exchanged[fromto]))
             count+=1
-        print('\n')
-        print("--- %s seconds ---" % (time.time() - start_time))
+        print("\n--- %s seconds ---" % (time.time() - start_time))
         utils.clean_up()
         results['all_models'] = all_models
         results['enum_exchanged'] = enum_exchanged

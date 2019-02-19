@@ -57,7 +57,7 @@ python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
 
 
 def cmd_scopes():
-    """runs directly miscoto_scopes from the shell
+    """run directly miscoto_scopes from the shell
     """
     parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
     parser.add_argument("-a", "--asp",
@@ -100,15 +100,33 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     # case 1: instance is provided, just read targets and seeds if given
     input_instance = False
     if lp_instance_file:
+        if not os.path.isfile(lp_instance_file) :
+            print('Instance file not found')
+            sys.exit(1)
+
         input_instance = True
         delete_lp_instance = False
         print("Instance provided, only seeds and targets will be added if given")
+
         if targets_file:
             print('Reading targets from '+ targets_file)
-            targetsfacts = sbml.readSBMLspecies(targets_file, 'target')
+            try:
+                targetsfacts = sbml.readSBMLspecies(targets_file, 'target')
+            except FileNotFoundError:
+                print('Targets file not found')
+                sys.exit(1)
+        else:
+            targetsfacts = TermSet()
+
         if seeds_file:
             print('Reading targets from '+ seeds_file)
-            seedsfacts = sbml.readSBMLspecies(seeds_file, 'seed')
+            try:
+                seedsfacts = sbml.readSBMLspecies(seeds_file, 'seed')
+            except FileNotFoundError:
+                print('Seeds file not found')
+                sys.exit(1)
+        else:
+            seedsfacts = TermSet()
 
             with open(lp_instance_file, "a") as f:
                 for elem in targetsfacts:
@@ -118,26 +136,46 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
 
     # case 2: read inputs from SBML files
     elif bacteria_dir and seeds_file:
+        if not os.path.isdir(bacteria_dir):
+            print("Symbiont directory not found")
+            sys.exit(1)
+
         delete_lp_instance = True
 
         if host_file:
             print('Reading host network from ' + host_file)
-            draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
+            try:
+                draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
+            except FileNotFoundError:
+                print('Host file not found')
+                sys.exit(1)
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
         else:
             print('No host provided.')
             draftnet = TermSet()
 
         print('Reading seeds from '+ seeds_file)
-        seeds = sbml.readSBMLspecies(seeds_file, 'seed')
+        try:
+            seeds = sbml.readSBMLspecies(seeds_file, 'seed')
+        except FileNotFoundError:
+            print('Seeds file not found')
+            sys.exit(1)
         lp_instance = TermSet(draftnet.union(seeds))
 
         if targets_file:
             print('Reading targets from '+ targets_file)
-            targets = sbml.readSBMLspecies(targets_file, 'target')
+            try:
+                targets = sbml.readSBMLspecies(targets_file, 'target')
+            except FileNotFoundError:
+                print('Targets file not found')
+                sys.exit(1)
             lp_instance = TermSet(lp_instance.union(targets))
         else:
             print("No targets provided.")
+
+        if not os.path.isdir(bacteria_dir):
+            print("Symbiont directory not found")
+            sys.exit(1)
 
         print('Reading bacterial networks from ' + bacteria_dir + '...')
         bactfacts = TermSet()

@@ -45,6 +45,8 @@ requires PyASP package: "pip install PyASP"
 
 
 def cmd_instance():
+    """run miscoto_instance from the shell
+    """
     parser = argparse.ArgumentParser(description=message, epilog=requires)
     #parser.add_argument("-h", "--help",
     #                    help="display this message and exit", required=False)
@@ -59,8 +61,6 @@ def cmd_instance():
     parser.add_argument("-o", "--output",
                         help="output file for instance", required=False)
 
-
-
     args = parser.parse_args()
     bacterium_met =  args.bactsymbionts
     seeds_sbml = args.seeds
@@ -70,34 +70,52 @@ def cmd_instance():
 
     run_instance(bacterium_met, seeds_sbml, model_host, targets_sbml, output)
 
-def run_instance(bacterium_met, seeds_sbml, model_host=None, targets_sbml=None, output=None):
+def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_file=None, output=None):
     start_time = time.time()
-    if model_host:
-        draft_sbml = model_host
-        print('Reading host network from ' + draft_sbml)
-        draftnet = sbml.readSBMLnetwork_symbionts(draft_sbml, 'host_metab_mod')
+    if not bacteria_dir or not seeds_file:
+        print("Symbionts and seeds are required minimal inputs")
+        sys.exit(1)
+    if host_file:
+        print('Reading host network from ' + host_file)
+        try:
+            draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
+        except FileNotFoundError:
+            print('Host file not found')
+            sys.exit(1)
         draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
     else:
         print('No host provided')
         draftnet = TermSet()
         draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
     
-    print('Reading seeds from '+ seeds_sbml)
-    seeds = sbml.readSBMLspecies(seeds_sbml, 'seed')
+    print('Reading seeds from '+ seeds_file)
+    try:
+        seeds = sbml.readSBMLspecies(seeds_file, 'seed')
+    except FileNotFoundError:
+        print('Seeds file not found')
+        sys.exit(1)
     lp_instance = TermSet(draftnet.union(seeds))
 
-    if targets_sbml:
-        print('Reading targets from '+ targets_sbml)
-        targets = sbml.readSBMLspecies(targets_sbml, 'target')
+    if targets_file:
+        print('Reading targets from '+ targets_file)
+        try:
+            targets = sbml.readSBMLspecies(targets_file, 'target')
+        except FileNotFoundError:
+            print('Targets file not found')
+            sys.exit(1)
         lp_instance = TermSet(lp_instance.union(targets))
+    
+    if not os.path.isdir(bacteria_dir):
+        print("Symbiont directory not found")
+        sys.exit(1)
 
-    print('Reading bacterial networks from ' + bacterium_met + '...')
+    print('Reading bacterial networks from ' + bacteria_dir + '...')
     bactfacts = TermSet()
-    onlyfiles = [f for f in listdir(bacterium_met) if isfile(join(bacterium_met, f))]
+    onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
     for bacteria_file in onlyfiles:
         name = os.path.splitext(bacteria_file)[0]
         try:
-            one_bact_model = sbml.readSBMLnetwork_symbionts(bacterium_met+'/'+bacteria_file, name)
+            one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
             # print(one_bact_model)
             bactfacts = TermSet(bactfacts.union(one_bact_model))
             bactfacts.add(Term('bacteria', ["\"" + name + "\""]))
@@ -111,7 +129,7 @@ def run_instance(bacterium_met, seeds_sbml, model_host=None, targets_sbml=None, 
         all_networks_file = lp_instance.to_file(output)
     else:
         all_networks_file = lp_instance.to_file()
-    print(os.path.abspath(all_networks_file))
+    print("Instance created: " + os.path.abspath(all_networks_file))
 
     str_instance = ''
     for atom in lp_instance:

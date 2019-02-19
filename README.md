@@ -56,7 +56,7 @@ instance pre-created with miscoto_instance.py
         python miscoto_scopes.py -b symbiont_directory -s seeds.sbml -t targets.sbml
         ```
     * from a pre-computed instance with possibly (additional) seeds or targets
-        * usage 3    
+        * usage 3: instance, [seeds], [targets]    
         ```
         python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
         ```
@@ -75,22 +75,44 @@ miscoto_instance.py, option: soup = minimal size community in a mixed-bag
 framework or minexch = minimal size and minimal exchange community. Can
 compute one minimal solution and or union, intersection, enumeration of all
 minimal solutions
-    * from SBML files   
-```
-python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
-```
+    * from SBML files 
+        * usage 1: host, symbionts, seeds, targets  
+        ```
+        python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+        ```
+        * usage 2: symbionts, seeds, targets
+        ```
+        python miscoto_mincom.py -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+        ```
 
-```python
-from miscoto import run_mincom
+    * from a pre-computed instance with possibly (additional) seeds or targets 
+        * usage 3: instance, [seeds], [targets]   
+        ```
+        python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
+        ```
+    ```miscoto_mincom``` can be called directly in Python
+    ```python
+    from miscoto import run_mincom
 
-run_mincom(bacterium_met, option, lp_instance_file, targets_sbml, seeds_sbml, draft_sbml,
-                intersection_arg, enumeration, union_arg, optsol)
-```
+    run_mincom(option='soup/minexch', \
+                bacteria_dir=xxx, host_file=xxx,\
+                targets_file=xxxx, seeds_file=xxx,\
+                optsol=True/False, enumeration=True/False, \
+                intersection=True/False, union=True/False)
 
-    * from a pre-computed instance with possibly (additional) seeds or targets    
-```
-python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
-```
+    run_mincom(option='soup/minexch', \
+                bacteria_dir=xxx, \
+                targets_file=xxxx, seeds_file=xxx,\
+                optsol=True/False, enumeration=True/False, \
+                intersection=True/False, union=True/False)
+
+    run_mincom(option='soup/minexch',\
+                lp_instance_file=xxxx,\
+                targets_file=xxxx, seeds_file=xxx,
+                optsol=True/False, enumeration=True/False, \
+                intersection=True/False, union=True/False)
+    ```
+
 
 ## Benchmark tips
 
@@ -106,5 +128,5 @@ python miscoto_instance.py [-h] [-m MODELHOST] -s SEEDS [-t TARGETS] -b BACTSYMB
 ```python
 from miscoto import run_instance
 
-run_instance(bacterium_met, seeds_sbml, model_host=None, targets_sbml=None, output=None)
+run_instance(bacteria_dir=xxx, seeds_file=xxx, host_file=xxx, targets_file=xxxx, output=xxx)
 ```

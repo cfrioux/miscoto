@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 import re
 from pyasp.asp import *
 from pyasp.term import *
@@ -8,8 +7,13 @@ import xml.etree.ElementTree as etree
 from xml.etree.ElementTree import XML, fromstring, tostring
 
 def get_model(sbml):
-    """
-    return the model of a SBML
+    """Get the model of a SBML
+
+    Args:
+        sbml (str): SBML file
+
+    Returns:
+        xml.etree.ElementTree.Element: SBML model
     """
     model_element = None
     for e in sbml:
@@ -23,6 +27,14 @@ def get_model(sbml):
     return model_element
 
 def get_listOfCompartments(model):
+    """Get list of compartments in a SBML model
+    
+    Args:
+        model (xml.etree.ElementTree.Element): SBML model
+    
+    Returns:
+        xml.etree.ElementTree.Element: list of compartments
+    """
     listOfCompartments = None
     for e in model:
         if e.tag[0] == "{":
@@ -31,11 +43,16 @@ def get_listOfCompartments(model):
         if tag == "listOfCompartments":
           listOfCompartments = e
           break
-    return(listOfCompartments)
+    return listOfCompartments
 
 def get_listOfSpecies(model):
-    """
-    return list of species of a SBML model
+    """Get list of Species of a SBML model
+    
+    Args:
+        model (xml.etree.ElementTree.Element): SBML model
+    
+    Returns:
+        xml.etree.ElementTree.Element: list of species
     """
     listOfSpecies = None
     for e in model:
@@ -49,8 +66,13 @@ def get_listOfSpecies(model):
     return listOfSpecies
 
 def get_listOfReactions(model):
-    """
-    return list of reactions of a SBML model
+    """Get list of reactions of a SBML model
+    
+    Args:
+        model (xml.etree.ElementTree.Element): SBML model
+    
+    Returns:
+        xml.etree.ElementTree.Element: list of reactions
     """
     listOfReactions = None
     for e in model:
@@ -64,8 +86,13 @@ def get_listOfReactions(model):
     return listOfReactions
 
 def get_listOfReactants(reaction):
-    """
-    return list of reactants of a reaction
+    """Get list of reactants of a reaction
+    
+    Args:
+        reaction (xml.etree.ElementTree.Element): reaction
+    
+    Returns:
+        xml.etree.ElementTree.Element: list of reactants
     """
     listOfReactants = None
     for e in reaction:
@@ -79,8 +106,13 @@ def get_listOfReactants(reaction):
     return listOfReactants
 
 def get_listOfProducts(reaction):
-    """
-    return list of products of a reaction
+    """Get list of porducts of a reaction
+    
+    Args:
+        reaction (xml.etree.ElementTree.Element): reaction
+    
+    Returns:
+        xml.etree.ElementTree.Element: list of products
     """
     listOfProducts = None
     for e in reaction:
@@ -93,57 +125,15 @@ def get_listOfProducts(reaction):
             break
     return listOfProducts
 
-def readSBMLnetwork(filename, name) :
-    """
-    Read a SBML network and turn it into ASP-friendly data
-    """
-    lpfacts = TermSet()
-
-    tree = etree.parse(filename)
-    sbml = tree.getroot()
-    model = get_model(sbml)
-
-    listOfReactions = get_listOfReactions(model)
-    for e in listOfReactions:
-        if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
-        else:
-            tag = e.tag
-        if tag == "reaction":
-            reactionId = e.attrib.get("id")
-            lpfacts.add(Term('dreaction', ["\""+reactionId+"\""])) #, "\""+name+"\""
-            if(e.attrib.get("reversible")=="true"):
-                lpfacts.add(Term('reversible', ["\""+reactionId+"\""]))
-
-            listOfReactants = get_listOfReactants(e)
-            # if listOfReactants == None :
-            #     print("\n Warning:",reactionId, "listOfReactants=None")
-            if listOfReactants != None:
-                for r in listOfReactants:
-                    lpfacts.add(Term('reactant', ["\""+r.attrib.get("species")+"\"", "\""+reactionId+"\""])) #,"\""+name+"\""
-
-            listOfProducts = get_listOfProducts(e)
-            # if listOfProducts == None:
-            #     print("\n Warning:",reactionId, "listOfProducts=None")
-            if listOfProducts != None:
-                for p in listOfProducts:
-                    lpfacts.add(Term('product', ["\""+p.attrib.get("species")+"\"", "\""+reactionId+"\""])) #,"\""+name+"\""
-    listofspecies = get_listOfSpecies(model)
-    for e in listofspecies:
-        if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
-        else: tag = e.tag
-        if tag == "species":
-            speciesId = e.attrib.get("id")
-            speciesNm = e.attrib.get("name")
-            compartment = e.attrib.get("compartment")
-            lpfacts.add(Term('species', ["\""+speciesId+"\"", "\""+speciesNm+"\"", "\""+compartment+"\"", "\""+name+"\""]))
-    #print(lpfacts)
-    return lpfacts
-
 def readSBMLnetwork_symbionts(filename, name) :
-    """
-    Read a SBML network and turn it into ASP-friendly data with a ID for each fact
+    """Read a SBML metabolic network
+    
+    Args:
+        filename (str): SBML file
+        name (str): suffix to identify the type of network
+    
+    Returns:
+        TermSet: metabolic model
     """
     lpfacts = TermSet()
 
@@ -159,7 +149,7 @@ def readSBMLnetwork_symbionts(filename, name) :
             tag = e.tag
         if tag == "reaction":
             reactionId = e.attrib.get("id")
-            lpfacts.add(Term('reaction', ["\""+reactionId+"\"", "\""+name+"\""])) #, "\""+name+"\""
+            lpfacts.add(Term('reaction', ["\""+reactionId+"\"", "\""+name+"\""])) 
             if(e.attrib.get("reversible")=="true"):
                 lpfacts.add(Term('reversible', ["\""+reactionId+"\"", "\""+name+"\""]))
 
@@ -187,12 +177,17 @@ def readSBMLnetwork_symbionts(filename, name) :
             compartment = e.attrib.get("compartment")
             lpfacts.add(Term('species', ["\""+speciesId+"\"", "\""+speciesNm+"\"", "\""+compartment+"\"", "\""+name+"\""]))
 
-    #print(lpfacts)
     return lpfacts
 
 def readSBMLnetwork_symbionts_noemptyrctprd(filename, name) :
-    """
-    Read a SBML network and turn it into ASP-friendly data with a ID for each fact
+    """Read a SBML metabolic network while ignoring the reactions that have no reactant or product
+    
+    Args:
+        filename (str): SBML file
+        name (str): suffix to identify the type of network
+    
+    Returns:
+        TermSet: metabolic model
     """
     lpfacts = TermSet()
 
@@ -211,10 +206,8 @@ def readSBMLnetwork_symbionts_noemptyrctprd(filename, name) :
 
             listOfReactants = get_listOfReactants(e)
             listOfProducts = get_listOfProducts(e)
-            # if listOfReactants == None :
-            #     print("\n Warning:" + reactionId + "listOfReactants=None")
             if listOfReactants != None and listOfProducts != None:
-                lpfacts.add(Term('reaction', ["\""+reactionId+"\"", "\""+name+"\""])) #, "\""+name+"\""
+                lpfacts.add(Term('reaction', ["\""+reactionId+"\"", "\""+name+"\""]))
                 if e.attrib.get("reversible")=="true":
                     lpfacts.add(Term('reversible', ["\""+reactionId+"\"", "\""+name+"\""]))
                 for r in listOfReactants:
@@ -238,8 +231,14 @@ def readSBMLnetwork_symbionts_noemptyrctprd(filename, name) :
     return lpfacts
 
 def readSBMLnetwork_em(filename, externalcomp="e") :
-    """
-    Read a SBML network for exchanged metabolites computation
+    """Read a SBML metabolic network while considering external compartment
+    
+    Args:
+        filename (str): SBML file
+        externalcomp (str): Default to 'e'. external compartment
+    
+    Returns:
+        TermSet, str: metabolic model and its name
     """
     lpfacts = TermSet()
 
@@ -301,8 +300,14 @@ def readSBMLnetwork_em(filename, externalcomp="e") :
     return lpfacts, name
 
 def readSBMLnetwork_em_noemptyrctprd(filename, externalcomp="e") :
-    """
-    Read a SBML network for exchanged metabolites computation
+    """Read a SBML metabolic network while ignoring the reactions that have no reactant or product
+    
+    Args:
+        filename (str): SBML file
+        externalcomp (str): Default to 'e'. external compartment
+    
+    Returns:
+        TermSet, str: metabolic model and its name
     """
     lpfacts = TermSet()
 
@@ -361,14 +366,17 @@ def readSBMLnetwork_em_noemptyrctprd(filename, externalcomp="e") :
         if tag == "compartment":
             compartmentId = e.attrib.get("id")
             lpfacts.add(Term('compartment', ["\""+compartmentId+"\"", "\""+name+"\""]))
-    #print(lpfacts)
     return lpfacts, name
 
-
-# read the targets
-
-def readSBMLtargets(filename) :
-
+def readSBMLtargets(filename):
+    """Get SBML targets
+    
+    Args:
+        filename (str): SBML file
+    
+    Returns:
+        TermSet, str: targets and name of the model
+    """
     lpfacts = TermSet()
 
     tree = etree.parse(filename)
@@ -389,11 +397,15 @@ def readSBMLtargets(filename) :
             lpfacts.add(Term('target', ["\""+e.attrib.get("id")+"\"", "\""+name+"\""]))
     return lpfacts, name
 
-# read the seeds or targets if no need for the id of the model (in xml)
-
 def readSBMLspecies(filename, speciestype) :
-    """
-    Read a SBML network return its species as seeds or targets
+    """Get species of a SBML (seeds, targets)
+    
+    Args:
+        filename (str): SBML file
+        speciestype (str): seed or target
+    
+    Returns:
+        TermSet: seeds or targets
     """
     lpfacts = TermSet()
 
