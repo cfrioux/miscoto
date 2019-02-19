@@ -39,20 +39,35 @@ pip install miscoto
 
 ## Usage
 
-* ``miscoto_scope`` compute the scope and target produciblity of a host (optional) and the added-
+* ``miscoto_scopes`` compute the scope and target produciblity of a host (optional) and the added-
 value of a microbiome regarding scope and target producibility. The microbiome
 result part gives the targets and compounds that are producible providing
 cooperation occurs within the community of host + all symbionts and that were
 not producible with the host alone. Computation from SBML models or an
 instance pre-created with miscoto_instance.py
     * from SBML files
-```
-python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
-```
-    * from a pre-computed instance with possibly (additional) seeds or targets    
-```
-python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
-```
+
+        * usage 1: host, symbionts, seeds, [targets]
+        ```
+        python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
+        ```
+        * usage 2: symbionts, seeds, [targets]
+        ```
+        python miscoto_scopes.py -b symbiont_directory -s seeds.sbml -t targets.sbml
+        ```
+    * from a pre-computed instance with possibly (additional) seeds or targets
+        * usage 3: instance, [seeds], [targets]    
+        ```
+        python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
+        ```
+
+    ```miscoto_scopes``` can be called directly in Python
+    ```python
+    from miscoto import run_scopes
+
+    run_scopes(lp_instance_file=xxx, targets_file=xxx, seeds_file=xxx, bacteria_dir=xxx, host_file=xxx)
+    ```
+
 
 * ``miscoto_mincom`` computes a community from a microbiome Inputs: SBML models (symbionts and
 optionally host) + seeds + targets or an instance pre-created with
@@ -60,14 +75,44 @@ miscoto_instance.py, option: soup = minimal size community in a mixed-bag
 framework or minexch = minimal size and minimal exchange community. Can
 compute one minimal solution and or union, intersection, enumeration of all
 minimal solutions
-    * from SBML files   
-```
-python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
-```
-    * from a pre-computed instance with possibly (additional) seeds or targets    
-```
-python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
-```
+    * from SBML files 
+        * usage 1: host, symbionts, seeds, targets  
+        ```
+        python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+        ```
+        * usage 2: symbionts, seeds, targets
+        ```
+        python miscoto_mincom.py -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+        ```
+
+    * from a pre-computed instance with possibly (additional) seeds or targets 
+        * usage 3: instance, [seeds], [targets]   
+        ```
+        python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
+        ```
+    ```miscoto_mincom``` can be called directly in Python
+    ```python
+    from miscoto import run_mincom
+
+    run_mincom(option='soup/minexch', \
+                bacteria_dir=xxx, host_file=xxx,\
+                targets_file=xxxx, seeds_file=xxx,\
+                optsol=True/False, enumeration=True/False, \
+                intersection=True/False, union=True/False)
+
+    run_mincom(option='soup/minexch', \
+                bacteria_dir=xxx, \
+                targets_file=xxxx, seeds_file=xxx,\
+                optsol=True/False, enumeration=True/False, \
+                intersection=True/False, union=True/False)
+
+    run_mincom(option='soup/minexch',\
+                lp_instance_file=xxxx,\
+                targets_file=xxxx, seeds_file=xxx,
+                optsol=True/False, enumeration=True/False, \
+                intersection=True/False, union=True/False)
+    ```
+
 
 ## Benchmark tips
 
@@ -78,4 +123,10 @@ The instance can be modified (usable bacteria with the predicate ``bacteria("xxx
 
 ```
 python miscoto_instance.py [-h] [-m MODELHOST] -s SEEDS [-t TARGETS] -b BACTSYMBIONTS [-o OUTPUT]
+```
+
+```python
+from miscoto import run_instance
+
+run_instance(bacteria_dir=xxx, seeds_file=xxx, host_file=xxx, targets_file=xxxx, output=xxx)
 ```

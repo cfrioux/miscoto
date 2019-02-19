@@ -3,12 +3,12 @@
 #
 # This file is part of miscoto.
 #
-# meneco is free software: you can redistribute it and/or modify
+# miscoto is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# meneco is distributed in the hope that it will be useful,
+# miscoto is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -20,11 +20,14 @@
 import argparse
 import sys
 import os
-from pyasp.asp import *
+import time
+
+from miscoto import query, sbml, commons, utils
 from os import listdir
 from os.path import isfile, join
-from miscoto import query, sbml, commons, utils
-import time
+from pyasp.asp import *
+
+
 ###############################################################################
 #
 message = """
@@ -54,16 +57,15 @@ requires PyASP package: "pip install PyASP"
 #
 ###############################################################################
 
-if __name__ == '__main__':
 
-    start_time = time.time()
+def cmd_mincom():
+    """run directly miscoto_mincom from the shell
+    """
     parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
-    #parser.add_argument("-h", "--help",
-    #                    help="display this message and exit", required=False)
-    parser.add_argument("-a", "--asp",
-                        help="instance if already created with miscoto_instance", required=False)
     parser.add_argument("-o", "--option",
                         help="subcom option: soup, minexch", required=True)
+    parser.add_argument("-a", "--asp",
+                        help="instance if already created with miscoto_instance", required=False)
     parser.add_argument("--enumeration",
                         help="enumeration of optimal solutions", required=False, action="store_true")
     parser.add_argument("--intersection",
@@ -85,11 +87,49 @@ if __name__ == '__main__':
                         help="targets in SBML format",
                         required=False)
 
-
-
     args = parser.parse_args()
+    bacterium_met =  args.bactsymbionts
     option = args.option
+    lp_instance_file = args.asp
+    targets_sbml = args.targets
+    seeds_sbml = args.seeds
+    draft_sbml = args.modelhost
+    if args.intersection:
+        intersection_arg = True
+    else:
+        intersection_arg = False
+    if args.enumeration:
+        enumeration_arg = True
+    else:
+        enumeration_arg = False
+    if args.union:
+        union_arg = True
+    else: 
+        union_arg = False
+    if args.optsol:
+        optsol = True
+    else:
+        optsol = False
 
+    run_mincom(option, bacterium_met, lp_instance_file, targets_sbml, seeds_sbml, draft_sbml,
+                intersection_arg, enumeration_arg, union_arg, optsol)
+
+def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_file=None, seeds_file=None, host_file=None,
+                intersection=False, enumeration=False, union=False, optsol=False):
+    """Computes community selections in microbiota
+        option (str, optional): Defaults to None. Modeling type: 'soup' for uncompartmentalized, 'minexch' for compartmentalized
+        bacteria_dir (str, optional): Defaults to None. directory with symbionts metabolic networks
+        lp_instance_file (str, optional): Defaults to None. ASP instance file
+        targets_file (str, optional): Defaults to None. targets file
+        seeds_file (str, optional): Defaults to None. seeds file
+        host_file (str, optional): Defaults to None. host metabolic network file
+        intersection (bool, optional): Defaults to False. compute intersection of solutions
+        enumeration (bool, optional): Defaults to False. compute enumeration of solutions
+        union (bool, optional): Defaults to False. compute union of solutions
+        optsol (bool, optional): Defaults to False. compute one optimal solution
+    """
+    start_time = time.time()
+    results = {}
     # checking option
     if option == "soup":
         encoding = commons.ASP_SRC_TOPO_SOUP
@@ -97,65 +137,88 @@ if __name__ == '__main__':
         encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
     else:
         print("invalid option choice")
-        parser.print_help()
+        print(pusage)
         quit()
 
     # case 1: instance is provided, just read targets and seeds if given
-    if args.asp:
+    if lp_instance_file:
+        if not os.path.isfile(lp_instance_file) :
+            print('Instance file not found')
+            sys.exit(1)
+            
         delete_lp_instance = False
-        lp_instance_file = args.asp
+        
         print("Instance provided, only seeds and targets will be added if given")
-        if args.targets:
-            targets_sbml = args.targets
-            print('Reading targets from '+ targets_sbml)
-            targetsfacts = sbml.readSBMLspecies(targets_sbml, 'target')
-            # for elem in targetsfacts:
-            #     print(str(elem))
-        if args.seeds:
-            seeds_sbml = args.seeds
-            print('Reading targets from '+ seeds_sbml)
-            seedsfacts = sbml.readSBMLspecies(seeds_sbml, 'seed')
-            # for elem in targetsfacts:
-            #     print(str(elem))
+        if targets_file:
+            print('Reading targets from '+ targets_file)
+            try:
+                targetsfacts = sbml.readSBMLspecies(targets_file, 'target')
+            except FileNotFoundError:
+                print('Targets file not found')
+                sys.exit(1)
+        else:
+            targetsfacts = TermSet()
 
-            with open(lp_instance_file, "a") as f:
-                for elem in targetsfacts:
-                    f.write(str(elem) + '.\n')
-                for elem in seedsfacts:
-                    f.write(str(elem) + '.\n')
+        if seeds_file:
+            print('Reading targets from '+ seeds_file)
+            try:
+                seedsfacts = sbml.readSBMLspecies(seeds_file, 'seed')
+            except FileNotFoundError:
+                print('Seeds file not found')
+                sys.exit(1)
+        else:
+            seedsfacts = TermSet()
+
+        with open(lp_instance_file, "a") as f:
+            for elem in targetsfacts:
+                f.write(str(elem) + '.\n')
+            for elem in seedsfacts:
+                f.write(str(elem) + '.\n')            
 
     # case 2: read inputs from SBML files
-    elif args.bactsymbionts and args.seeds and args.targets:
-        delete_lp_instance = True
+    elif bacteria_dir and seeds_file and targets_file:
+        if not os.path.isdir(bacteria_dir):
+            print("Symbiont directory not found")
+            sys.exit(1)
 
-        bacterium_met =  args.bactsymbionts
-        if args.modelhost:
-            draft_sbml = args.modelhost
-            print('Reading host network from ' + draft_sbml)
-            draftnet = sbml.readSBMLnetwork_symbionts(draft_sbml, 'host_metab_mod')
+        delete_lp_instance = True
+        
+        if host_file:
+            print('Reading host network from ' + host_file)
+            try:
+                draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
+            except FileNotFoundError:
+                print('Host file not found')
+                sys.exit(1)
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
         else:
             print('No host provided')
             draftnet = TermSet()
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
-
-        seeds_sbml = args.seeds
-        print('Reading seeds from '+ seeds_sbml)
-        seeds = sbml.readSBMLspecies(seeds_sbml, 'seed')
+        
+        print('Reading seeds from '+ seeds_file)
+        try:
+            seeds = sbml.readSBMLspecies(seeds_file, 'seed')
+        except FileNotFoundError:
+            print('Targets file not found')
+            sys.exit(1)
         lp_instance = TermSet(draftnet.union(seeds))
-
-        targets_sbml =  args.targets
-        print('Reading targets from '+ targets_sbml)
-        targets = sbml.readSBMLspecies(targets_sbml, 'target')
+        
+        print('Reading targets from '+ targets_file)
+        try:
+            targets = sbml.readSBMLspecies(targets_file, 'target')
+        except FileNotFoundError:
+            print('Targets file not found')
+            sys.exit(1)
         lp_instance = TermSet(lp_instance.union(targets))
 
-        print('Reading bacterial networks from ' + bacterium_met + '...')
+        print('Reading bacterial networks from ' + bacteria_dir + '...')
         bactfacts = TermSet()
-        onlyfiles = [f for f in listdir(bacterium_met) if isfile(join(bacterium_met, f))]
+        onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
         for bacteria_file in onlyfiles:
             name = os.path.splitext(bacteria_file)[0]
             try:
-                one_bact_model = sbml.readSBMLnetwork_symbionts(bacterium_met+'/'+bacteria_file, name)
+                one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
                 bactfacts = TermSet(bactfacts.union(one_bact_model))
                 bactfacts.add(Term('bacteria', ["\"" + name + "\""]))
                 print('Done for ' + name)
@@ -166,22 +229,26 @@ if __name__ == '__main__':
         lp_instance_file = lp_instance.to_file()
 
     else:
-        print("ERROR missing input")
-        parser.print_help()
+        print("ERROR missing input: missing instance or symbionts/targets/seeds")
+        print(pusage)
         quit()
 
 
-    if not args.optsol and not args.union and not args.enumeration and not args.intersection:
+    if not optsol and not union and not enumeration and not intersection:
         print("No choice of solution provided. Will compute one optimal solution by default")
-        args.optsol = True
+        optsol = True
 
     print('\nFinding optimal communities for target production...')
     #ground the instance
-    grounded_instance = query.get_grounded_communities_from_file(lp_instance_file, encoding)
+    try:
+        grounded_instance = query.get_grounded_communities_from_file(lp_instance_file, encoding)
+    except OSError:
+        print("Error. Solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp no-cache-dir'")
+        sys.exit(1)
 
 
 # one solution
-    if args.optsol:
+    if optsol:
         print('\n*** ONE MINIMAL SOLUTION ***')
         one_model = query.get_communities_from_g(grounded_instance)
         optimum = ','.join(map(str, one_model.score))
@@ -205,32 +272,35 @@ if __name__ == '__main__':
                     exchanged[(a.arg(2),a.arg(3))].append(a.arg(0))
         print(str(len(newly_prod)) + ' newly producible target(s):')
         print("\n".join(newly_prod))
-        print('\n')
         print('Still ' + str(len(still_unprod)) + ' unproducible target(s):')
         print("\n".join(still_unprod))
-        print('\nMinimal set of bacteria of size ' + str(len(bacteria)))
+        print('Minimal set of bacteria of size ' + str(len(bacteria)))
         print("\n".join(bacteria))
         if len(exchanged) >= 1:
-            print('\nMinimal set of exchanges of size => ' + str(sum(len(v) for v in exchanged.values())))
+            print('Minimal set of exchanges of size => ' + str(sum(len(v) for v in exchanged.values())))
             for fromto in exchanged:
                 print("\texchange(s) from " + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(exchanged[fromto]))
-
+        results['one_model'] = one_model
+        results['exchanged'] = exchanged
+        results['bacteria'] = bacteria
+        results['still_unprod'] = still_unprod
+        results['newly_prod'] = newly_prod
 
 # union of solutions
-    if args.union:
+    if union:
         print('\n*** UNION OF MINIMAL SOLUTION ***')
         try:
-            if args.optsol:
-                union = query.get_union_communities_from_g(grounded_instance, optimum)
+            if optsol:
+                union_m = query.get_union_communities_from_g(grounded_instance, optimum)
             else:
-                union = query.get_union_communities_from_g_noopti(grounded_instance)
+                union_m = query.get_union_communities_from_g_noopti(grounded_instance)
         except IndexError:
             print("No stable model was found. Possible troubleshooting: no harmony between names for identical metabolites among host and microbes")
             quit()
-        optimum_union = ','.join(map(str, union.score))
+        optimum_union = ','.join(map(str, union_m.score))
         union_bacteria = []
         union_exchanged = {}
-        for a in union :
+        for a in union_m :
             if a.pred() == 'chosen_bacteria':
                 union_bacteria.append(a.arg(0))
             elif a.pred() == 'exchanged':
@@ -245,19 +315,21 @@ if __name__ == '__main__':
             print('\nExchanges in union => ' + str(sum(len(v) for v in union_exchanged.values())))
             for fromto in union_exchanged:
                 print('\texchange(s) from ' + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(union_exchanged[fromto]))
-
+        results['union_exchanged'] = union_exchanged
+        results['union_bacteria'] = union_bacteria
+        results['optimum_union'] = optimum_union
 
 # intersection of solutions
-    if args.intersection:
+    if intersection:
         print('\n*** INTERSECTION OF MINIMAL SOLUTION ***')
-        if args.optsol:
-            intersection = query.get_intersection_communities_from_g(grounded_instance, optimum)
+        if optsol:
+            intersection_m = query.get_intersection_communities_from_g(grounded_instance, optimum)
         else:
-            intersection = query.get_intersection_communities_from_g_noopti(grounded_instance)
-        optimum_inter = ','.join(map(str, intersection.score))
+            intersection_m = query.get_intersection_communities_from_g_noopti(grounded_instance)
+        optimum_inter = ','.join(map(str, intersection_m.score))
         inter_bacteria = []
         inter_exchanged = {}
-        for a in intersection :
+        for a in intersection_m :
             if a.pred() == 'chosen_bacteria':
                 inter_bacteria.append(a.arg(0))
             elif a.pred() == 'exchanged':
@@ -272,11 +344,14 @@ if __name__ == '__main__':
             print('\nExchanges in intersection => ' + str(sum(len(v) for v in inter_exchanged.values())))
             for fromto in inter_exchanged:
                 print('\texchange(s) from ' + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(inter_exchanged[fromto]))
+        results['inter_exchanged'] = inter_exchanged
+        results['inter_bacteria'] = inter_bacteria
+        results['optimum_inter'] = optimum_inter
 
 # enumeration of all solutions
-    if args.enumeration:
+    if enumeration:
         print('\n*** ENUMERATION OF MINIMAL SOLUTION ***')
-        if args.optsol:
+        if optsol:
             all_models = query.get_all_communities_from_g(grounded_instance, optimum)
         else:
             all_models = query.get_all_communities_from_g_noopti(grounded_instance)
@@ -302,7 +377,13 @@ if __name__ == '__main__':
                 for fromto in enum_exchanged:
                     print('\texchange(s) from ' + fromto[0] + ' to ' + fromto[1] + " = " + ','.join(enum_exchanged[fromto]))
             count+=1
-        print('\n')
+        print("\n--- %s seconds ---" % (time.time() - start_time))
+        utils.clean_up()
+        results['all_models'] = all_models
+        results['enum_exchanged'] = enum_exchanged
+        results['enum_bacteria'] = enum_bacteria
+
+    return results
 
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)
@@ -310,3 +391,6 @@ if __name__ == '__main__':
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
     quit()
+
+if __name__ == '__main__':
+    cmd_mincom()
