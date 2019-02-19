@@ -39,27 +39,35 @@ pip install miscoto
 
 ## Usage
 
-* ``miscoto_scope`` compute the scope and target produciblity of a host (optional) and the added-
+* ``miscoto_scopes`` compute the scope and target produciblity of a host (optional) and the added-
 value of a microbiome regarding scope and target producibility. The microbiome
 result part gives the targets and compounds that are producible providing
 cooperation occurs within the community of host + all symbionts and that were
 not producible with the host alone. Computation from SBML models or an
 instance pre-created with miscoto_instance.py
     * from SBML files
-```
-python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
-```
 
-```python
-from miscoto import run_scopes
+        * usage 1: host, symbionts, seeds, [targets]
+        ```
+        python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
+        ```
+        * usage 2: symbionts, seeds, [targets]
+        ```
+        python miscoto_scopes.py -b symbiont_directory -s seeds.sbml -t targets.sbml
+        ```
+    * from a pre-computed instance with possibly (additional) seeds or targets
+        * usage 3    
+        ```
+        python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
+        ```
 
-run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml)
-```
+    ```miscoto_scopes``` can be called directly in Python
+    ```python
+    from miscoto import run_scopes
 
-    * from a pre-computed instance with possibly (additional) seeds or targets    
-```
-python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
-```
+    run_scopes(lp_instance_file=xxx, targets_file=xxx, seeds_file=xxx, bacteria_dir=xxx, host_file=xxx)
+    ```
+
 
 * ``miscoto_mincom`` computes a community from a microbiome Inputs: SBML models (symbionts and
 optionally host) + seeds + targets or an instance pre-created with

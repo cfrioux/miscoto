@@ -43,10 +43,13 @@ requires PyASP package: "pip install PyASP"
 """
 
 pusage="""
-**1** from SBML files \n
+**1** from SBML2 files \n
 python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
 \n
-**2** from a pre-computed instance with possibly (additional) seeds or targets \n
+**2** from SBML2 files \n
+python miscoto_scopes.py -b symbiont_directory -s seeds.sbml -t targets.sbml
+\n
+**3** from a pre-computed instance with possibly (additional) seeds or targets \n
 python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
 """
 #
@@ -54,9 +57,9 @@ python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
 
 
 def cmd_scopes():
+    """runs directly miscoto_scopes from the shell
+    """
     parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
-    #parser.add_argument("-h", "--help",
-    #                    help="display this message and exit", required=False)
     parser.add_argument("-a", "--asp",
                         help="instance if already created with miscoto_instance", required=False)
     parser.add_argument("-m", "--modelhost",
@@ -72,8 +75,6 @@ def cmd_scopes():
                         help="targets in SBML format",
                         required=False)
 
-
-
     args = parser.parse_args()
     lp_instance_file_arg = args.asp
     targets_sbml = args.targets
@@ -82,62 +83,74 @@ def cmd_scopes():
     draft_sbml = args.modelhost
     run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml)
 
-def run_scopes(lp_instance_file_arg=None, targets_sbml=None, seeds_sbml=None, bacterium_met=None, draft_sbml=None):
+def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacteria_dir=None, host_file=None):
+    """[summary]
+        lp_instance_file ([str], optional): Defaults to None. [ASP facts instance of the problem]
+        targets_file ([str], optional): Defaults to None. [targets file]
+        seeds_file ([str], optional): Defaults to None. [seeds file]
+        bacteria_dir ([str], optional): Defaults to None. [directory of bacterial metabolic networks]
+        host_file ([str], optional): Defaults to None. [host metabolic network]
+    
+    Returns:
+        [dic]: [all information related to scope computation]
+    """
+
     start_time = time.time()
     results = {}
     # case 1: instance is provided, just read targets and seeds if given
-    if lp_instance_file_arg:
+    input_instance = False
+    if lp_instance_file:
+        input_instance = True
         delete_lp_instance = False
         print("Instance provided, only seeds and targets will be added if given")
-        if targets_sbml:
-            print('Reading targets from '+ targets_sbml)
-            targetsfacts = sbml.readSBMLspecies(targets_sbml, 'target')
-        if seeds_sbml:
-            print('Reading targets from '+ seeds_sbml)
-            seedsfacts = sbml.readSBMLspecies(seeds_sbml, 'seed')
+        if targets_file:
+            print('Reading targets from '+ targets_file)
+            targetsfacts = sbml.readSBMLspecies(targets_file, 'target')
+        if seeds_file:
+            print('Reading targets from '+ seeds_file)
+            seedsfacts = sbml.readSBMLspecies(seeds_file, 'seed')
 
-            with open(lp_instance_file_arg, "a") as f:
+            with open(lp_instance_file, "a") as f:
                 for elem in targetsfacts:
                     f.write(str(elem) + '.\n')
                 for elem in seedsfacts:
                     f.write(str(elem) + '.\n')
 
     # case 2: read inputs from SBML files
-    elif bacterium_met and seeds_sbml:
+    elif bacteria_dir and seeds_file:
         delete_lp_instance = True
 
-        if draft_sbml:
-            print('Reading host network from ' + draft_sbml)
-            draftnet = sbml.readSBMLnetwork_symbionts(draft_sbml, 'host_metab_mod')
+        if host_file:
+            print('Reading host network from ' + host_file)
+            draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
         else:
             print('No host provided.')
             draftnet = TermSet()
-            # draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
 
-        print('Reading seeds from '+ seeds_sbml)
-        seeds = sbml.readSBMLspecies(seeds_sbml, 'seed')
+        print('Reading seeds from '+ seeds_file)
+        seeds = sbml.readSBMLspecies(seeds_file, 'seed')
         lp_instance = TermSet(draftnet.union(seeds))
 
-        if targets_sbml:
-            print('Reading targets from '+ targets_sbml)
-            targets = sbml.readSBMLspecies(targets_sbml, 'target')
+        if targets_file:
+            print('Reading targets from '+ targets_file)
+            targets = sbml.readSBMLspecies(targets_file, 'target')
             lp_instance = TermSet(lp_instance.union(targets))
         else:
             print("No targets provided.")
 
-        print('Reading bacterial networks from ' + bacterium_met + '...')
+        print('Reading bacterial networks from ' + bacteria_dir + '...')
         bactfacts = TermSet()
-        onlyfiles = [f for f in listdir(bacterium_met) if isfile(join(bacterium_met, f))]
+        onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
         for bacteria_file in onlyfiles:
             name = os.path.splitext(bacteria_file)[0]
             try:
-                one_bact_model = sbml.readSBMLnetwork_symbionts(bacterium_met+'/'+bacteria_file, name)
+                one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
                 bactfacts = TermSet(bactfacts.union(one_bact_model))
                 bactfacts.add(Term('bacteria', ["\"" + name + "\""]))
                 print('Done for ' + name)
             except:
-                print('Could not read file ' + name + ' will ignore it')
+                print('Could not read file ' + name + ', will ignore it')
 
         lp_instance = TermSet(lp_instance.union(bactfacts))
         lp_instance_file = lp_instance.to_file()
@@ -149,8 +162,11 @@ def run_scopes(lp_instance_file_arg=None, targets_sbml=None, seeds_sbml=None, ba
         quit()
 
     print("Computing scopes...")
-    print("\n")
-    model = query.get_scopes(lp_instance_file, commons.ASP_SRC_SCOPES)
+    try:
+        model = query.get_scopes(lp_instance_file, commons.ASP_SRC_SCOPES)
+    except OSError:
+        print("Error. Solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp no-cache-dir'")
+        sys.exit(1)
     host_scope = []
     host_prodtargets = []
     host_unprodtargets = []
@@ -174,44 +190,39 @@ def run_scopes(lp_instance_file_arg=None, targets_sbml=None, seeds_sbml=None, ba
         elif a.pred() == 'aunproducible':
             com_unprodtargets.append(a.arg(0))
 
-    if draft_sbml or lp_instance_file_arg:
+    if host_file or input_instance:
         print('*** HOST model producibility check ***')
 
         print('Host producible targets => ' + str(len(host_prodtargets)))
         print("\n".join(host_prodtargets))
-        print('\n')
         results['host_prodtargets'] = host_prodtargets
 
         print('Host unproducible targets => ' + str(len(host_unprodtargets)))
         print("\n".join(host_unprodtargets))
-        print('\n')
         results['host_unprodtargets'] = host_unprodtargets
 
         print('Host scope => ' + str(len(host_scope)))
         print("\n".join(host_scope))
-        print('\n')
         results['host_scope'] = host_scope
 
     print('*** MICROBIOME added-value ***')
     print('Microbiome only producible targets => ' + str(len(com_prodtargets)))
     print("\n".join(com_prodtargets))
-    print('\n')
     results['com_prodtargets'] = com_prodtargets
 
     print('Microbiome unproducible targets => ' + str(len(com_unprodtargets)))
     print("\n".join(com_unprodtargets))
-    print('\n')
     results['com_unprodtargets'] = com_unprodtargets
 
-    if draft_sbml or lp_instance_file_arg:
+    if host_file or input_instance:
         print('Microbiome only (host + symbionts) scope (host metabolites only producible with the microbiome) => ' + str(len(com_scope)))
         print("\n".join(comhost_scope))
-        print('\n')
+        #print('\n')
         results['comhost_scope'] = comhost_scope
-    if lp_instance_file_arg or not draft_sbml:
+    if input_instance or not host_file:
         print('Microbiome only (symbionts) scope (metabolites only producible with the microbiome) => ' + str(len(com_scope)))
         print("\n".join(com_scope))
-        print('\n')
+        #print('\n')
         results['com_scope'] = com_scope
 
     if delete_lp_instance == True:
@@ -219,7 +230,6 @@ def run_scopes(lp_instance_file_arg=None, targets_sbml=None, seeds_sbml=None, ba
 
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
-
     return results
 
 if __name__ == '__main__':
