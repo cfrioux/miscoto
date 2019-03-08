@@ -158,22 +158,22 @@ def readSBMLnetwork_symbionts(filename, name) :
             #     print("\n Warning:" + reactionId + "listOfReactants=None")
             if listOfReactants != None:
                 for r in listOfReactants:
-                    lpfacts.add(Term('reactant', ["\""+r.attrib.get("species")+"\"", "\""+reactionId+"\"", "\""+name+"\""])) #,"\""+name+"\""
+                    lpfacts.add(Term('reactant', ["\""+r.attrib.get("species").replace('"','')+"\"", "\""+reactionId+"\"", "\""+name+"\""])) #,"\""+name+"\""
 
             listOfProducts = get_listOfProducts(e)
             # if listOfProducts == None:
             #     print("\n Warning:" + reactionId + "listOfProducts=None")
             if listOfProducts != None:
                 for p in listOfProducts:
-                    lpfacts.add(Term('product', ["\""+p.attrib.get("species")+"\"", "\""+reactionId+"\"", "\""+name+"\""])) #,"\""+name+"\""
+                    lpfacts.add(Term('product', ["\""+p.attrib.get("species").replace('"','')+"\"", "\""+reactionId+"\"", "\""+name+"\""])) #,"\""+name+"\""
     listofspecies = get_listOfSpecies(model)
     for e in listofspecies:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
         else: tag = e.tag
         if tag == "species":
-            speciesId = e.attrib.get("id")
-            speciesNm = e.attrib.get("name")
+            speciesId = e.attrib.get("id").replace('"','')
+            speciesNm = e.attrib.get("name").replace('"','')
             compartment = e.attrib.get("compartment")
             lpfacts.add(Term('species', ["\""+speciesId+"\"", "\""+speciesNm+"\"", "\""+compartment+"\"", "\""+name+"\""]))
 
@@ -420,5 +420,5 @@ def readSBMLspecies(filename, speciestype) :
         else:
             tag = e.tag
         if tag == "species":
-            lpfacts.add(Term(speciestype, ["\""+e.attrib.get("id")+"\""]))
+            lpfacts.add(Term(speciestype, ["\""+e.attrib.get("id").replace('"','')+"\""]))
     return lpfacts
