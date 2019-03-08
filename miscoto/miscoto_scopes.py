@@ -203,7 +203,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     try:
         model = query.get_scopes(lp_instance_file, commons.ASP_SRC_SCOPES)
     except OSError:
-        print("Error. Solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp no-cache-dir'")
+        print("Error. Solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp --no-cache-dir'")
         sys.exit(1)
     host_scope = []
     host_prodtargets = []

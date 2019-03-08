@@ -49,16 +49,16 @@ instance pre-created with miscoto_instance.py
 
         * usage 1: host, symbionts, seeds, [targets]
         ```
-        python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
+        miscoto_scopes -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
         ```
         * usage 2: symbionts, seeds, [targets]
         ```
-        python miscoto_scopes.py -b symbiont_directory -s seeds.sbml -t targets.sbml
+        miscoto_scopes -b symbiont_directory -s seeds.sbml -t targets.sbml
         ```
     * from a pre-computed instance with possibly (additional) seeds or targets
         * usage 3: instance, [seeds], [targets]    
         ```
-        python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
+        miscoto_scopes -a instance.lp [-s seeds.sbml] [-t targets.sbml]
         ```
 
     ```miscoto_scopes``` can be called directly in Python
@@ -78,17 +78,17 @@ minimal solutions
     * from SBML files 
         * usage 1: host, symbionts, seeds, targets  
         ```
-        python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+        miscoto_mincom -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
         ```
         * usage 2: symbionts, seeds, targets
         ```
-        python miscoto_mincom.py -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+        miscoto_mincom -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
         ```
 
     * from a pre-computed instance with possibly (additional) seeds or targets 
         * usage 3: instance, [seeds], [targets]   
         ```
-        python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
+        miscoto_mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
         ```
     ```miscoto_mincom``` can be called directly in Python
     ```python
@@ -122,7 +122,7 @@ The instance can be modified (usable bacteria with the predicate ``bacteria("xxx
 ``miscoto_instance.py`` creates such instance:
 
 ```
-python miscoto_instance.py [-h] [-m MODELHOST] -s SEEDS [-t TARGETS] -b BACTSYMBIONTS [-o OUTPUT]
+miscoto_instance [-h] [-m MODELHOST] -s SEEDS [-t TARGETS] -b BACTSYMBIONTS [-o OUTPUT]
 ```
 
 ```python

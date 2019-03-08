@@ -243,7 +243,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     try:
         grounded_instance = query.get_grounded_communities_from_file(lp_instance_file, encoding)
     except OSError:
-        print("Error. Solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp no-cache-dir'")
+        print("Error. Solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp --no-cache-dir'")
         sys.exit(1)
 
 
