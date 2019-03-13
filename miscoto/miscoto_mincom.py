@@ -104,7 +104,7 @@ def cmd_mincom():
         enumeration_arg = False
     if args.union:
         union_arg = True
-    else: 
+    else:
         union_arg = False
     if args.optsol:
         optsol = True
@@ -145,9 +145,9 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         if not os.path.isfile(lp_instance_file) :
             print('Instance file not found')
             sys.exit(1)
-            
+
         delete_lp_instance = False
-        
+
         print("Instance provided, only seeds and targets will be added if given")
         if targets_file:
             print('Reading targets from '+ targets_file)
@@ -173,7 +173,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             for elem in targetsfacts:
                 f.write(str(elem) + '.\n')
             for elem in seedsfacts:
-                f.write(str(elem) + '.\n')            
+                f.write(str(elem) + '.\n')
 
     # case 2: read inputs from SBML files
     elif bacteria_dir and seeds_file and targets_file:
@@ -182,7 +182,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             sys.exit(1)
 
         delete_lp_instance = True
-        
+
         if host_file:
             print('Reading host network from ' + host_file)
             try:
@@ -195,7 +195,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             print('No host provided')
             draftnet = TermSet()
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
-        
+
         print('Reading seeds from '+ seeds_file)
         try:
             seeds = sbml.readSBMLspecies(seeds_file, 'seed')
@@ -203,7 +203,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             print('Targets file not found')
             sys.exit(1)
         lp_instance = TermSet(draftnet.union(seeds))
-        
+
         print('Reading targets from '+ targets_file)
         try:
             targets = sbml.readSBMLspecies(targets_file, 'target')
@@ -212,6 +212,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             sys.exit(1)
         lp_instance = TermSet(lp_instance.union(targets))
 
+        lp_instance_file = utils.to_file(lp_instance)
+
         print('Reading bacterial networks from ' + bacteria_dir + '...')
         bactfacts = TermSet()
         onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
@@ -219,14 +221,11 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             name = os.path.splitext(bacteria_file)[0]
             try:
                 one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
-                bactfacts = TermSet(bactfacts.union(one_bact_model))
-                bactfacts.add(Term('bacteria', ["\"" + name + "\""]))
+                one_bact_model.add(Term('bacteria', ["\"" + name + "\""]))
+                utils.to_file(one_bact_model, lp_instance_file)
                 print('Done for ' + name)
             except:
                 print('Could not read file ' + name + ' will ignore it')
-
-        lp_instance = TermSet(lp_instance.union(bactfacts))
-        lp_instance_file = lp_instance.to_file()
 
     else:
         print("ERROR missing input: missing instance or symbionts/targets/seeds")
@@ -383,14 +382,13 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         results['enum_exchanged'] = enum_exchanged
         results['enum_bacteria'] = enum_bacteria
 
-    return results
-
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)
 
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
-    quit()
+
+    return results
 
 if __name__ == '__main__':
     cmd_mincom()

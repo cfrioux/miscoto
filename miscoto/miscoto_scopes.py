@@ -177,6 +177,8 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
             print("Symbiont directory not found")
             sys.exit(1)
 
+        lp_instance_file = utils.to_file(lp_instance)
+
         print('Reading bacterial networks from ' + bacteria_dir + '...')
         bactfacts = TermSet()
         onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
@@ -184,14 +186,11 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
             name = os.path.splitext(bacteria_file)[0]
             try:
                 one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
-                bactfacts = TermSet(bactfacts.union(one_bact_model))
-                bactfacts.add(Term('bacteria', ["\"" + name + "\""]))
+                one_bact_model.add(Term('bacteria', ["\"" + name + "\""]))
+                utils.to_file(one_bact_model, lp_instance_file)
                 print('Done for ' + name)
             except:
                 print('Could not read file ' + name + ', will ignore it')
-
-        lp_instance = TermSet(lp_instance.union(bactfacts))
-        lp_instance_file = lp_instance.to_file()
 
     else:
         print("ERROR missing input")
