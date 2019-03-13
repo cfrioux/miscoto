@@ -33,18 +33,18 @@ ASP_SRC_TOPO_RXN_MIN_EXCH = __asp_file('community_minexch')
 
 def basename(filepath):
     """Return the basename of given filepath.
-    >>> basename('~/ASP/serious/business/fly.lp')
-    'fly'
+    >>> basename('~/an/interesting/file.lp')
+    'file'
     """
     return os.path.splitext(os.path.basename(filepath))[0]
 
 def extension(filepath):
     """Return the extension of given filepath.
-    >>> extension('~/ASP/serious/business/fly.lp')
+    >>> extension('~/an/interesting/file.lp')
     'lp'
-    >>> extension('whatisthat')
+    >>> extension('nothing')
     ''
-    >>> extension('whatis.that')
+    >>> extension('nothing.important')
     'that'
     """
     return os.path.splitext(os.path.basename(filepath))[1][1:]

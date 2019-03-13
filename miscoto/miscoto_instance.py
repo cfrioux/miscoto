@@ -87,7 +87,7 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
         print('No host provided')
         draftnet = TermSet()
         draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
-    
+
     print('Reading seeds from '+ seeds_file)
     try:
         seeds = sbml.readSBMLspecies(seeds_file, 'seed')
@@ -104,10 +104,18 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
             print('Targets file not found')
             sys.exit(1)
         lp_instance = TermSet(lp_instance.union(targets))
-    
+
     if not os.path.isdir(bacteria_dir):
         print("Symbiont directory not found")
         sys.exit(1)
+
+    if output:
+        #clear the file
+        open(output, 'w').close()
+        #add the content of seeds and/or targets
+        all_networks_file = utils.to_file(lp_instance,output)
+    else:
+        all_networks_file = utils.to_file(lp_instance)
 
     print('Reading bacterial networks from ' + bacteria_dir + '...')
     bactfacts = TermSet()
@@ -116,24 +124,13 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
         name = os.path.splitext(bacteria_file)[0]
         try:
             one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
-            # print(one_bact_model)
-            bactfacts = TermSet(bactfacts.union(one_bact_model))
-            bactfacts.add(Term('bacteria', ["\"" + name + "\""]))
+            one_bact_model.add(Term('bacteria', ["\"" + name + "\""]))
+            utils.to_file(one_bact_model, all_networks_file)
             print('Done for ' + name)
         except:
             print('Could not read file ' + name + ' will ignore it')
-    # print(bactfacts)
 
-    lp_instance = TermSet(lp_instance.union(bactfacts))
-    if output:
-        all_networks_file = lp_instance.to_file(output)
-    else:
-        all_networks_file = lp_instance.to_file()
     print("Instance created: " + os.path.abspath(all_networks_file))
-
-    str_instance = ''
-    for atom in lp_instance:
-        str_instance += (str(atom) + '.\n')
 
     print("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
