@@ -21,11 +21,14 @@ import argparse
 import sys
 import os
 import time
-
+import logging
 from miscoto import query, sbml, commons, utils
 from os import listdir
 from os.path import isfile, join
 from pyasp.asp import *
+from xml.etree.ElementTree import ParseError
+
+logger = logging.getLogger(__name__)
 
 ###############################################################################
 #
@@ -101,29 +104,36 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     input_instance = False
     if lp_instance_file:
         if not os.path.isfile(lp_instance_file) :
-            print('Instance file not found')
+            logger.info('Instance file not found')
             sys.exit(1)
 
         input_instance = True
         delete_lp_instance = False
-        print("Instance provided, only seeds and targets will be added if given")
+        logger.info(
+            "Instance provided, only seeds and targets will be added if given")
 
         if targets_file:
-            print('Reading targets from '+ targets_file)
+            logger.info('Reading targets from ' + targets_file)
             try:
                 targetsfacts = sbml.readSBMLspecies(targets_file, 'target')
             except FileNotFoundError:
-                print('Targets file not found')
+                logger.critical('Targets file not found')
+                sys.exit(1)
+            except ParseError:
+                logger.critical("Invalid syntax in SBML file: "+targets_file)
                 sys.exit(1)
         else:
             targetsfacts = TermSet()
 
         if seeds_file:
-            print('Reading targets from '+ seeds_file)
+            logger.info('Reading targets from ' + seeds_file)
             try:
                 seedsfacts = sbml.readSBMLspecies(seeds_file, 'seed')
             except FileNotFoundError:
-                print('Seeds file not found')
+                logger.critical('Seeds file not found')
+                sys.exit(1)
+            except ParseError:
+                logger.critical("Invalid syntax in SBML file: " + seeds_file)
                 sys.exit(1)
         else:
             seedsfacts = TermSet()
@@ -137,49 +147,58 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     # case 2: read inputs from SBML files
     elif bacteria_dir and seeds_file:
         if not os.path.isdir(bacteria_dir):
-            print("Symbiont directory not found")
+            logger.info("Symbiont directory not found")
             sys.exit(1)
 
         delete_lp_instance = True
 
         if host_file:
-            print('Reading host network from ' + host_file)
+            logger.info('Reading host network from ' + host_file)
             try:
                 draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
             except FileNotFoundError:
-                print('Host file not found')
+                logger.critical('Host file not found')
+                sys.exit(1)
+            except ParseError:
+                logger.critical("Invalid syntax in SBML file: " + host_file)
                 sys.exit(1)
             draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
         else:
-            print('No host provided.')
+            logger.warning('No host provided.')
             draftnet = TermSet()
 
-        print('Reading seeds from '+ seeds_file)
+        logger.info('Reading seeds from ' + seeds_file)
         try:
             seeds = sbml.readSBMLspecies(seeds_file, 'seed')
         except FileNotFoundError:
-            print('Seeds file not found')
+            logger.critical('Seeds file not found')
+            sys.exit(1)
+        except ParseError:
+            logger.critical("Invalid syntax in SBML file: "+seeds_file)
             sys.exit(1)
         lp_instance = TermSet(draftnet.union(seeds))
 
         if targets_file:
-            print('Reading targets from '+ targets_file)
+            logger.info('Reading targets from ' + targets_file)
             try:
                 targets = sbml.readSBMLspecies(targets_file, 'target')
             except FileNotFoundError:
-                print('Targets file not found')
+                logger.critical('Targets file not found')
+                sys.exit(1)
+            except ParseError:
+                logger.critical("Invalid syntax in SBML file: " + targets_file)
                 sys.exit(1)
             lp_instance = TermSet(lp_instance.union(targets))
         else:
-            print("No targets provided.")
+            logger.info("No targets provided.")
 
         if not os.path.isdir(bacteria_dir):
-            print("Symbiont directory not found")
+            logger.critical("Symbiont directory not found")
             sys.exit(1)
 
         lp_instance_file = utils.to_file(lp_instance)
 
-        print('Reading bacterial networks from ' + bacteria_dir + '...')
+        logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
         bactfacts = TermSet()
         onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
         for bacteria_file in onlyfiles:
@@ -188,21 +207,22 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
                 one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
                 one_bact_model.add(Term('bacteria', ["\"" + name + "\""]))
                 utils.to_file(one_bact_model, lp_instance_file)
-                print('Done for ' + name)
+                logger.info('Done for ' + name)
             except:
-                print('Could not read file ' + name + ', will ignore it')
+                logger.info('Could not read file ' + name + ', will ignore it')
 
     else:
-        print("ERROR missing input")
-        print("\n")
-        print(pusage)
+        logger.critical("ERROR missing input")
+        logger.info(pusage)
         quit()
 
-    print("Computing scopes...")
+    logger.info("Computing scopes...")
     try:
         model = query.get_scopes(lp_instance_file, commons.ASP_SRC_SCOPES)
     except OSError:
-        print("Error. Solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp --no-cache-dir'")
+        logger.critical(
+            "Error. Possible reason: solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp --no-cache-dir'"
+        )
         sys.exit(1)
     host_scope = []
     host_prodtargets = []
@@ -228,44 +248,49 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
             com_unprodtargets.append(a.arg(0))
 
     if host_file or input_instance:
-        print('*** HOST model producibility check ***')
+        logger.info('*** HOST model producibility check ***')
 
-        print('Host producible targets => ' + str(len(host_prodtargets)))
-        print("\n".join(host_prodtargets))
+        logger.info('Host producible targets => ' + str(len(host_prodtargets)))
+        logger.info("\n".join(host_prodtargets))
         results['host_prodtargets'] = host_prodtargets
 
-        print('Host unproducible targets => ' + str(len(host_unprodtargets)))
-        print("\n".join(host_unprodtargets))
+        logger.info('Host unproducible targets => ' +
+                    str(len(host_unprodtargets)))
+        logger.info("\n".join(host_unprodtargets))
         results['host_unprodtargets'] = host_unprodtargets
 
-        print('Host scope => ' + str(len(host_scope)))
-        print("\n".join(host_scope))
+        logger.info('Host scope => ' + str(len(host_scope)))
+        logger.info("\n".join(host_scope))
         results['host_scope'] = host_scope
 
-    print('*** MICROBIOME added-value ***')
-    print('Microbiome only producible targets => ' + str(len(com_prodtargets)))
-    print("\n".join(com_prodtargets))
+    logger.info('*** MICROBIOME added-value ***')
+    logger.info('Microbiome only producible targets => ' +
+                str(len(com_prodtargets)))
+    logger.info("\n".join(com_prodtargets))
     results['com_prodtargets'] = com_prodtargets
 
-    print('Microbiome unproducible targets => ' + str(len(com_unprodtargets)))
-    print("\n".join(com_unprodtargets))
+    logger.info('Microbiome unproducible targets => ' +
+                str(len(com_unprodtargets)))
+    logger.info("\n".join(com_unprodtargets))
     results['com_unprodtargets'] = com_unprodtargets
 
     if host_file or input_instance:
-        print('Microbiome only (host + symbionts) scope (host metabolites only producible with the microbiome) => ' + str(len(com_scope)))
-        print("\n".join(comhost_scope))
-        #print('\n')
+        logger.info(
+            'Microbiome only (host + symbionts) scope (host metabolites only producible with the microbiome) => '
+            + str(len(com_scope)))
+        logger.info("\n".join(comhost_scope))
         results['comhost_scope'] = comhost_scope
     if input_instance or not host_file:
-        print('Microbiome only (symbionts) scope (metabolites only producible with the microbiome) => ' + str(len(com_scope)))
-        print("\n".join(com_scope))
-        #print('\n')
+        logger.info(
+            'Microbiome only (symbionts) scope (metabolites only producible with the microbiome) => '
+            + str(len(com_scope)))
+        logger.info("\n".join(com_scope))
         results['com_scope'] = com_scope
 
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    logger.info("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
     return results
 

@@ -21,11 +21,14 @@ import argparse
 import sys
 import os
 import time
-
+import logging
 from miscoto import utils, sbml
 from os import listdir
 from os.path import isfile, join
 from pyasp.asp import *
+from xml.etree.ElementTree import ParseError
+
+logger = logging.getLogger(__name__)
 
 ###############################################################################
 #
@@ -73,40 +76,49 @@ def cmd_instance():
 def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_file=None, output=None):
     start_time = time.time()
     if not bacteria_dir or not seeds_file:
-        print("Symbionts and seeds are required minimal inputs")
+        logger.critical("Symbionts and seeds are required minimal inputs")
         sys.exit(1)
     if host_file:
-        print('Reading host network from ' + host_file)
+        logger.info('Reading host network from ' + host_file)
         try:
             draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
         except FileNotFoundError:
-            print('Host file not found')
+            logger.critical('Host file not found')
+            sys.exit(1)
+        except ParseError:
+            logger.critical("Invalid syntax in SBML file: "+host_file)
             sys.exit(1)
         draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
     else:
-        print('No host provided')
+        logger.warning('No host provided')
         draftnet = TermSet()
         draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
 
-    print('Reading seeds from '+ seeds_file)
+    logger.info('Reading seeds from ' + seeds_file)
     try:
         seeds = sbml.readSBMLspecies(seeds_file, 'seed')
     except FileNotFoundError:
-        print('Seeds file not found')
+        logger.critical('Seeds file not found')
+        sys.exit(1)
+    except ParseError:
+        logger.critical("Invalid syntax in SBML file: "+seeds_file)
         sys.exit(1)
     lp_instance = TermSet(draftnet.union(seeds))
 
     if targets_file:
-        print('Reading targets from '+ targets_file)
+        logger.info('Reading targets from ' + targets_file)
         try:
             targets = sbml.readSBMLspecies(targets_file, 'target')
         except FileNotFoundError:
-            print('Targets file not found')
+            logger.critical('Targets file not found')
+            sys.exit(1)
+        except ParseError:
+            logger.critical("Invalid syntax in SBML file: "+targets_file)
             sys.exit(1)
         lp_instance = TermSet(lp_instance.union(targets))
 
     if not os.path.isdir(bacteria_dir):
-        print("Symbiont directory not found")
+        logger.critical("Symbiont directory not found")
         sys.exit(1)
 
     if output:
@@ -117,7 +129,7 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
     else:
         all_networks_file = utils.to_file(lp_instance)
 
-    print('Reading bacterial networks from ' + bacteria_dir + '...')
+    logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
     bactfacts = TermSet()
     onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
     for bacteria_file in onlyfiles:
@@ -126,13 +138,13 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
             one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
             one_bact_model.add(Term('bacteria', ["\"" + name + "\""]))
             utils.to_file(one_bact_model, all_networks_file)
-            print('Done for ' + name)
+            logger.info('Done for ' + name)
         except:
-            print('Could not read file ' + name + ' will ignore it')
+            logger.info('Could not read file ' + name + ' will ignore it')
 
-    print("Instance created: " + os.path.abspath(all_networks_file))
+    logger.info("Instance created: " + os.path.abspath(all_networks_file))
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    logger.info("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
 
     return lp_instance

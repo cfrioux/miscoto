@@ -23,7 +23,7 @@ def to_file(termset, outputfile=None):
     else:
         fd, outputfile = tempfile.mkstemp(suffix='.lp', prefix='miscoto_')
         f = os.fdopen(fd, 'a')
-        for t in termset:
-            f.write(str(t) + '.\n')
-        f.close()
+    for t in termset:
+        f.write(str(t) + '.\n')
+    f.close()
     return outputfile
