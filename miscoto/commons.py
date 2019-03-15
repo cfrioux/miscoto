@@ -45,7 +45,7 @@ def extension(filepath):
     >>> extension('nothing')
     ''
     >>> extension('nothing.important')
-    'that'
+    'important'
     """
     return os.path.splitext(os.path.basename(filepath))[1][1:]
 
