@@ -147,7 +147,8 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
     logger.info("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
 
-    return lp_instance
+    return all_networks_file
+
 
 if __name__ == '__main__':
     cmd_instance()
