@@ -279,17 +279,25 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         exchanged = {}
         for a in one_model:
             if a.pred() == 'unproducible_target':
-                still_unprod.append(a.arg(0))
+                still_unprod.append(a.arg(0).rstrip('"').lstrip('"'))
             elif a.pred() == 'newly_producible_target':
-                newly_prod.append(a.arg(0))
+                newly_prod.append(a.arg(0).rstrip('"').lstrip('"'))
             elif a.pred() == 'chosen_bacteria':
-                bacteria.append(a.arg(0))
+                bacteria.append(a.arg(0).rstrip('"').lstrip('"'))
             elif a.pred() == 'exchanged':
-                if (a.arg(2),a.arg(3)) in exchanged: #exchanged[(from,to)]=[(what,compartto);(what,compartto)]
-                    exchanged[(a.arg(2),a.arg(3))].append(a.arg(0))
+                if (
+                        a.arg(2).rstrip('"').lstrip('"'),
+                        a.arg(3).rstrip('"').lstrip('"')
+                ) in exchanged:  #exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                    exchanged[(a.arg(2).rstrip('"').lstrip('"'),
+                               a.arg(3))].append(
+                                   a.arg(0).rstrip('"').lstrip('"'))
                 else:
-                    exchanged[(a.arg(2),a.arg(3))] = []
-                    exchanged[(a.arg(2),a.arg(3))].append(a.arg(0))
+                    exchanged[(a.arg(2).rstrip('"').lstrip('"'),
+                               a.arg(3)).rstrip('"').lstrip('"')] = []
+                    exchanged[(a.arg(2).rstrip('"').lstrip('"'),
+                               a.arg(3)).rstrip('"').lstrip('"')].append(
+                                   a.arg(0).rstrip('"').lstrip('"'))
         logger.info(str(len(newly_prod)) + ' newly producible target(s):')
         logger.info("\n".join(newly_prod))
         logger.info('Still ' + str(len(still_unprod)) + ' unproducible target(s):')
@@ -326,13 +334,21 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         union_exchanged = {}
         for a in union_m :
             if a.pred() == 'chosen_bacteria':
-                union_bacteria.append(a.arg(0))
+                union_bacteria.append(a.arg(0).rstrip('"').lstrip('"'))
             elif a.pred() == 'exchanged':
-                if (a.arg(2),a.arg(3)) in union_exchanged: #union_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
-                    union_exchanged[(a.arg(2),a.arg(3))].append(a.arg(0))
+                if (
+                        a.arg(2).rstrip('"').lstrip('"'),
+                        a.arg(3).rstrip('"').lstrip('"')
+                ) in union_exchanged:  #union_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                    union_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
+                                     a.arg(3).rstrip('"').lstrip('"'))].append(
+                                         a.arg(0).rstrip('"').lstrip('"'))
                 else:
-                    union_exchanged[(a.arg(2),a.arg(3))] = []
-                    union_exchanged[(a.arg(2),a.arg(3))].append(a.arg(0))
+                    union_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
+                                     a.arg(3).rstrip('"').lstrip('"'))] = []
+                    union_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
+                                     a.arg(3).rstrip('"').lstrip('"'))].append(
+                                         a.arg(0).rstrip('"').lstrip('"'))
         logger.info('Union of minimal sets of bacteria, with optimum = ' +
                     optimum_union + ' comprises ' + str(len(union_bacteria)) +
                     ' bacteria')
@@ -360,13 +376,20 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         inter_exchanged = {}
         for a in intersection_m :
             if a.pred() == 'chosen_bacteria':
-                inter_bacteria.append(a.arg(0))
+                inter_bacteria.append(a.arg(0).rstrip('"').lstrip('"'))
             elif a.pred() == 'exchanged':
-                if (a.arg(2),a.arg(3)) in inter_exchanged: #inter_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
-                    inter_exchanged[(a.arg(2),a.arg(3))].append(a.arg(0))
+                if (
+                        a.arg(2).rstrip('"').lstrip('"'), a.arg(3).rstrip('"').lstrip('"')
+                ) in inter_exchanged:  #inter_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                    inter_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
+                                     a.arg(3).rstrip('"').lstrip('"'))].append(
+                                         a.arg(0).rstrip('"').lstrip('"'))
                 else:
-                    inter_exchanged[(a.arg(2),a.arg(3))] = []
-                    inter_exchanged[(a.arg(2),a.arg(3))].append(a.arg(0))
+                    inter_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
+                                     a.arg(3).rstrip('"').lstrip('"'))] = []
+                    inter_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
+                                     a.arg(3).rstrip('"').lstrip('"'))].append(
+                                         a.arg(0).rstrip('"').lstrip('"'))
         logger.info('Intersection of minimal sets of bacteria, with optimum = '
                     + optimum_inter + ' comprises ' +
                     str(len(inter_bacteria)) + ' bacteria')
@@ -396,13 +419,24 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             logger.info('\nSolution ' + str(count))
             for a in model :
                 if a.pred() == 'chosen_bacteria':
-                    enum_bacteria.append(a.arg(0))
+                    enum_bacteria.append(a.arg(0).rstrip('"').lstrip('"'))
                 elif a.pred() == 'exchanged':
-                    if (a.arg(2),a.arg(3)) in enum_exchanged: #enum_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
-                        enum_exchanged[(a.arg(2),a.arg(3))].append(a.arg(0))
+                    if (
+                            a.arg(2).rstrip('"').lstrip('"'),
+                            a.arg(3).rstrip('"').lstrip('"')
+                    ) in enum_exchanged:  #enum_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                        enum_exchanged[(
+                            a.arg(2).rstrip('"').lstrip('"'),
+                            a.arg(3).rstrip('"').lstrip('"').rstrip('"').lstrip('"'))].append(
+                                a.arg(0).rstrip('"').lstrip('"'))
                     else:
-                        enum_exchanged[(a.arg(2),a.arg(3))] = []
-                        enum_exchanged[(a.arg(2),a.arg(3))].append(a.arg(0))
+                        enum_exchanged[(
+                            a.arg(2).rstrip('"').lstrip('"'),
+                            a.arg(3).rstrip('"').lstrip('"'))] = []
+                        enum_exchanged[(
+                            a.arg(2).rstrip('"').lstrip('"'),
+                            a.arg(3).rstrip('"').lstrip('"'))].append(
+                                a.arg(0).rstrip('"').lstrip('"'))
             logger.info("\t" + str(len(enum_bacteria)) +
                         " bacterium(ia) in solution " + str(count))
             for elem in enum_bacteria:

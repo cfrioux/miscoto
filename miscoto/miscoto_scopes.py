@@ -233,19 +233,19 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     com_unprodtargets = []
     for a in model:
         if a.pred() == 'dscope':
-            host_scope.append(a.arg(0))
+            host_scope.append(a.arg(0).rstrip('"').lstrip('"'))
         elif a.pred() == 'dproducible':
-            host_prodtargets.append(a.arg(0))
+            host_prodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
         elif a.pred() == 'dunproducible':
-            host_unprodtargets.append(a.arg(0))
+            host_unprodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
         elif a.pred() == 'newscope_microbiome':
-            com_scope.append(a.arg(0))
+            com_scope.append(a.arg(0).rstrip('"').lstrip('"'))
         elif a.pred() == 'newscope_with_host':
-            comhost_scope.append(a.arg(0))
+            comhost_scope.append(a.arg(0).rstrip('"').lstrip('"'))
         elif a.pred() == 'newlyproducible':
-            com_prodtargets.append(a.arg(0))
+            com_prodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
         elif a.pred() == 'aunproducible':
-            com_unprodtargets.append(a.arg(0))
+            com_unprodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
 
     if host_file or input_instance:
         logger.info('*** HOST model producibility check ***')
