@@ -12,7 +12,7 @@ Computations can be performed with a set of symbionts or a set of symbionts and 
 Important notice: be sure that two identical metabolites have the same name in all metabolic networks. Otherwise inconsistencies might occur between targets predicted as producible under the "soup" modeling and the "minexch" modeling.
 
 Required package:
-* ``pyasp`` (``pip install pyasp`` or ``pip install pyasp --no-cache-dir`` in case of ASP solvers installation issues)
+* ``pyasp`` (``pip install pyasp==1.4.3`` or ``pip install pyasp==1.4.3 --no-cache-dir`` in case of ASP solvers installation issues)
 
 ### Microbiome exploration
 Computation of the added value of the microbiome over a individual host with respect to targets or the whole scope of producible compounds.
