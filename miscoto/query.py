@@ -71,7 +71,7 @@ def get_communities_from_g(grounding):
     return models[0]
 
 def get_communities(lp_instance, encoding):
-    """Get optimial community, from TermSet
+    """Get optimal community, from TermSet
     
     Args:
         lp_instance (TermSet): microbiota model
@@ -80,15 +80,23 @@ def get_communities(lp_instance, encoding):
     Returns:
         TermSet: solution
     """
+    options = '--configuration jumpy --opt-strategy=usc,5'
+
+    """
     lp_f = lp_instance.to_file()
     prg = [encoding, lp_f]
     print(os.path.abspath(lp_f))
-    options = '--configuration jumpy --opt-strategy=usc,5'
     solver = Gringo4Clasp(clasp_options=options)
     models = solver.run(prg,collapseTerms=True,collapseAtoms=False)
     os.unlink(lp_f)
-    # print(models[0])
-    return models[0]
+    print(models[0].score)
+    """
+    prg = [encoding, lp_instance]
+    best_model = None
+    models = clyngor.solve(prg, options=options)
+    for model in models.discard_quotes.by_arity.with_optimization:
+        best_model = model
+    return best_model
 
 def get_intersection_communities_from_g(grounding, optimum):
     """Get intersection of solutions, from grounding
@@ -119,24 +127,59 @@ def get_intersection_communities_from_g_noopti(grounding):
     intersec = solver.run(grounding,collapseTerms=True,collapseAtoms=False)
     return intersec[0]
 
-def get_intersection_communities(lp_instance, optimum, encoding):
+def get_intersection_communities_opti(lp_instance, optimum, encoding):
     """Get intersection of solutions, from TermSet
     
     Args:
         lp_instance (TermSet): microbiota model
         optimum (str): optimal score
         encoding (str): ASP model encoding
-    
+
     Returns:
         TermSet: intersection
     """
+    options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN --opt-bound=' +str(optimum)
+    """
     lp_f = lp_instance.to_file()
     prg = [encoding, lp_f]
-    options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN --opt-bound=' +str(optimum)
+
     solver = Gringo4Clasp(clasp_options=options)
     intersec = solver.run(prg,collapseTerms=True,collapseAtoms=False)
     os.unlink(lp_f)
-    return intersec[0]
+    """
+    prg = [encoding, lp_instance]
+    best_model = None
+    models = clyngor.solve(prg, options=options)
+    for model in models.discard_quotes.by_arity.with_optimization:
+        best_model = model
+    return best_model
+
+def get_intersection_communities(lp_instance, encoding):
+    """Get intersection of solutions, from TermSet
+    
+    Args:
+        lp_instance (TermSet): microbiota model
+        optimum (str): optimal score
+        encoding (str): ASP model encoding
+
+    Returns:
+        TermSet: intersection
+    """
+    options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN'
+    """
+    lp_f = lp_instance.to_file()
+    prg = [encoding, lp_f]
+
+    solver = Gringo4Clasp(clasp_options=options)
+    intersec = solver.run(prg,collapseTerms=True,collapseAtoms=False)
+    os.unlink(lp_f)
+    """
+    prg = [encoding, lp_instance]
+    best_model = None
+    models = clyngor.solve(prg, options=options)
+    for model in models.discard_quotes.by_arity.with_optimization:
+        best_model = model
+    return best_model
 
 def get_all_communities_from_g(grounding, optimum, nmodels=0):
     """Get all optimal communities, from grounding
@@ -160,16 +203,42 @@ def get_all_communities_from_g_noopti(grounding, nmodels=0):
     Args:
         grounding (bytes): grounded model
         nmodels (int, optional): Defaults to 0. number of models, 0 = all
-    
+
     Returns:
         list: list of TermSets
     """
-    options = str(nmodels)+' --configuration handy --opt-strategy=usc,5 --opt-mode=optN '
+    options = str(nmodels)+' --configuration handy --opt-strategy=usc,5 --opt-mode=optN'
     solver = Clasp(clasp_options=options)
     models = solver.run(grounding, collapseTerms=True, collapseAtoms=False)
     return models
 
-def get_all_communities(lp_instance, optimum, encoding, nmodels=0):
+def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
+    """Get all communities, from TermSet
+
+    Args:
+        lp_instance (TermSet): microbiota model
+        optimum (str): optimal score
+        encoding (str): ASP model encoding file
+        nmodels (int, optional): Defaults to 0. number of models, 0 = all
+
+    Returns:
+        list: list of TermSets
+    """
+    options = str(nmodels)+' --configuration handy --opt-strategy=usc,5 --opt-mode=optN --opt-bound=' +str(optimum)
+    """
+    lp_f = lp_instance.to_file()
+    prg = [encoding, lp_f]
+
+    solver = Gringo4Clasp(clasp_options=options)
+    models = solver.run(prg, collapseTerms=True, collapseAtoms=False)
+    os.unlink(lp_f)
+    """
+    prg = [encoding, lp_instance]
+    models = clyngor.solve(prg, options=options)
+
+    return models
+
+def get_all_communities(lp_instance, encoding, nmodels=0):
     """Get all communities, from TermSet
     
     Args:
@@ -181,12 +250,18 @@ def get_all_communities(lp_instance, optimum, encoding, nmodels=0):
     Returns:
         list: list of TermSets
     """
+    options = str(nmodels)+' --configuration handy --opt-strategy=usc,5 --opt-mode=optN'
+    """
     lp_f = lp_instance.to_file()
     prg = [encoding, lp_f]
-    options = str(nmodels)+' --configuration handy --opt-strategy=usc,5 --opt-mode=optN --opt-bound=' +str(optimum)
+
     solver = Gringo4Clasp(clasp_options=options)
     models = solver.run(prg, collapseTerms=True, collapseAtoms=False)
     os.unlink(lp_f)
+    """
+    prg = [encoding, lp_instance]
+    models = clyngor.solve(prg, options=options)
+
     return models
 
 def get_union_communities_from_g(grounding, optimum):
@@ -218,9 +293,9 @@ def get_union_communities_from_g_noopti(grounding):
     union = solver.run(grounding, collapseTerms=True, collapseAtoms=False)
     return union[0]
 
-def get_union_communities(lp_instance, optimum, encoding):
+def get_union_communities_optimum(lp_instance, optimum, encoding):
     """Get union of community solutions, from TermSet
-    
+
     Args:
         lp_instance (TermSet): microbiota model
         optimum (str): optimal score
@@ -229,13 +304,46 @@ def get_union_communities(lp_instance, optimum, encoding):
     Returns:
         TermSet: union
     """
+    options ='--configuration jumpy --opt-strategy=usc,5 --enum-mode=brave --opt-mode=optN --opt-bound='+str(optimum)
+    """
     lp_f = lp_instance.to_file()
     prg = [encoding, lp_f]
-    options ='--configuration jumpy --opt-strategy=usc,5 --enum-mode=brave --opt-mode=optN --opt-bound='+str(optimum)
     solver = Gringo4Clasp(clasp_options=options)
     union = solver.run(prg, collapseTerms=True, collapseAtoms=False)
     os.unlink(lp_f)
-    return union[0]
+    """
+    prg = [encoding, lp_instance]
+    best_model = None
+    models = clyngor.solve(prg, options=options)
+    for model in models.discard_quotes.by_arity.with_optimization:
+        best_model = model
+    return best_model
+
+def get_union_communities(lp_instance, encoding):
+    """Get union of community solutions, from TermSet
+
+    Args:
+        lp_instance (TermSet): microbiota model
+        optimum (str): optimal score
+        encoding (str): ASP encoding model file
+    
+    Returns:
+        TermSet: union
+    """
+    options ='--configuration jumpy --opt-strategy=usc,5 --enum-mode=brave --opt-mode=optN'
+    """
+    lp_f = lp_instance.to_file()
+    prg = [encoding, lp_f]
+    solver = Gringo4Clasp(clasp_options=options)
+    union = solver.run(prg, collapseTerms=True, collapseAtoms=False)
+    os.unlink(lp_f)
+    """
+    prg = [encoding, lp_instance]
+    best_model = None
+    models = clyngor.solve(prg, options=options)
+    for model in models.discard_quotes.by_arity.with_optimization:
+        best_model = model
+    return best_model
 
 def get_unproducible(draft, seeds, targets, encoding):
     """Get unproducible targets in a microbiota

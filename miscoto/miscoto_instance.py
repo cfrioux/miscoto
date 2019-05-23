@@ -25,7 +25,7 @@ import logging
 from miscoto import utils, sbml
 from os import listdir
 from os.path import isfile, join
-from pyasp.asp import *
+from pyasp.term import Term, TermSet
 from xml.etree.ElementTree import ParseError
 
 logger = logging.getLogger(__name__)
