@@ -406,7 +406,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             all_models = query.get_all_communities(lp_instance_file, encoding)
         count = 1
 
-        for model in all_models.with_optimization:
+        for model in all_models.by_arity:
             enum_bacteria = []
             enum_exchanged = {}
             logger.info('\nSolution ' + str(count))
