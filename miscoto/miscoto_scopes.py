@@ -25,8 +25,8 @@ import logging
 from miscoto import query, sbml, commons, utils
 from os import listdir
 from os.path import isfile, join
-from pyasp.asp import *
 from xml.etree.ElementTree import ParseError
+from pyasp.term import TermSet, Term
 
 logger = logging.getLogger(__name__)
 
@@ -138,11 +138,11 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         else:
             seedsfacts = TermSet()
 
-            with open(lp_instance_file, "a") as f:
-                for elem in targetsfacts:
-                    f.write(str(elem) + '.\n')
-                for elem in seedsfacts:
-                    f.write(str(elem) + '.\n')
+        with open(lp_instance_file, "a") as f:
+            for elem in targetsfacts:
+                f.write(str(elem) + '.\n')
+            for elem in seedsfacts:
+                f.write(str(elem) + '.\n')
 
     # case 2: read inputs from SBML files
     elif bacteria_dir and seeds_file:
@@ -231,21 +231,28 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     comhost_scope = []
     com_prodtargets = []
     com_unprodtargets = []
-    for a in model:
-        if a.pred() == 'dscope':
-            host_scope.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'dproducible':
-            host_prodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'dunproducible':
-            host_unprodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'newscope_microbiome':
-            com_scope.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'newscope_with_host':
-            comhost_scope.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'newlyproducible':
-            com_prodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'aunproducible':
-            com_unprodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
+    for pred in model:
+        if pred == 'dscope':
+            for a in model[pred, 1]:
+                host_scope.append(a[0])
+        elif pred == 'dproducible':
+            for a in model[pred, 1]:
+                host_prodtargets.append(a[0])
+        elif pred == 'dunproducible':
+            for a in model[pred, 1]:
+                host_unprodtargets.append(a[0])
+        elif pred == 'newscope_microbiome':
+            for a in model[pred, 1]:
+                com_scope.append(a[0])
+        elif pred == 'newscope_with_host':
+            for a in model[pred, 1]:
+                comhost_scope.append(a[0])
+        elif pred == 'newlyproducible':
+            for a in model[pred, 1]:
+                com_prodtargets.append(a[0])
+        elif pred == 'aunproducible':
+            for a in model[pred, 1]:
+                com_unprodtargets.append(a[0])
 
     if host_file or input_instance:
         logger.info('*** HOST model producibility check ***')

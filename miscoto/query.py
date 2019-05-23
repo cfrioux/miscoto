@@ -1,6 +1,7 @@
 import os
 import tempfile
 from pyasp.asp import *
+import clyngor
 
 def get_scopes(instance_f, encoding):
     """Get metabolic scope of a microbiota
@@ -14,9 +15,11 @@ def get_scopes(instance_f, encoding):
     """
     prg = [encoding, instance_f]
     options = ''
-    solver = Gringo4Clasp(clasp_options=options)
-    models = solver.run(prg,collapseTerms=True,collapseAtoms=False)
-    return models[0]
+    best_model = None
+    models = clyngor.solve(prg, options=options)
+    for model in models.discard_quotes.by_arity:
+        best_model = model
+    return best_model
 
 
 def get_grounded_communities(instance, encoding):
