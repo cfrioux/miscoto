@@ -22,7 +22,7 @@ allscope(M) :- seed(M).
 allscope(M) :- organism(O), product(M,R,O), reaction(R,O),
            allscope(M2) : reactant(M2,R,O).
 
-allscope(M) :- organism(D), reactant(M,R,DO), reaction(R,O), reversible(R,O),
+allscope(M) :- organism(O), reactant(M,R,O), reaction(R,O), reversible(R,O),
            allscope(M2) : product(M2,R,O).
 
 aproducible(M) :- target(M), allscope(M).
