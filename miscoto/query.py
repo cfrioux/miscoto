@@ -224,7 +224,7 @@ def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     Returns:
         list: list of TermSets
     """
-    options = str(nmodels)+' --configuration handy --opt-strategy=usc,5 --opt-mode=optN --opt-bound=' +str(optimum)
+    options = '--configuration handy --opt-strategy=usc,5 --opt-mode=optN --opt-bound=' +str(optimum)
     """
     lp_f = lp_instance.to_file()
     prg = [encoding, lp_f]
@@ -234,7 +234,7 @@ def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     os.unlink(lp_f)
     """
     prg = [encoding, lp_instance]
-    models = clyngor.solve(prg, options=options)
+    models = clyngor.solve(prg, options=options, nb_model=nmodels)
 
     return models
 
@@ -250,7 +250,7 @@ def get_all_communities(lp_instance, encoding, nmodels=0):
     Returns:
         list: list of TermSets
     """
-    options = str(nmodels)+' --configuration handy --opt-strategy=usc,5 --opt-mode=optN'
+    options = '--configuration handy --opt-strategy=usc,5 --opt-mode=optN'
     """
     lp_f = lp_instance.to_file()
     prg = [encoding, lp_f]
@@ -260,7 +260,7 @@ def get_all_communities(lp_instance, encoding, nmodels=0):
     os.unlink(lp_f)
     """
     prg = [encoding, lp_instance]
-    models = clyngor.solve(prg, options=options)
+    models = clyngor.solve(prg, options=options, nb_model=nmodels)
 
     return models
 
