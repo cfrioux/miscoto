@@ -27,7 +27,7 @@ from os import listdir
 from os.path import isfile, join
 from pyasp.term import Term, TermSet
 from xml.etree.ElementTree import ParseError
-
+logging.basicConfig(format='%(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 ###############################################################################
@@ -271,8 +271,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 # one solution
     if optsol:
         logger.info('\n*** ONE MINIMAL SOLUTION ***')
-        #one_model = query.get_communities_from_g(grounded_instance)
-        one_model = query.get_communities(lp_instance_file, encoding)
+        one_model = query.get_communities_from_g(grounded_instance)
         score = one_model[1]
         optimum = ','.join(map(str, score))
         one_model = one_model[0]
@@ -320,9 +319,9 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         logger.info('\n*** UNION OF MINIMAL SOLUTION ***')
         try:
             if optsol:
-                union_m = query.get_union_communities_optimum(lp_instance_file, optimum, encoding)
+                union_m = query.get_union_communities_from_g(grounded_instance, optimum)
             else:
-                union_m = query.get_union_communities(lp_instance_file, encoding)
+                union_m = query.get_union_communities_from_g_noopti(grounded_instance)
         except IndexError:
             logger.error(
                 "No stable model was found. Possible troubleshooting: no harmony between names for identical metabolites among host and microbes"
@@ -363,9 +362,9 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     if intersection:
         logger.info('\n*** INTERSECTION OF MINIMAL SOLUTION ***')
         if optsol:
-            intersection_m = query.get_intersection_communities_opti(lp_instance_file, optimum, encoding)
+            intersection_m = query.get_intersection_communities_from_g(grounded_instance, optimum)
         else:
-            intersection_m = query.get_intersection_communities(lp_instance_file, encoding)
+            intersection_m = query.get_intersection_communities_from_g_noopti(grounded_instance)
         intersection_score = intersection_m[1]
         optimum_inter = ','.join(map(str, intersection_score))
         intersection_m = intersection_m[0]
@@ -401,12 +400,12 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     if enumeration:
         logger.info('\n*** ENUMERATION OF MINIMAL SOLUTION ***')
         if optsol:
-            all_models = query.get_all_communities_opti(lp_instance_file, optimum, encoding)
+            all_models = query.get_all_communities_from_g(grounded_instance, optimum)
         else:
-            all_models = query.get_all_communities(lp_instance_file, encoding)
+            all_models = query.get_all_communities_from_g_noopti(grounded_instance)
         count = 1
 
-        for model in all_models.by_arity:
+        for model in all_models:
             enum_bacteria = []
             enum_exchanged = {}
             logger.info('\nSolution ' + str(count))

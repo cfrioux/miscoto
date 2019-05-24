@@ -51,9 +51,8 @@ def get_grounded_communities_from_file(instance_f, encoding):
         bytes: grounded model
     """
     prg = [encoding, instance_f]
-    grounder = Gringo4()
-    grounding = grounder.run(prg)
-    # os.unlink(instance_f)
+    grounding = clyngor.grounded_program(prg)
+
     return grounding
 
 def get_communities_from_g(grounding):
@@ -65,10 +64,17 @@ def get_communities_from_g(grounding):
     Returns:
         TermSet: solution
     """
-    options = '--configuration jumpy --opt-strategy=usc,5'
+    options = '--configuration jumpy --opt-strategy=usc,oll'
+    """
     solver = Clasp(clasp_options=options)
     models = solver.run(grounding,collapseTerms=True,collapseAtoms=False)
-    return models[0]
+    """
+    best_model = None
+    models = clyngor.solve_from_grounded(grounding, options=options)
+    for model in models.discard_quotes.by_arity.with_optimization:
+        best_model = model
+    return best_model
+
 
 def get_communities(lp_instance, encoding):
     """Get optimal community, from TermSet
@@ -108,10 +114,16 @@ def get_intersection_communities_from_g(grounding, optimum):
     Returns:
         TermSet: intersection
     """
-    options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN --opt-bound=' +str(optimum)
+    options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN,' +str(optimum)
+    """
     solver = Clasp(clasp_options=options)
     intersec = solver.run(grounding,collapseTerms=True,collapseAtoms=False)
     return intersec[0]
+    """
+    models = clyngor.solve_from_grounded(grounding, options=options)
+    for model in models.discard_quotes.by_arity.with_optimization:
+        best_model = model
+    return best_model
 
 def get_intersection_communities_from_g_noopti(grounding):
     """Get intersection of solutions, from grounding, without optimal score
@@ -123,9 +135,15 @@ def get_intersection_communities_from_g_noopti(grounding):
         TermSet: intersection
     """
     options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN'
+    """
     solver = Clasp(clasp_options=options)
     intersec = solver.run(grounding,collapseTerms=True,collapseAtoms=False)
     return intersec[0]
+    """
+    models = clyngor.solve_from_grounded(grounding, options=options)
+    for model in models.discard_quotes.by_arity.with_optimization:
+        best_model = model
+    return best_model
 
 def get_intersection_communities_opti(lp_instance, optimum, encoding):
     """Get intersection of solutions, from TermSet
@@ -138,7 +156,7 @@ def get_intersection_communities_opti(lp_instance, optimum, encoding):
     Returns:
         TermSet: intersection
     """
-    options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN --opt-bound=' +str(optimum)
+    options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN,' + str(optimum)
     """
     lp_f = lp_instance.to_file()
     prg = [encoding, lp_f]
@@ -192,9 +210,15 @@ def get_all_communities_from_g(grounding, optimum, nmodels=0):
     Returns:
         list: list of Termsets
     """
-    options = str(nmodels)+' --configuration handy --opt-strategy=usc,5 --opt-mode=optN --opt-bound=' +str(optimum)
+    options = '--configuration handy --opt-strategy=usc,5 --opt-mode=enum,' +str(optimum)
+    """
     solver = Clasp(clasp_options=options)
     models = solver.run(grounding, collapseTerms=True, collapseAtoms=False)
+    return models
+    """
+    models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels).by_arity.discard_quotes
+    #models = tuple(clyngor.opt_models_from_clyngor_answers(models))
+
     return models
 
 def get_all_communities_from_g_noopti(grounding, nmodels=0):
@@ -207,9 +231,15 @@ def get_all_communities_from_g_noopti(grounding, nmodels=0):
     Returns:
         list: list of TermSets
     """
-    options = str(nmodels)+' --configuration handy --opt-strategy=usc,5 --opt-mode=optN'
+    options = '--configuration handy --opt-strategy=usc,5 --opt-mode=optN'
+    """
     solver = Clasp(clasp_options=options)
     models = solver.run(grounding, collapseTerms=True, collapseAtoms=False)
+    return models
+    """
+    models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels).by_arity.discard_quotes
+    models = tuple(clyngor.opt_models_from_clyngor_answers(models))
+
     return models
 
 def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
@@ -224,7 +254,7 @@ def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     Returns:
         list: list of TermSets
     """
-    options = '--configuration handy --opt-strategy=usc,5 --opt-mode=optN --opt-bound=' +str(optimum)
+    options = '--configuration handy --opt-strategy=usc,0 --opt-mode=optN,' + str(optimum)
     """
     lp_f = lp_instance.to_file()
     prg = [encoding, lp_f]
@@ -234,7 +264,8 @@ def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     os.unlink(lp_f)
     """
     prg = [encoding, lp_instance]
-    models = clyngor.solve(prg, options=options, nb_model=nmodels)
+    models = clyngor.solve(prg, options=options, nb_model=nmodels).by_arity.discard_quotes
+    models = tuple(clyngor.opt_models_from_clyngor_answers(models))
 
     return models
 
@@ -250,17 +281,18 @@ def get_all_communities(lp_instance, encoding, nmodels=0):
     Returns:
         list: list of TermSets
     """
-    options = '--configuration handy --opt-strategy=usc,5 --opt-mode=optN'
+    options = '--configuration handy --opt-strategy=usc,0 --opt-mode=optN'
     """
     lp_f = lp_instance.to_file()
-    prg = [encoding, lp_f]
+    prg = [encoding, lp_instance]
 
     solver = Gringo4Clasp(clasp_options=options)
     models = solver.run(prg, collapseTerms=True, collapseAtoms=False)
+    print('!!!!!!!', models)
     os.unlink(lp_f)
     """
     prg = [encoding, lp_instance]
-    models = clyngor.solve(prg, options=options, nb_model=nmodels)
+    models = tuple(clyngor.opt_models_from_clyngor_answers(clyngor.solve(prg, options=options, nb_model=nmodels).by_arity.discard_quotes))
 
     return models
 
@@ -274,10 +306,17 @@ def get_union_communities_from_g(grounding, optimum):
     Returns:
         TermSet: union
     """
-    options ='--configuration jumpy --opt-strategy=usc,5 --enum-mode=brave --opt-mode=optN --opt-bound='+str(optimum)
+    options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode=brave --opt-mode=optN,' + str(optimum)
+    """
     solver = Clasp(clasp_options=options)
     union = solver.run(grounding, collapseTerms=True, collapseAtoms=False)
     return union[0]
+    """
+    models = clyngor.solve_from_grounded(grounding, options=options)
+    best_model = None
+    for model in models.by_arity.discard_quotes.with_optimization:
+        best_model = model
+    return best_model
 
 def get_union_communities_from_g_noopti(grounding):
     """Get union of all community solutions, from grounding, without optimal score
@@ -288,10 +327,17 @@ def get_union_communities_from_g_noopti(grounding):
     Returns:
         TermSet: union
     """
-    options ='--configuration jumpy --opt-strategy=usc,5 --enum-mode brave --opt-mode=optN'
+    options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode brave --opt-mode=optN'
+    """
     solver = Clasp(clasp_options=options)
     union = solver.run(grounding, collapseTerms=True, collapseAtoms=False)
     return union[0]
+    """
+    models = clyngor.solve_from_grounded(grounding, options=options)
+    best_model = None
+    for model in models.by_arity.discard_quotes.with_optimization:
+        best_model = model
+    return best_model
 
 def get_union_communities_optimum(lp_instance, optimum, encoding):
     """Get union of community solutions, from TermSet
