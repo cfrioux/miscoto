@@ -210,7 +210,7 @@ def get_all_communities_from_g(grounding, optimum, nmodels=0):
     Returns:
         list: list of Termsets
     """
-    options = '--configuration handy --opt-strategy=usc,5 --opt-mode=enum,' +str(optimum)
+    options = '--configuration handy --opt-strategy=usc,5 --opt-mode=optN,' +str(optimum)
     """
     solver = Clasp(clasp_options=options)
     models = solver.run(grounding, collapseTerms=True, collapseAtoms=False)

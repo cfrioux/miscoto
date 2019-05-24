@@ -66,7 +66,7 @@ def test_mincom_minexch_enumeration_optsol():
     enum_exchanged = {('orgB3', 'host_metab_mod'): ['e']}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', enumeration=True, optsol=True)
-    print(results)
+
     assert set(results['enum_bacteria']) == enum_bacteria
     assert results['enum_exchanged'] == enum_exchanged
 
@@ -99,11 +99,12 @@ def test_mincom_soup_enumeration():
 
 
 def test_mincom_soup_enumeration_optsol():
-    enum_bacteria = set(['orgB3', 'orgB1'])
+    enum_bacteria = set(['orgB3', 'orgB1', 'orgB2'])
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True, optsol=True)
 
     assert set(results['enum_bacteria']) == enum_bacteria
+
 
 def test_scopes():
     producible_targets = set()
