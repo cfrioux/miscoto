@@ -217,7 +217,7 @@ def get_all_communities_from_g(grounding, optimum, nmodels=0):
     return models
     """
     models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels).by_arity.discard_quotes
-    #models = tuple(clyngor.opt_models_from_clyngor_answers(models))
+    models = tuple(clyngor.opt_models_from_clyngor_answers(models))
 
     return models
 

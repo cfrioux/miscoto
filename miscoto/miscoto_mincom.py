@@ -405,9 +405,9 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             all_models = query.get_all_communities_from_g_noopti(grounded_instance)
         count = 1
 
+        enum_bacteria = []
+        enum_exchanged = {}
         for model in all_models:
-            enum_bacteria = []
-            enum_exchanged = {}
             logger.info('\nSolution ' + str(count))
             for pred in model :
                 if pred == 'chosen_bacteria':
