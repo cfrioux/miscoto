@@ -405,33 +405,37 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             all_models = query.get_all_communities_from_g_noopti(grounded_instance)
         count = 1
 
-        enum_bacteria = []
+        enum_bacteria = {}
         enum_exchanged = {}
         for model in all_models:
+            enum_bacteria_this_sol = []
+            enum_exchanged_this_sol = {}
             logger.info('\nSolution ' + str(count))
             for pred in model :
                 if pred == 'chosen_bacteria':
                     for a in model[pred, 1]:
-                        enum_bacteria.append(a[0])
+                        enum_bacteria_this_sol.append(a[0])
                 elif pred == 'exchanged':
                     for a in model[pred, 4]:
-                        if (a[2], a[3]) in enum_exchanged:  #enum_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
-                            enum_exchanged[(a[2], a[3])].append(a[0])
+                        if (a[2], a[3]) in enum_exchanged_this_sol:  #enum_exchanged_this_sol[(from,to)]=[(what,compartto);(what,compartto)]
+                            enum_exchanged_this_sol[(a[2], a[3])].append(a[0])
                         else:
-                            enum_exchanged[(a[2], a[3])] = []
-                            enum_exchanged[(a[2], a[3])].append(a[0])
-            logger.info("\t" + str(len(enum_bacteria)) +
+                            enum_exchanged_this_sol[(a[2], a[3])] = []
+                            enum_exchanged_this_sol[(a[2], a[3])].append(a[0])
+            logger.info("\t" + str(len(enum_bacteria_this_sol)) +
                         " bacterium(ia) in solution " + str(count))
-            for elem in enum_bacteria:
+            for elem in enum_bacteria_this_sol:
                 logger.info("\t" + elem)
-            if len(enum_exchanged) >= 1:
+            if len(enum_exchanged_this_sol) >= 1:
                 logger.info("\t" +
-                            str(sum(len(v) for v in enum_exchanged.values())) +
+                            str(sum(len(v) for v in enum_exchanged_this_sol.values())) +
                             " exchange(s) in solution " + str(count))
-                for fromto in enum_exchanged:
+                for fromto in enum_exchanged_this_sol:
                     logger.info('\texchange(s) from ' + fromto[0] + ' to ' +
                                 fromto[1] + " = " +
-                                ','.join(enum_exchanged[fromto]))
+                                ','.join(enum_exchanged_this_sol[fromto]))
+            enum_exchanged[count] = enum_exchanged_this_sol
+            enum_bacteria[count] = enum_bacteria_this_sol
             count+=1
         results['all_models'] = all_models
         results['enum_exchanged'] = enum_exchanged

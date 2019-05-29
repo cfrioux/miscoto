@@ -53,27 +53,34 @@ def test_mincom_minexch_intersection():
 
 def test_mincom_minexch_enumeration():
     enum_bacteria = set(['orgB3'])
-    enum_exchanged = {('orgB3', 'host_metab_mod'): ['e']}
+    enum_exchanged = {1:{('orgB3', 'host_metab_mod'): ['e']}}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', enumeration=True)
 
-    assert set(results['enum_bacteria']) == enum_bacteria
+    enum_bact_lst = []
+    for i in results['enum_bacteria'].values():
+        enum_bact_lst += i
+    enum_bact = set(enum_bact_lst)
+    assert enum_bact == enum_bacteria
     assert results['enum_exchanged'] == enum_exchanged
 
 
 def test_mincom_minexch_enumeration_optsol():
     enum_bacteria = set(['orgB3'])
-    enum_exchanged = {('orgB3', 'host_metab_mod'): ['e']}
+    enum_exchanged = {1:{('orgB3', 'host_metab_mod'): ['e']}}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', enumeration=True, optsol=True)
-
-    assert set(results['enum_bacteria']) == enum_bacteria
+    enum_bact_lst = []
+    for i in results['enum_bacteria'].values():
+        enum_bact_lst += i
+    enum_bact = set(enum_bact_lst)
+    assert enum_bact == enum_bacteria
     assert results['enum_exchanged'] == enum_exchanged
 
 
 def test_mincom_soup():
     expected_newly_productible = set(['f'])
-    expected_bacteria = set(['orgB3'])
+    expected_bacteria = set(['orgB2'])
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup')
 
@@ -82,7 +89,7 @@ def test_mincom_soup():
 
 def test_mincom_soup_optsol():
     expected_newly_productible = set(['f'])
-    expected_bacteria = set(['orgB3'])
+    expected_bacteria = set(['orgB2'])
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', optsol=True)
 
@@ -94,16 +101,22 @@ def test_mincom_soup_enumeration():
     enum_bacteria = set(['orgB3', 'orgB1', 'orgB2'])
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True)
-
-    assert set(results['enum_bacteria']) == enum_bacteria
+    enum_bact_lst = []
+    for i in results['enum_bacteria'].values():
+        enum_bact_lst += i
+    enum_bact = set(enum_bact_lst)
+    assert enum_bact == enum_bacteria
 
 
 def test_mincom_soup_enumeration_optsol():
     enum_bacteria = set(['orgB3', 'orgB1', 'orgB2'])
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True, optsol=True)
-
-    assert set(results['enum_bacteria']) == enum_bacteria
+    enum_bact_lst = []
+    for i in results['enum_bacteria'].values():
+        enum_bact_lst += i
+    enum_bact = set(enum_bact_lst)
+    assert enum_bact == enum_bacteria
 
 
 def test_scopes():
