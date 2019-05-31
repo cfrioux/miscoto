@@ -73,21 +73,21 @@ def test_mincom_minexch_enumeration_optsol():
 
 def test_mincom_soup():
     expected_newly_productible = set(['f'])
-    expected_bacteria = set(['orgB2'])
+    expected_bacteria = set(['orgB1','orgB2','orgB3']) #solution is one org among the 3
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup')
 
     assert set(results['newly_prod']) == expected_newly_productible
-    assert set(results['bacteria']) == expected_bacteria
+    assert set(results['bacteria']).issubset(expected_bacteria) and len(set(results['bacteria'])) ==1
 
 def test_mincom_soup_optsol():
     expected_newly_productible = set(['f'])
-    expected_bacteria = set(['orgB2'])
+    expected_bacteria = set(['orgB1','orgB2','orgB3']) #solution is one org among the 3
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', optsol=True)
 
     assert set(results['newly_prod']) == expected_newly_productible
-    assert set(results['bacteria']) == expected_bacteria
+    assert set(results['bacteria']).issubset(expected_bacteria) and len(set(results['bacteria'])) ==1
 
 
 def test_mincom_soup_enumeration():
