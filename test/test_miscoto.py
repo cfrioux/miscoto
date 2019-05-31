@@ -52,29 +52,22 @@ def test_mincom_minexch_intersection():
 
 
 def test_mincom_minexch_enumeration():
-    enum_bacteria = set(['orgB3'])
+    enum_bacteria = {1: ['orgB3']}
     enum_exchanged = {1:{('orgB3', 'host_metab_mod'): ['e']}}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', enumeration=True)
 
-    enum_bact_lst = []
-    for i in results['enum_bacteria'].values():
-        enum_bact_lst += i
-    enum_bact = set(enum_bact_lst)
-    assert enum_bact == enum_bacteria
+    assert results['enum_bacteria'] == enum_bacteria
     assert results['enum_exchanged'] == enum_exchanged
 
 
 def test_mincom_minexch_enumeration_optsol():
-    enum_bacteria = set(['orgB3'])
+    enum_bacteria = {1: ['orgB3']}
     enum_exchanged = {1:{('orgB3', 'host_metab_mod'): ['e']}}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', enumeration=True, optsol=True)
-    enum_bact_lst = []
-    for i in results['enum_bacteria'].values():
-        enum_bact_lst += i
-    enum_bact = set(enum_bact_lst)
-    assert enum_bact == enum_bacteria
+
+    assert results['enum_bacteria'] == enum_bacteria
     assert results['enum_exchanged'] == enum_exchanged
 
 
