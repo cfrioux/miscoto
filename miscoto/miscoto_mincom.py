@@ -25,9 +25,9 @@ import logging
 from miscoto import query, sbml, commons, utils
 from os import listdir
 from os.path import isfile, join
-from pyasp.term import Term, TermSet
+from clyngor.as_pyasp import TermSet, Atom
 from xml.etree.ElementTree import ParseError
-logging.basicConfig(format='%(message)s', level=logging.DEBUG)
+
 logger = logging.getLogger(__name__)
 
 ###############################################################################
@@ -155,7 +155,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         if targets_file:
             logger.info('Reading targets from ' + targets_file)
             try:
-                targetsfacts = sbml.readSBMLspecies(targets_file, 'target')
+                targetsfacts = sbml.readSBMLspecies_clyngor(targets_file, 'target')
             except FileNotFoundError:
                 logger.critical('Targets file not found')
                 sys.exit(1)
@@ -168,7 +168,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         if seeds_file:
             logger.info('Reading targets from ' + seeds_file)
             try:
-                seedsfacts = sbml.readSBMLspecies(seeds_file, 'seed')
+                seedsfacts = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')
             except FileNotFoundError:
                 logger.critical('Seeds file not found')
                 sys.exit(1)
@@ -195,22 +195,22 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         if host_file:
             logger.info('Reading host network from ' + host_file)
             try:
-                draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
+                draftnet = sbml.readSBMLnetwork_symbionts_clyngor(host_file, 'host_metab_mod')
             except FileNotFoundError:
                 logger.critical('Host file not found')
                 sys.exit(1)
             except ParseError:
                 logger.critical("Invalid syntax in SBML file: "+host_file)
                 sys.exit(1)
-            draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
+            draftnet.add(Atom('draft', ["\"" + 'host_metab_mod' + "\""]))
         else:
             logger.warning('No host provided')
             draftnet = TermSet()
-            draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
+            draftnet.add(Atom('draft', ["\"" + 'host_metab_mod' + "\""]))
 
         logger.info('Reading seeds from ' + seeds_file)
         try:
-            seeds = sbml.readSBMLspecies(seeds_file, 'seed')
+            seeds = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')
         except FileNotFoundError:
             logger.critical('Targets file not found')
             sys.exit(1)
@@ -221,7 +221,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
         logger.info('Reading targets from '+ targets_file)
         try:
-            targets = sbml.readSBMLspecies(targets_file, 'target')
+            targets = sbml.readSBMLspecies_clyngor(targets_file, 'target')
         except FileNotFoundError:
             logger.critical('Targets file not found')
             sys.exit(1)
@@ -238,8 +238,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         for bacteria_file in onlyfiles:
             name = os.path.splitext(bacteria_file)[0]
             try:
-                one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
-                one_bact_model.add(Term('bacteria', ["\"" + name + "\""]))
+                one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_dir+'/'+bacteria_file, name)
+                one_bact_model.add(Atom('bacteria', ["\"" + name + "\""]))
                 utils.to_file(one_bact_model, lp_instance_file)
                 logger.info('Done for ' + name)
             except:

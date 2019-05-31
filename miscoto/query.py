@@ -2,6 +2,7 @@ import os
 import tempfile
 from pyasp.asp import *
 import clyngor
+from miscoto import utils
 
 def get_scopes(instance_f, encoding):
     """Get metabolic scope of a microbiota
@@ -32,7 +33,7 @@ def get_grounded_communities(instance, encoding):
     Returns:
         bytes: grounded model
     """
-    instance_f = instance.to_file()
+    instance_f = utils.to_file(instance)
     # print(os.path.abspath(instance_f))
     prg = [encoding, instance_f]
     grounder = Gringo4()
@@ -89,7 +90,7 @@ def get_communities(lp_instance, encoding):
     options = '--configuration jumpy --opt-strategy=usc,5'
 
     """
-    lp_f = lp_instance.to_file()
+    lp_f = utils.to_file(lp_instance)
     prg = [encoding, lp_f]
     print(os.path.abspath(lp_f))
     solver = Gringo4Clasp(clasp_options=options)
@@ -158,7 +159,7 @@ def get_intersection_communities_opti(lp_instance, optimum, encoding):
     """
     options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN,' + str(optimum)
     """
-    lp_f = lp_instance.to_file()
+    lp_f = utils.to_file(lp_instance)
     prg = [encoding, lp_f]
 
     solver = Gringo4Clasp(clasp_options=options)
@@ -185,7 +186,7 @@ def get_intersection_communities(lp_instance, encoding):
     """
     options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN'
     """
-    lp_f = lp_instance.to_file()
+    lp_f = utils.to_file(lp_instance)
     prg = [encoding, lp_f]
 
     solver = Gringo4Clasp(clasp_options=options)
@@ -256,7 +257,7 @@ def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     """
     options = '--configuration handy --opt-strategy=usc,0 --opt-mode=optN,' + str(optimum)
     """
-    lp_f = lp_instance.to_file()
+    lp_f = utils.to_file(lp_instance)
     prg = [encoding, lp_f]
 
     solver = Gringo4Clasp(clasp_options=options)
@@ -283,7 +284,7 @@ def get_all_communities(lp_instance, encoding, nmodels=0):
     """
     options = '--configuration handy --opt-strategy=usc,0 --opt-mode=optN'
     """
-    lp_f = lp_instance.to_file()
+    lp_f = utils.to_file(lp_instance)
     prg = [encoding, lp_instance]
 
     solver = Gringo4Clasp(clasp_options=options)
@@ -352,7 +353,7 @@ def get_union_communities_optimum(lp_instance, optimum, encoding):
     """
     options ='--configuration jumpy --opt-strategy=usc,5 --enum-mode=brave --opt-mode=optN --opt-bound='+str(optimum)
     """
-    lp_f = lp_instance.to_file()
+    lp_f = utils.to_file(lp_instance)
     prg = [encoding, lp_f]
     solver = Gringo4Clasp(clasp_options=options)
     union = solver.run(prg, collapseTerms=True, collapseAtoms=False)
@@ -403,9 +404,9 @@ def get_unproducible(draft, seeds, targets, encoding):
     Returns:
         TermSet: unproducible targets
     """
-    draft_f = draft.to_file()
-    seed_f =  seeds.to_file()
-    target_f = targets.to_file()
+    draft_f = utils.to_file(draft)
+    seed_f =  utils.to_file(seeds)
+    target_f = utils.to_file(targets)
     prg = [encoding, draft_f, seed_f, target_f]
     solver = Gringo4Clasp()
     models = solver.run(prg,collapseTerms=True,collapseAtoms=False)
@@ -424,7 +425,7 @@ def get_transported(instance, encoding):
     Returns:
         TermSet: transported metabolites
     """
-    instance_f = instance.to_file()
+    instance_f = utils.to_file(instance)
     prg = [encoding, instance_f]
     solver = Gringo4Clasp()
     models = solver.run(prg,collapseTerms=True,collapseAtoms=False)
@@ -444,7 +445,7 @@ def get_grounded_instance_exchanged_metabolites(instance, encoding, exchanged_in
     Returns:
         bytes: grounded model
     """
-    instance_f = instance.to_file()
+    instance_f = utils.to_file(instance)
     if exchanged_in_escope:
         options = "--const exchanged_in_escope=1"
     else:
