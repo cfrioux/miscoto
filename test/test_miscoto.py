@@ -95,7 +95,8 @@ def test_mincom_soup_enumeration():
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True)
 
-    assert results['enum_bacteria'] == enum_bacteria
+    assert sorted(enum_bacteria.values()) == sorted(results['enum_bacteria'].values())
+    assert sorted(enum_bacteria.keys()) == sorted(results['enum_bacteria'].keys())
 
 
 def test_mincom_soup_enumeration_optsol():
@@ -103,7 +104,8 @@ def test_mincom_soup_enumeration_optsol():
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True, optsol=True)
 
-    assert results['enum_bacteria'] == enum_bacteria
+    assert sorted(enum_bacteria.values()) == sorted(results['enum_bacteria'].values())
+    assert sorted(enum_bacteria.keys()) == sorted(results['enum_bacteria'].keys())
 
 
 def test_scopes():
