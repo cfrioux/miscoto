@@ -1,6 +1,5 @@
 import os
 import tempfile
-from pyasp.asp import *
 import clyngor
 from miscoto import utils
 

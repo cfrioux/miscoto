@@ -4,7 +4,6 @@
 import subprocess
 
 from miscoto import run_instance, run_mincom, run_scopes
-from pyasp.asp import *
 
 
 def test_instance():
