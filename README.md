@@ -2,7 +2,7 @@
 ## Description
 **Microbiome Screening and COmmunity selection using TOpology**
 
-MiSCoTo is a Python3 tool to explore microbiomes and select minimal communities within them.
+MiSCoTo is a Python3 (3.6 and higher) tool to explore microbiomes and select minimal communities within them.
 It uses Answer Set Programming (ASP) to optimize community selection.
 
 Inputs: metabolic models, seeds (growth medium) and metabolic targets.
