@@ -25,8 +25,8 @@ import logging
 from miscoto import query, sbml, commons, utils
 from os import listdir
 from os.path import isfile, join
-from pyasp.asp import *
 from xml.etree.ElementTree import ParseError
+from clyngor.as_pyasp import TermSet, Atom
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +115,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         if targets_file:
             logger.info('Reading targets from ' + targets_file)
             try:
-                targetsfacts = sbml.readSBMLspecies(targets_file, 'target')
+                targetsfacts = sbml.readSBMLspecies_clyngor(targets_file, 'target')
             except FileNotFoundError:
                 logger.critical('Targets file not found')
                 sys.exit(1)
@@ -128,7 +128,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         if seeds_file:
             logger.info('Reading targets from ' + seeds_file)
             try:
-                seedsfacts = sbml.readSBMLspecies(seeds_file, 'seed')
+                seedsfacts = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')
             except FileNotFoundError:
                 logger.critical('Seeds file not found')
                 sys.exit(1)
@@ -138,11 +138,11 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         else:
             seedsfacts = TermSet()
 
-            with open(lp_instance_file, "a") as f:
-                for elem in targetsfacts:
-                    f.write(str(elem) + '.\n')
-                for elem in seedsfacts:
-                    f.write(str(elem) + '.\n')
+        with open(lp_instance_file, "a") as f:
+            for elem in targetsfacts:
+                f.write(str(elem) + '.\n')
+            for elem in seedsfacts:
+                f.write(str(elem) + '.\n')
 
     # case 2: read inputs from SBML files
     elif bacteria_dir and seeds_file:
@@ -155,21 +155,21 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         if host_file:
             logger.info('Reading host network from ' + host_file)
             try:
-                draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
+                draftnet = sbml.readSBMLnetwork_symbionts_clyngor(host_file, 'host_metab_mod')
             except FileNotFoundError:
                 logger.critical('Host file not found')
                 sys.exit(1)
             except ParseError:
                 logger.critical("Invalid syntax in SBML file: " + host_file)
                 sys.exit(1)
-            draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
+            draftnet.add(Atom('draft', ["\"" + 'host_metab_mod' + "\""]))
         else:
             logger.warning('No host provided.')
             draftnet = TermSet()
 
         logger.info('Reading seeds from ' + seeds_file)
         try:
-            seeds = sbml.readSBMLspecies(seeds_file, 'seed')
+            seeds = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')
         except FileNotFoundError:
             logger.critical('Seeds file not found')
             sys.exit(1)
@@ -181,7 +181,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         if targets_file:
             logger.info('Reading targets from ' + targets_file)
             try:
-                targets = sbml.readSBMLspecies(targets_file, 'target')
+                targets = sbml.readSBMLspecies_clyngor(targets_file, 'target')
             except FileNotFoundError:
                 logger.critical('Targets file not found')
                 sys.exit(1)
@@ -204,8 +204,8 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         for bacteria_file in onlyfiles:
             name = os.path.splitext(bacteria_file)[0]
             try:
-                one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
-                one_bact_model.add(Term('bacteria', ["\"" + name + "\""]))
+                one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_dir+'/'+bacteria_file, name)
+                one_bact_model.add(Atom('bacteria', ["\"" + name + "\""]))
                 utils.to_file(one_bact_model, lp_instance_file)
                 logger.info('Done for ' + name)
             except:
@@ -231,21 +231,28 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     comhost_scope = []
     com_prodtargets = []
     com_unprodtargets = []
-    for a in model:
-        if a.pred() == 'dscope':
-            host_scope.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'dproducible':
-            host_prodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'dunproducible':
-            host_unprodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'newscope_microbiome':
-            com_scope.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'newscope_with_host':
-            comhost_scope.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'newlyproducible':
-            com_prodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
-        elif a.pred() == 'aunproducible':
-            com_unprodtargets.append(a.arg(0).rstrip('"').lstrip('"'))
+    for pred in model:
+        if pred == 'dscope':
+            for a in model[pred, 1]:
+                host_scope.append(a[0])
+        elif pred == 'dproducible':
+            for a in model[pred, 1]:
+                host_prodtargets.append(a[0])
+        elif pred == 'dunproducible':
+            for a in model[pred, 1]:
+                host_unprodtargets.append(a[0])
+        elif pred == 'newscope_microbiome':
+            for a in model[pred, 1]:
+                com_scope.append(a[0])
+        elif pred == 'newscope_with_host':
+            for a in model[pred, 1]:
+                comhost_scope.append(a[0])
+        elif pred == 'newlyproducible':
+            for a in model[pred, 1]:
+                com_prodtargets.append(a[0])
+        elif pred == 'aunproducible':
+            for a in model[pred, 1]:
+                com_unprodtargets.append(a[0])
 
     if host_file or input_instance:
         logger.info('*** HOST model producibility check ***')

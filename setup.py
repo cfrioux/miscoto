@@ -21,7 +21,7 @@ from setuptools import setup
 
 setup(
     name             = 'Miscoto',
-    version          = '1.2.0',
+    version          = '2.0.1',
     url              = 'https://github.com/cfrioux/miscoto',
     license          = 'GPLv3+',
     description      = 'Microbiome Screening and COmmunity selection using TOpology',
@@ -37,5 +37,5 @@ More information on usage and troubleshooting on Github: https://github.com/cfri
     #scripts          = ['miscoto/miscoto_instance.py','miscoto/miscoto_mincom.py','miscoto/miscoto_scopes.py'],
     entry_points     = {'console_scripts': ['miscoto_instance = miscoto.__main__:main_instance', 'miscoto_mincom = miscoto.__main__:main_mincom',
                                             'miscoto_scopes = miscoto.__main__:main_scopes']},
-    install_requires = ['pyasp == 1.4.3']
+    install_requires = ['clyngor_with_clingo', 'clyngor']
 )

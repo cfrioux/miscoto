@@ -25,7 +25,7 @@ import logging
 from miscoto import query, sbml, commons, utils
 from os import listdir
 from os.path import isfile, join
-from pyasp.asp import *
+from clyngor.as_pyasp import TermSet, Atom
 from xml.etree.ElementTree import ParseError
 
 logger = logging.getLogger(__name__)
@@ -155,7 +155,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         if targets_file:
             logger.info('Reading targets from ' + targets_file)
             try:
-                targetsfacts = sbml.readSBMLspecies(targets_file, 'target')
+                targetsfacts = sbml.readSBMLspecies_clyngor(targets_file, 'target')
             except FileNotFoundError:
                 logger.critical('Targets file not found')
                 sys.exit(1)
@@ -168,7 +168,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         if seeds_file:
             logger.info('Reading targets from ' + seeds_file)
             try:
-                seedsfacts = sbml.readSBMLspecies(seeds_file, 'seed')
+                seedsfacts = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')
             except FileNotFoundError:
                 logger.critical('Seeds file not found')
                 sys.exit(1)
@@ -195,22 +195,22 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         if host_file:
             logger.info('Reading host network from ' + host_file)
             try:
-                draftnet = sbml.readSBMLnetwork_symbionts(host_file, 'host_metab_mod')
+                draftnet = sbml.readSBMLnetwork_symbionts_clyngor(host_file, 'host_metab_mod')
             except FileNotFoundError:
                 logger.critical('Host file not found')
                 sys.exit(1)
             except ParseError:
                 logger.critical("Invalid syntax in SBML file: "+host_file)
                 sys.exit(1)
-            draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
+            draftnet.add(Atom('draft', ["\"" + 'host_metab_mod' + "\""]))
         else:
             logger.warning('No host provided')
             draftnet = TermSet()
-            draftnet.add(Term('draft', ["\"" + 'host_metab_mod' + "\""]))
+            draftnet.add(Atom('draft', ["\"" + 'host_metab_mod' + "\""]))
 
         logger.info('Reading seeds from ' + seeds_file)
         try:
-            seeds = sbml.readSBMLspecies(seeds_file, 'seed')
+            seeds = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')
         except FileNotFoundError:
             logger.critical('Targets file not found')
             sys.exit(1)
@@ -221,7 +221,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
         logger.info('Reading targets from '+ targets_file)
         try:
-            targets = sbml.readSBMLspecies(targets_file, 'target')
+            targets = sbml.readSBMLspecies_clyngor(targets_file, 'target')
         except FileNotFoundError:
             logger.critical('Targets file not found')
             sys.exit(1)
@@ -238,8 +238,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         for bacteria_file in onlyfiles:
             name = os.path.splitext(bacteria_file)[0]
             try:
-                one_bact_model = sbml.readSBMLnetwork_symbionts(bacteria_dir+'/'+bacteria_file, name)
-                one_bact_model.add(Term('bacteria', ["\"" + name + "\""]))
+                one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_dir+'/'+bacteria_file, name)
+                one_bact_model.add(Atom('bacteria', ["\"" + name + "\""]))
                 utils.to_file(one_bact_model, lp_instance_file)
                 logger.info('Done for ' + name)
             except:
@@ -272,32 +272,30 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     if optsol:
         logger.info('\n*** ONE MINIMAL SOLUTION ***')
         one_model = query.get_communities_from_g(grounded_instance)
-        optimum = ','.join(map(str, one_model.score))
+        score = one_model[1]
+        optimum = ','.join(map(str, score))
+        one_model = one_model[0]
         still_unprod = []
         bacteria = []
         newly_prod = []
         exchanged = {}
-        for a in one_model:
-            if a.pred() == 'unproducible_target':
-                still_unprod.append(a.arg(0).rstrip('"').lstrip('"'))
-            elif a.pred() == 'newly_producible_target':
-                newly_prod.append(a.arg(0).rstrip('"').lstrip('"'))
-            elif a.pred() == 'chosen_bacteria':
-                bacteria.append(a.arg(0).rstrip('"').lstrip('"'))
-            elif a.pred() == 'exchanged':
-                if (
-                        a.arg(2).rstrip('"').lstrip('"'),
-                        a.arg(3).rstrip('"').lstrip('"')
-                ) in exchanged:  #exchanged[(from,to)]=[(what,compartto);(what,compartto)]
-                    exchanged[(a.arg(2).rstrip('"').lstrip('"'),
-                               a.arg(3))].append(
-                                   a.arg(0).rstrip('"').lstrip('"'))
-                else:
-                    exchanged[(a.arg(2).rstrip('"').lstrip('"'),
-                               a.arg(3)).rstrip('"').lstrip('"')] = []
-                    exchanged[(a.arg(2).rstrip('"').lstrip('"'),
-                               a.arg(3)).rstrip('"').lstrip('"')].append(
-                                   a.arg(0).rstrip('"').lstrip('"'))
+        for pred in one_model:
+            if pred == 'unproducible_target':
+                for a in one_model[pred, 1]:
+                    still_unprod.append(a[0])
+            elif pred == 'newly_producible_target':
+                for a in one_model[pred, 1]:
+                    newly_prod.append(a[0])
+            elif pred == 'chosen_bacteria':
+                for a in one_model[pred, 1]:
+                    bacteria.append(a[0])
+            elif pred == 'exchanged':
+                for a in one_model[pred, 4]:
+                    if (a[2], a[3]) in exchanged:  #exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                        exchanged[(a[2], a[3])].append(a[0])
+                    else:
+                        exchanged[(a[2], a[3])] = []
+                        exchanged[(a[2], a[3])].append(a[0])
         logger.info(str(len(newly_prod)) + ' newly producible target(s):')
         logger.info("\n".join(newly_prod))
         logger.info('Still ' + str(len(still_unprod)) + ' unproducible target(s):')
@@ -329,26 +327,22 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                 "No stable model was found. Possible troubleshooting: no harmony between names for identical metabolites among host and microbes"
             )
             quit()
-        optimum_union = ','.join(map(str, union_m.score))
+        union_score = union_m[1]
+        optimum_union = ','.join(map(str, union_score))
+        union_m = union_m[0]
         union_bacteria = []
         union_exchanged = {}
-        for a in union_m :
-            if a.pred() == 'chosen_bacteria':
-                union_bacteria.append(a.arg(0).rstrip('"').lstrip('"'))
-            elif a.pred() == 'exchanged':
-                if (
-                        a.arg(2).rstrip('"').lstrip('"'),
-                        a.arg(3).rstrip('"').lstrip('"')
-                ) in union_exchanged:  #union_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
-                    union_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
-                                     a.arg(3).rstrip('"').lstrip('"'))].append(
-                                         a.arg(0).rstrip('"').lstrip('"'))
-                else:
-                    union_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
-                                     a.arg(3).rstrip('"').lstrip('"'))] = []
-                    union_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
-                                     a.arg(3).rstrip('"').lstrip('"'))].append(
-                                         a.arg(0).rstrip('"').lstrip('"'))
+        for pred in union_m :
+            if pred == 'chosen_bacteria':
+                for a in union_m[pred, 1]:
+                    union_bacteria.append(a[0])
+            elif pred == 'exchanged':
+                for a in union_m[pred, 4]:
+                    if (a[2], a[3]) in union_exchanged:  #union_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                        union_exchanged[(a[2], a[3])].append(a[0])
+                    else:
+                        union_exchanged[(a[2], a[3])] = []
+                        union_exchanged[(a[2], a[3])].append( a[0])
         logger.info('Union of minimal sets of bacteria, with optimum = ' +
                     optimum_union + ' comprises ' + str(len(union_bacteria)) +
                     ' bacteria')
@@ -371,25 +365,22 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             intersection_m = query.get_intersection_communities_from_g(grounded_instance, optimum)
         else:
             intersection_m = query.get_intersection_communities_from_g_noopti(grounded_instance)
-        optimum_inter = ','.join(map(str, intersection_m.score))
+        intersection_score = intersection_m[1]
+        optimum_inter = ','.join(map(str, intersection_score))
+        intersection_m = intersection_m[0]
         inter_bacteria = []
         inter_exchanged = {}
-        for a in intersection_m :
-            if a.pred() == 'chosen_bacteria':
-                inter_bacteria.append(a.arg(0).rstrip('"').lstrip('"'))
-            elif a.pred() == 'exchanged':
-                if (
-                        a.arg(2).rstrip('"').lstrip('"'), a.arg(3).rstrip('"').lstrip('"')
-                ) in inter_exchanged:  #inter_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
-                    inter_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
-                                     a.arg(3).rstrip('"').lstrip('"'))].append(
-                                         a.arg(0).rstrip('"').lstrip('"'))
-                else:
-                    inter_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
-                                     a.arg(3).rstrip('"').lstrip('"'))] = []
-                    inter_exchanged[(a.arg(2).rstrip('"').lstrip('"'),
-                                     a.arg(3).rstrip('"').lstrip('"'))].append(
-                                         a.arg(0).rstrip('"').lstrip('"'))
+        for pred in intersection_m :
+            if pred == 'chosen_bacteria':
+                for a in intersection_m[pred, 1]:
+                    inter_bacteria.append(a[0])
+            elif pred == 'exchanged':
+                for a in intersection_m[pred, 4]:
+                    if (a[2], a[3]) in inter_exchanged:  #inter_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                        inter_exchanged[(a[2], a[3])].append(a[0])
+                    else:
+                        inter_exchanged[(a[2], a[3])] = []
+                        inter_exchanged[(a[2], a[3])].append(a[0])
         logger.info('Intersection of minimal sets of bacteria, with optimum = '
                     + optimum_inter + ' comprises ' +
                     str(len(inter_bacteria)) + ' bacteria')
@@ -413,42 +404,38 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         else:
             all_models = query.get_all_communities_from_g_noopti(grounded_instance)
         count = 1
+
+        enum_bacteria = {}
+        enum_exchanged = {}
         for model in all_models:
-            enum_bacteria = []
-            enum_exchanged = {}
+            enum_bacteria_this_sol = []
+            enum_exchanged_this_sol = {}
             logger.info('\nSolution ' + str(count))
-            for a in model :
-                if a.pred() == 'chosen_bacteria':
-                    enum_bacteria.append(a.arg(0).rstrip('"').lstrip('"'))
-                elif a.pred() == 'exchanged':
-                    if (
-                            a.arg(2).rstrip('"').lstrip('"'),
-                            a.arg(3).rstrip('"').lstrip('"')
-                    ) in enum_exchanged:  #enum_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
-                        enum_exchanged[(
-                            a.arg(2).rstrip('"').lstrip('"'),
-                            a.arg(3).rstrip('"').lstrip('"').rstrip('"').lstrip('"'))].append(
-                                a.arg(0).rstrip('"').lstrip('"'))
-                    else:
-                        enum_exchanged[(
-                            a.arg(2).rstrip('"').lstrip('"'),
-                            a.arg(3).rstrip('"').lstrip('"'))] = []
-                        enum_exchanged[(
-                            a.arg(2).rstrip('"').lstrip('"'),
-                            a.arg(3).rstrip('"').lstrip('"'))].append(
-                                a.arg(0).rstrip('"').lstrip('"'))
-            logger.info("\t" + str(len(enum_bacteria)) +
+            for pred in model :
+                if pred == 'chosen_bacteria':
+                    for a in model[pred, 1]:
+                        enum_bacteria_this_sol.append(a[0])
+                elif pred == 'exchanged':
+                    for a in model[pred, 4]:
+                        if (a[2], a[3]) in enum_exchanged_this_sol:  #enum_exchanged_this_sol[(from,to)]=[(what,compartto);(what,compartto)]
+                            enum_exchanged_this_sol[(a[2], a[3])].append(a[0])
+                        else:
+                            enum_exchanged_this_sol[(a[2], a[3])] = []
+                            enum_exchanged_this_sol[(a[2], a[3])].append(a[0])
+            logger.info("\t" + str(len(enum_bacteria_this_sol)) +
                         " bacterium(ia) in solution " + str(count))
-            for elem in enum_bacteria:
+            for elem in enum_bacteria_this_sol:
                 logger.info("\t" + elem)
-            if len(enum_exchanged) >= 1:
+            if len(enum_exchanged_this_sol) >= 1:
                 logger.info("\t" +
-                            str(sum(len(v) for v in enum_exchanged.values())) +
+                            str(sum(len(v) for v in enum_exchanged_this_sol.values())) +
                             " exchange(s) in solution " + str(count))
-                for fromto in enum_exchanged:
+                for fromto in enum_exchanged_this_sol:
                     logger.info('\texchange(s) from ' + fromto[0] + ' to ' +
                                 fromto[1] + " = " +
-                                ','.join(enum_exchanged[fromto]))
+                                ','.join(enum_exchanged_this_sol[fromto]))
+            enum_exchanged[count] = enum_exchanged_this_sol
+            enum_bacteria[count] = enum_bacteria_this_sol
             count+=1
         results['all_models'] = all_models
         results['enum_exchanged'] = enum_exchanged

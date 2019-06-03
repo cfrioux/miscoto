@@ -1,10 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import re
-from pyasp.asp import *
-from pyasp.term import *
 import xml.etree.ElementTree as etree
 from xml.etree.ElementTree import XML, fromstring, tostring
+from clyngor.as_pyasp import TermSet, Atom
 
 def get_model(sbml):
     """Get the model of a SBML
@@ -179,6 +178,62 @@ def readSBMLnetwork_symbionts(filename, name) :
 
     return lpfacts
 
+def readSBMLnetwork_symbionts_clyngor(filename, name) :
+    """Read a SBML metabolic network
+    
+    Args:
+        filename (str): SBML file
+        name (str): suffix to identify the type of network
+    
+    Returns:
+        TermSet: metabolic model
+    """
+    all_atoms = set()
+
+    tree = etree.parse(filename)
+    sbml = tree.getroot()
+    model = get_model(sbml)
+
+    listOfReactions = get_listOfReactions(model)
+    for e in listOfReactions:
+        if e.tag[0] == "{":
+            uri, tag = e.tag[1:].split("}")
+        else:
+            tag = e.tag
+        if tag == "reaction":
+            reactionId = e.attrib.get("id")
+            all_atoms.add(Atom('reaction', ["\""+reactionId+"\"", "\""+name+"\""])) 
+            if(e.attrib.get("reversible")=="true"):
+                all_atoms.add(Atom('reversible', ["\""+reactionId+"\"", "\""+name+"\""]))
+
+            listOfReactants = get_listOfReactants(e)
+            # if listOfReactants == None :
+            #     print("\n Warning:" + reactionId + "listOfReactants=None")
+            if listOfReactants != None:
+                for r in listOfReactants:
+                    all_atoms.add(Atom('reactant', ["\""+r.attrib.get("species").replace('"','')+"\"", "\""+reactionId+"\"", "\""+name+"\""])) #,"\""+name+"\""
+
+            listOfProducts = get_listOfProducts(e)
+            # if listOfProducts == None:
+            #     print("\n Warning:" + reactionId + "listOfProducts=None")
+            if listOfProducts != None:
+                for p in listOfProducts:
+                    all_atoms.add(Atom('product', ["\""+p.attrib.get("species").replace('"','')+"\"", "\""+reactionId+"\"", "\""+name+"\""])) #,"\""+name+"\""
+    listofspecies = get_listOfSpecies(model)
+    for e in listofspecies:
+        if e.tag[0] == "{":
+            uri, tag = e.tag[1:].split("}")
+        else: tag = e.tag
+        if tag == "species":
+            speciesId = e.attrib.get("id").replace('"','')
+            speciesNm = e.attrib.get("name").replace('"','')
+            compartment = e.attrib.get("compartment")
+            all_atoms.add(Atom('species', ["\""+speciesId+"\"", "\""+speciesNm+"\"", "\""+compartment+"\"", "\""+name+"\""]))
+
+    lpfacts = TermSet(all_atoms)
+
+    return lpfacts
+
 def readSBMLnetwork_symbionts_noemptyrctprd(filename, name) :
     """Read a SBML metabolic network while ignoring the reactions that have no reactant or product
     
@@ -227,7 +282,7 @@ def readSBMLnetwork_symbionts_noemptyrctprd(filename, name) :
             compartment = e.attrib.get("compartment")
             lpfacts.add(Term('species', ["\""+speciesId+"\"", "\""+speciesNm+"\"", "\""+compartment+"\"", "\""+name+"\""]))
 
-    #print(lpfacts)
+    lpfacts = TermSet(all_atoms)
     return lpfacts
 
 def readSBMLnetwork_em(filename, externalcomp="e") :
@@ -421,4 +476,27 @@ def readSBMLspecies(filename, speciestype) :
             tag = e.tag
         if tag == "species":
             lpfacts.add(Term(speciestype, ["\""+e.attrib.get("id").replace('"','')+"\""]))
+    return lpfacts
+
+def readSBMLspecies_clyngor(filename, speciestype) :
+    """
+    Read a SBML network return its species as seeds or targets
+    """
+    all_atoms = set()
+
+    tree = etree.parse(filename)
+    sbml = tree.getroot()
+    model = get_model(sbml)
+
+    listOfSpecies = get_listOfSpecies(model)
+    for e in listOfSpecies:
+        if e.tag[0] == "{":
+            uri, tag = e.tag[1:].split("}")
+        else:
+            tag = e.tag
+        if tag == "species":
+            all_atoms.add(Atom(speciestype, ["\""+e.attrib.get("id")+"\""]))
+
+    lpfacts = TermSet(all_atoms)
+
     return lpfacts

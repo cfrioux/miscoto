@@ -8,18 +8,19 @@ from pyasp.asp import *
 
 
 def test_instance():
-    expected_lp_instance = set([Term('product',['"e"','"R_R4"','"orgB2"']), Term('product',['"c"','"R_R1"','"host_metab_mod"']), Term('species',['"d"','"d"','"c"','"orgB3"']), Term('species',['"b"','"b"','"c"','"orgB1"']), Term('target',['"f"']), Term('reaction',['"R_R4"','"orgB2"']), Term('product',['"e"','"R_R4"','"orgB3"']), Term('species',['"e"','"e"','"c"','"orgB3"']), Term('species',['"a"','"a"','"c"','"host_metab_mod"']), Term('reactant',['"a"','"R_R1"','"orgB2"']), Term('species',['"e"','"e"','"c"','"orgB2"']), Term('reaction',['"R_R4"','"orgB1"']), Term('reaction',['"R_R1"','"orgB2"']), Term('product',['"c"','"R_R1"','"orgB2"']), Term('reactant',['"d"','"R_R4"','"orgB2"']), Term('species',['"c"','"c"','"c"','"orgB3"']), Term('product',['"f"','"R_R3"','"host_metab_mod"']), Term('reaction',['"R_R3"','"host_metab_mod"']), Term('product',['"c"','"R_R1"','"orgB3"']), Term('reaction',['"R_R2"','"orgB3"']), Term('species',['"d"','"d"','"c"','"orgB1"']), Term('reactant',['"b"','"R_R2"','"orgB3"']), Term('reaction',['"R_R1"','"host_metab_mod"']), Term('reactant',['"b"','"R_R2"','"host_metab_mod"']), Term('species',['"a"','"a"','"c"','"orgB2"']), Term('reactant',['"c"','"R_R4"','"orgB1"']), Term('species',['"e"','"e"','"c"','"host_metab_mod"']), Term('seed',['"b"']), Term('reaction',['"R_R4"','"orgB3"']), Term('species',['"c"','"c"','"c"','"orgB1"']), Term('reactant',['"a"','"R_R1"','"orgB3"']), Term('reactant',['"d"','"R_R4"','"orgB3"']), Term('product',['"d"','"R_R2"','"host_metab_mod"']), Term('species',['"c"','"c"','"c"','"host_metab_mod"']), Term('bacteria',['"orgB3"']), Term('reactant',['"c"','"R_R4"','"orgB2"']), Term('species',['"a"','"a"','"c"','"orgB3"']), Term('species',['"b"','"b"','"c"','"host_metab_mod"']), Term('reactant',['"d"','"R_R4"','"orgB1"']), Term('reactant',['"a"','"R_R1"','"host_metab_mod"']), Term('species',['"d"','"d"','"c"','"host_metab_mod"']), Term('species',['"f"','"f"','"c"','"host_metab_mod"']), Term('reactant',['"e"','"R_R3"','"host_metab_mod"']), Term('product',['"e"','"R_R4"','"orgB1"']), Term('species',['"b"','"b"','"c"','"orgB2"']), Term('product',['"d"','"R_R2"','"orgB3"']), Term('species',['"c"','"c"','"c"','"orgB2"']), Term('species',['"e"','"e"','"c"','"orgB1"']), Term('reaction',['"R_R1"','"orgB3"']), Term('species',['"a"','"a"','"c"','"orgB1"']), Term('reaction',['"R_R2"','"host_metab_mod"']), Term('bacteria',['"orgB1"']), Term('species',['"b"','"b"','"c"','"orgB3"']), Term('draft',['"host_metab_mod"']), Term('species',['"d"','"d"','"c"','"orgB2"']), Term('reactant',['"c"','"R_R4"','"orgB3"']), Term('seed',['"a"']), Term('bacteria',['"orgB2"'])])
-
+    with open('../toy/instance_toy.lp', 'r') as expected_file:
+        expected_lp_instances = expected_file.read().splitlines()
     lp_instance = run_instance(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml')
-    lp_instance = [atom for atom in lp_instance]
 
-    assert set(lp_instance) == expected_lp_instance
+    with open(lp_instance, 'r') as found_file:
+        lp_instances = found_file.read().splitlines()
+        assert sorted(lp_instances) == sorted(expected_lp_instances)
 
 
-def test_mincom():
-    expected_newly_productible = set(['"f"'])
-    expected_bacteria = set(['"orgB3"'])
-    expected_exchande = {('"orgB3"', '"host_metab_mod"'): ['"e"']}
+def test_mincom_minexch():
+    expected_newly_productible = set(['f'])
+    expected_bacteria = set(['orgB3'])
+    expected_exchande = {('orgB3', 'host_metab_mod'): ['e']}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch')
 
@@ -28,13 +29,92 @@ def test_mincom():
     assert results['exchanged'] == expected_exchande
 
 
+def test_mincom_minexch_optsol():
+    expected_newly_productible = set(['f'])
+    expected_bacteria = set(['orgB3'])
+    expected_exchande = {('orgB3', 'host_metab_mod'): ['e']}
+
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', optsol=True)
+
+    assert set(results['newly_prod']) == expected_newly_productible
+    assert set(results['bacteria']) == expected_bacteria
+    assert results['exchanged'] == expected_exchande
+
+
+def test_mincom_minexch_intersection():
+    inter_bacteria = set(['orgB3'])
+    inter_exchanged = {('orgB3', 'host_metab_mod'): ['e']}
+
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', intersection=True)
+
+    assert set(results['inter_bacteria']) == inter_bacteria
+    assert results['inter_exchanged'] == inter_exchanged
+
+
+def test_mincom_minexch_enumeration():
+    enum_bacteria = {1: ['orgB3']}
+    enum_exchanged = {1:{('orgB3', 'host_metab_mod'): ['e']}}
+
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', enumeration=True)
+
+    assert results['enum_bacteria'] == enum_bacteria
+    assert results['enum_exchanged'] == enum_exchanged
+
+
+def test_mincom_minexch_enumeration_optsol():
+    enum_bacteria = {1: ['orgB3']}
+    enum_exchanged = {1:{('orgB3', 'host_metab_mod'): ['e']}}
+
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', enumeration=True, optsol=True)
+
+    assert results['enum_bacteria'] == enum_bacteria
+    assert results['enum_exchanged'] == enum_exchanged
+
+
+def test_mincom_soup():
+    expected_newly_productible = set(['f'])
+    expected_bacteria = set(['orgB1','orgB2','orgB3']) #solution is one org among the 3
+
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup')
+
+    assert set(results['newly_prod']) == expected_newly_productible
+    assert set(results['bacteria']).issubset(expected_bacteria) and len(set(results['bacteria'])) ==1
+
+def test_mincom_soup_optsol():
+    expected_newly_productible = set(['f'])
+    expected_bacteria = set(['orgB1','orgB2','orgB3']) #solution is one org among the 3
+
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', optsol=True)
+
+    assert set(results['newly_prod']) == expected_newly_productible
+    assert set(results['bacteria']).issubset(expected_bacteria) and len(set(results['bacteria'])) ==1
+
+
+def test_mincom_soup_enumeration():
+    enum_bacteria = {1: ['orgB3'], 2: ['orgB1'], 3: ['orgB2']}
+
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True)
+
+    assert sorted(enum_bacteria.values()) == sorted(results['enum_bacteria'].values())
+    assert sorted(enum_bacteria.keys()) == sorted(results['enum_bacteria'].keys())
+
+
+def test_mincom_soup_enumeration_optsol():
+    enum_bacteria = {1: ['orgB3'], 2: ['orgB1'], 3: ['orgB2']}
+
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True, optsol=True)
+
+    assert sorted(enum_bacteria.values()) == sorted(results['enum_bacteria'].values())
+    assert sorted(enum_bacteria.keys()) == sorted(results['enum_bacteria'].keys())
+
+
 def test_scopes():
     producible_targets = set()
-    unproducible_targets = set(['"f"'])
-    host_scope = set(['"d"', '"a"', '"c"', '"b"'])
-    microbiome_producible_targets = set(['"f"'])
+    unproducible_targets = set(['f'])
+    host_scope = set(['d', 'a', 'c', 'b'])
+    microbiome_producible_targets = set(['f'])
     microbiome_unproducible_targets = set()
-    microbiome_only = set(['"f"', '"e"'])
+    microbiome_only = set(['f', 'e'])
 
     results = run_scopes(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml')
 

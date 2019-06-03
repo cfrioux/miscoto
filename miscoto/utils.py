@@ -1,7 +1,7 @@
 #!python
 # -*- coding: utf-8 -*-
 import os
-from pyasp.term import *
+import tempfile
 
 def clean_up() :
     if os.path.isfile("parser.out"): os.remove("parser.out")
