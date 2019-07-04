@@ -40,7 +40,7 @@ ways, including the use of bash tools
 """
 
 requires = """
-requires PyASP package: "pip install PyASP"
+requires clyngor package: "pip install clyngor"
 """
 #
 ###############################################################################

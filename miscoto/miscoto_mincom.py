@@ -54,7 +54,7 @@ Option -o is either 'soup' or 'minexch' depending on the wanted modeling method
 """
 
 requires = """
-requires PyASP package: "pip install PyASP"
+requires clyngor package: "pip install clyngor"
 """
 #
 ###############################################################################
@@ -259,13 +259,9 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
     logger.info('\nFinding optimal communities for target production...')
     #ground the instance
-    try:
-        grounded_instance = query.get_grounded_communities_from_file(lp_instance_file, encoding)
-    except OSError:
-        logger.critical(
-            "Error. Possible reason: solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp --no-cache-dir'"
-        )
-        sys.exit(1)
+
+    grounded_instance = query.get_grounded_communities_from_file(lp_instance_file, encoding)
+
 
 
 # one solution

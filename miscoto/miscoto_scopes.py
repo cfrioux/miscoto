@@ -42,7 +42,7 @@ Computation from SBML models or an instance pre-created with miscoto_instance.py
 """
 
 requires = """
-requires PyASP package: "pip install PyASP"
+requires clyngor package: "pip install clyngor"
 """
 
 pusage="""
@@ -217,13 +217,9 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         quit()
 
     logger.info("Computing scopes...")
-    try:
-        model = query.get_scopes(lp_instance_file, commons.ASP_SRC_SCOPES)
-    except OSError:
-        logger.critical(
-            "Error. Possible reason: solvers are not properly installed. Please install them again by running 'pip uninstall pyasp' and 'pip install pyasp --no-cache-dir'"
-        )
-        sys.exit(1)
+
+    model = query.get_scopes(lp_instance_file, commons.ASP_SRC_SCOPES)
+
     host_scope = []
     host_prodtargets = []
     host_unprodtargets = []
