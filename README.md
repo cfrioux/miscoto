@@ -12,7 +12,7 @@ Computations can be performed with a set of symbionts or a set of symbionts and 
 Important notice: be sure that two identical metabolites have the same name in all metabolic networks. Otherwise inconsistencies might occur between targets predicted as producible under the "soup" modeling and the "minexch" modeling.
 
 Required package (starting from version 2.0 of the package):
-* ``clyngor`` (``pip install clyngot==0.3.20``) or  ``clyngor-with-clingo`` (``pip install clyngor-with-clingo``)
+* ``clyngor`` (``pip install clyngor==0.3.20``) or  ``clyngor-with-clingo`` (``pip install clyngor-with-clingo``)
 
 ### Microbiome exploration
 Computation of the added value of the microbiome over a individual host with respect to targets or the whole scope of producible compounds.
