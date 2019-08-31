@@ -21,7 +21,7 @@ from setuptools import setup
 
 setup(
     name             = 'Miscoto',
-    version          = '2.0.2',
+    version          = '2.0.3',
     url              = 'https://github.com/cfrioux/miscoto',
     license          = 'GPLv3+',
     description      = 'Microbiome Screening and COmmunity selection using TOpology',
