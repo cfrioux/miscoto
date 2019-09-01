@@ -212,7 +212,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         try:
             seeds = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')
         except FileNotFoundError:
-            logger.critical('Targets file not found')
+            logger.critical('Seeds file not found')
             sys.exit(1)
         except ParseError:
             logger.critical("Invalid syntax in SBML file: "+seeds_file)
