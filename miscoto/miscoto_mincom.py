@@ -88,6 +88,9 @@ def cmd_mincom():
     parser.add_argument("-t", "--targets",
                         help="targets in SBML format",
                         required=False)
+    parser.add_argument("--output",
+                        help="output file name for json",
+                        required=False)
 
     args = parser.parse_args()
     bacterium_met =  args.bactsymbionts
@@ -113,11 +116,13 @@ def cmd_mincom():
     else:
         optsol = False
 
+    output_json = args.output
+
     run_mincom(option, bacterium_met, lp_instance_file, targets_sbml, seeds_sbml, draft_sbml,
-                intersection_arg, enumeration_arg, union_arg, optsol)
+                intersection_arg, enumeration_arg, union_arg, optsol, output_json)
 
 def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_file=None, seeds_file=None, host_file=None,
-                intersection=False, enumeration=False, union=False, optsol=False):
+                intersection=False, enumeration=False, union=False, optsol=False, output_json=None):
     """Computes community selections in microbiota
         option (str, optional): Defaults to None. Modeling type: 'soup' for uncompartmentalized, 'minexch' for compartmentalized
         bacteria_dir (str, optional): Defaults to None. directory with symbionts metabolic networks
@@ -444,7 +449,10 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     logger.info("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
 
-    yield results
+    if output_json:
+        utils.results_to_json(results, output_json)
+
+    return results
 
 if __name__ == '__main__':
     cmd_mincom()
