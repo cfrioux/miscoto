@@ -1,9 +1,11 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
 
+import json
+import os
 import subprocess
 
-from miscoto import run_instance, run_mincom, run_scopes
+from miscoto import run_instance, run_mincom, run_scopes, results_to_json
 
 
 def test_instance():
@@ -131,3 +133,22 @@ if __name__ == "__main__":
     test_mincom()
     print("** testing instance creation")
     test_instance()
+
+def test_create_json():
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True, optsol=True)
+    results_to_json(results, 'test.json')
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {'one_model': {'chosen_bacteria':
+                            [['orgB3']], 'chosen_bacteria/1': [['orgB3']],
+                        'newly_producible_target':
+                            [['f']], 'newly_producible_target/1': [['f']]},
+                        'exchanged': {},
+                        'bacteria':
+                            ['orgB3'], 'still_unprod': [], 'newly_prod': ['f'], 'all_models': [],
+                        'enum_exchanged':
+                            {'1': {}, '2': {}, '3': {}},
+                        'enum_bacteria':
+                            {'1': ['orgB3'], '2': ['orgB1'], '3': ['orgB2']}}
+
+    assert dict_results == expected_results
+    os.remove('test.json')
