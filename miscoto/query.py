@@ -180,7 +180,7 @@ def get_all_communities_from_g(grounding, optimum, nmodels=0):
     models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels).by_arity.discard_quotes
     models = tuple(clyngor.opt_models_from_clyngor_answers(models))
 
-    yield models
+    return models
 
 def get_all_communities_from_g_noopti(grounding, nmodels=0):
     """Get all optimal communities, from grounding, without optimal score
@@ -196,7 +196,7 @@ def get_all_communities_from_g_noopti(grounding, nmodels=0):
     models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels).by_arity.discard_quotes
     models = tuple(clyngor.opt_models_from_clyngor_answers(models))
 
-    yield models
+    return models
 
 def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     """Get all communities, from TermSet
@@ -215,7 +215,7 @@ def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     models = clyngor.solve(prg, options=options, nb_model=nmodels).by_arity.discard_quotes
     models = tuple(clyngor.opt_models_from_clyngor_answers(models))
 
-    yield models
+    return models
 
 def get_all_communities(lp_instance, encoding, nmodels=0):
     """Get all communities, from TermSet
@@ -233,7 +233,7 @@ def get_all_communities(lp_instance, encoding, nmodels=0):
     prg = [encoding, lp_instance]
     models = tuple(clyngor.opt_models_from_clyngor_answers(clyngor.solve(prg, options=options, nb_model=nmodels).by_arity.discard_quotes))
 
-    yield models
+    return models
 
 def get_union_communities_from_g(grounding, optimum):
     """Get union of all community solutions
