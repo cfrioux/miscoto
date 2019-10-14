@@ -178,9 +178,9 @@ def get_all_communities_from_g(grounding, optimum, nmodels=0):
     """
     options = '--configuration handy --opt-strategy=usc,5 --opt-mode=optN,' +str(optimum)
     models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels).by_arity.discard_quotes
-    models = tuple(clyngor.opt_models_from_clyngor_answers(models))
+    opt_models = clyngor.opt_models_from_clyngor_answers(models)
 
-    return models
+    return opt_models
 
 def get_all_communities_from_g_noopti(grounding, nmodels=0):
     """Get all optimal communities, from grounding, without optimal score
@@ -194,9 +194,9 @@ def get_all_communities_from_g_noopti(grounding, nmodels=0):
     """
     options = '--configuration handy --opt-strategy=usc,5 --opt-mode=optN'
     models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels).by_arity.discard_quotes
-    models = tuple(clyngor.opt_models_from_clyngor_answers(models))
+    opt_models = clyngor.opt_models_from_clyngor_answers(models)
 
-    return models
+    return opt_models
 
 def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     """Get all communities, from TermSet
@@ -213,9 +213,9 @@ def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     options = '--configuration handy --opt-strategy=usc,0 --opt-mode=optN,' + str(optimum)
     prg = [encoding, lp_instance]
     models = clyngor.solve(prg, options=options, nb_model=nmodels).by_arity.discard_quotes
-    models = tuple(clyngor.opt_models_from_clyngor_answers(models))
+    opt_models = clyngor.opt_models_from_clyngor_answers(models)
 
-    return models
+    return opt_models
 
 def get_all_communities(lp_instance, encoding, nmodels=0):
     """Get all communities, from TermSet
@@ -231,9 +231,9 @@ def get_all_communities(lp_instance, encoding, nmodels=0):
     """
     options = '--configuration handy --opt-strategy=usc,0 --opt-mode=optN'
     prg = [encoding, lp_instance]
-    models = tuple(clyngor.opt_models_from_clyngor_answers(clyngor.solve(prg, options=options, nb_model=nmodels).by_arity.discard_quotes))
+    opt_models = clyngor.opt_models_from_clyngor_answers(clyngor.solve(prg, options=options, nb_model=nmodels).by_arity.discard_quotes)
 
-    return models
+    return opt_models
 
 def get_union_communities_from_g(grounding, optimum):
     """Get union of all community solutions
