@@ -65,7 +65,9 @@ instance pre-created with miscoto_instance.py
     ```python
     from miscoto import run_scopes
 
-    run_scopes(lp_instance_file=xxx, targets_file=xxx, seeds_file=xxx, bacteria_dir=xxx, host_file=xxx, output_file=xxx)
+    run_scopes(lp_instance_file=xxx, targets_file=xxx, \
+                seeds_file=xxx, bacteria_dir=xxx, \
+                host_file=xxx, output_json=xxx)
     ```
 
 
@@ -99,21 +101,21 @@ minimal solutions
                 targets_file=xxxx, seeds_file=xxx,\
                 optsol=True/False, enumeration=True/False, \
                 intersection=True/False, union=True/False, \
-                output_file=xxx)
+                output_json=xxx)
 
     run_mincom(option='soup/minexch', \
                 bacteria_dir=xxx, \
                 targets_file=xxxx, seeds_file=xxx,\
                 optsol=True/False, enumeration=True/False, \
                 intersection=True/False, union=True/False, \
-                output_file=xxx)
+                output_json=xxx)
 
     run_mincom(option='soup/minexch',\
                 lp_instance_file=xxxx,\
                 targets_file=xxxx, seeds_file=xxx,
                 optsol=True/False, enumeration=True/False, \
                 intersection=True/False, union=True/False, \
-                output_file=xxx)
+                output_json=xxx)
     ```
 
 
