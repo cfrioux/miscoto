@@ -5,7 +5,7 @@ import json
 import os
 import subprocess
 
-from miscoto import run_instance, run_mincom, run_scopes, results_to_json
+from miscoto import run_instance, run_mincom, run_scopes, utils
 
 
 def test_instance():
@@ -136,15 +136,13 @@ if __name__ == "__main__":
 
 def test_create_json():
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True, optsol=True)
-    results_to_json(results, 'test.json')
+    utils.to_json(results, 'test.json')
     dict_results = json.loads(open('test.json', 'r').read())
-    expected_results = {'one_model': {'chosen_bacteria':
-                            [['orgB3']], 'chosen_bacteria/1': [['orgB3']],
-                        'newly_producible_target':
-                            [['f']], 'newly_producible_target/1': [['f']]},
-                        'exchanged': {},
+    expected_results = {'exchanged': {},
                         'bacteria':
-                            ['orgB3'], 'still_unprod': [], 'newly_prod': ['f'], 'all_models': [],
+                            ['orgB3'],
+                        'still_unprod': [],
+                        'newly_prod': ['f'],
                         'enum_exchanged':
                             {'1': {}, '2': {}, '3': {}},
                         'enum_bacteria':

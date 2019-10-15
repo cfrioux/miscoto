@@ -412,7 +412,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             enum_bacteria_this_sol = []
             enum_exchanged_this_sol = {}
             logger.info('\nSolution ' + str(count))
-            for pred in model :
+            for pred in model:
                 if pred == 'chosen_bacteria':
                     for a in model[pred, 1]:
                         enum_bacteria_this_sol.append(a[0])
@@ -446,7 +446,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     utils.clean_up()
 
     if output_json:
-        utils.results_to_json(results, output_json)
+        utils.to_json(results, output_json)
 
     return results
 
