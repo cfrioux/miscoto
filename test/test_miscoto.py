@@ -5,7 +5,7 @@ import json
 import os
 import subprocess
 
-from miscoto import run_instance, run_mincom, run_scopes, utils
+from miscoto import run_instance, run_mincom, run_scopes
 
 
 def test_instance():
@@ -134,9 +134,24 @@ if __name__ == "__main__":
     print("** testing instance creation")
     test_instance()
 
-def test_create_json():
-    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True, optsol=True)
-    utils.to_json(results, 'test.json')
+def test_create_json_scopes():
+    results = run_scopes(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', output_json='test.json')
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {'host_prodtargets': [],
+                        'host_unprodtargets': ['f'],
+                        'host_scope': ['d', 'a', 'c', 'b'],
+                        'com_prodtargets': ['f'],
+                        'com_unprodtargets': [],
+                        'comhost_scope': ['f', 'e']}
+
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('test.json')
+
+def test_create_json_mincom():
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
+                        seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml',
+                        option='soup', enumeration=True, optsol=True, output_json='test.json')
     dict_results = json.loads(open('test.json', 'r').read())
     expected_results = {'exchanged': {},
                         'bacteria':

@@ -77,6 +77,9 @@ def cmd_scopes():
     parser.add_argument("-t", "--targets",
                         help="targets in SBML format",
                         required=False)
+    parser.add_argument("--output",
+                        help="output file name for json",
+                        required=False)
 
     args = parser.parse_args()
     lp_instance_file_arg = args.asp
@@ -84,9 +87,11 @@ def cmd_scopes():
     seeds_sbml = args.seeds
     bacterium_met =  args.bactsymbionts
     draft_sbml = args.modelhost
-    run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml)
+    output_json = args.output
 
-def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacteria_dir=None, host_file=None):
+    run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml, output_json)
+
+def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacteria_dir=None, host_file=None, output_json=None):
     """[summary]
         lp_instance_file ([str], optional): Defaults to None. [ASP facts instance of the problem]
         targets_file ([str], optional): Defaults to None. [targets file]
@@ -293,8 +298,12 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)
 
+    if output_json:
+        utils.to_json(results, output_json)
+
     logger.info("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
+
     return results
 
 if __name__ == '__main__':

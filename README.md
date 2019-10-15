@@ -12,7 +12,7 @@ Computations can be performed with a set of symbionts or a set of symbionts and 
 Important notice: be sure that two identical metabolites have the same name in all metabolic networks. Otherwise inconsistencies might occur between targets predicted as producible under the "soup" modeling and the "minexch" modeling.
 
 Required package (starting from version 2.0 of the package):
-* ``clyngor`` (``pip install clyngor==0.3.20``) or  ``clyngor-with-clingo`` (``pip install clyngor-with-clingo``)
+* [clyngor](https://github.com/Aluriak/clyngor) (``pip install clyngor==0.3.20``) or  ``clyngor-with-clingo`` (``pip install clyngor-with-clingo``)
 
 ### Microbiome exploration
 Computation of the added value of the microbiome over a individual host with respect to targets or the whole scope of producible compounds.
@@ -49,23 +49,23 @@ instance pre-created with miscoto_instance.py
 
         * usage 1: host, symbionts, seeds, [targets]
         ```
-        miscoto_scopes -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
+        miscoto_scopes -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml [--output output_file]
         ```
         * usage 2: symbionts, seeds, [targets]
         ```
-        miscoto_scopes -b symbiont_directory -s seeds.sbml -t targets.sbml
+        miscoto_scopes -b symbiont_directory -s seeds.sbml -t targets.sbml [--output output_file]
         ```
     * from a pre-computed instance with possibly (additional) seeds or targets
         * usage 3: instance, [seeds], [targets]    
         ```
-        miscoto_scopes -a instance.lp [-s seeds.sbml] [-t targets.sbml]
+        miscoto_scopes -a instance.lp [-s seeds.sbml] [-t targets.sbml] [--output output_file]
         ```
 
     ```miscoto_scopes``` can be called directly in Python
     ```python
     from miscoto import run_scopes
 
-    run_scopes(lp_instance_file=xxx, targets_file=xxx, seeds_file=xxx, bacteria_dir=xxx, host_file=xxx)
+    run_scopes(lp_instance_file=xxx, targets_file=xxx, seeds_file=xxx, bacteria_dir=xxx, host_file=xxx, output_file=xxx)
     ```
 
 
@@ -78,17 +78,17 @@ minimal solutions
     * from SBML files 
         * usage 1: host, symbionts, seeds, targets  
         ```
-        miscoto_mincom -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+        miscoto_mincom -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output output_file]
         ```
         * usage 2: symbionts, seeds, targets
         ```
-        miscoto_mincom -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+        miscoto_mincom -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output output_file]
         ```
 
     * from a pre-computed instance with possibly (additional) seeds or targets 
         * usage 3: instance, [seeds], [targets]   
         ```
-        miscoto_mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
+        miscoto_mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--output output_file]
         ```
     ```miscoto_mincom``` can be called directly in Python
     ```python
@@ -98,19 +98,22 @@ minimal solutions
                 bacteria_dir=xxx, host_file=xxx,\
                 targets_file=xxxx, seeds_file=xxx,\
                 optsol=True/False, enumeration=True/False, \
-                intersection=True/False, union=True/False)
+                intersection=True/False, union=True/False, \
+                output_file=xxx)
 
     run_mincom(option='soup/minexch', \
                 bacteria_dir=xxx, \
                 targets_file=xxxx, seeds_file=xxx,\
                 optsol=True/False, enumeration=True/False, \
-                intersection=True/False, union=True/False)
+                intersection=True/False, union=True/False, \
+                output_file=xxx)
 
     run_mincom(option='soup/minexch',\
                 lp_instance_file=xxxx,\
                 targets_file=xxxx, seeds_file=xxx,
                 optsol=True/False, enumeration=True/False, \
-                intersection=True/False, union=True/False)
+                intersection=True/False, union=True/False, \
+                output_file=xxx)
     ```
 
 
