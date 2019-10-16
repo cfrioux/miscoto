@@ -154,14 +154,11 @@ def test_create_json_mincom():
                         option='soup', enumeration=True, optsol=True, output_json='test.json')
     dict_results = json.loads(open('test.json', 'r').read())
     expected_results = {'exchanged': {},
-                        'bacteria':
-                            ['orgB3'],
+                        'bacteria': ['orgB3'],
                         'still_unprod': [],
                         'newly_prod': ['f'],
-                        'enum_exchanged':
-                            {'1': {}, '2': {}, '3': {}},
-                        'enum_bacteria':
-                            {'1': ['orgB3'], '2': ['orgB1'], '3': ['orgB2']}}
+                        'enum_exchanged': {'1': {}, '2': {}, '3': {}},
+                        'enum_bacteria': {'1': ['orgB3'], '2': ['orgB1'], '3': ['orgB2']}}
 
     assert dict_results == expected_results
     os.remove('test.json')

@@ -401,14 +401,14 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     if enumeration:
         logger.info('\n*** ENUMERATION OF MINIMAL SOLUTION ***')
         if optsol:
-            all_model = query.get_all_communities_from_g(grounded_instance, optimum)
+            all_models = query.get_all_communities_from_g(grounded_instance, optimum)
         else:
-            all_model = query.get_all_communities_from_g_noopti(grounded_instance)
+            all_models = query.get_all_communities_from_g_noopti(grounded_instance)
         count = 1
 
         results['enum_bacteria']  = {}
         results['enum_exchanged'] = {}
-        for model in all_model:
+        for model in all_models:
             enum_bacteria_this_sol = []
             enum_exchanged_this_sol = {}
             logger.info('\nSolution ' + str(count))
