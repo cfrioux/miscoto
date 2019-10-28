@@ -132,6 +132,11 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
     logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
     bactfacts = TermSet()
     onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
+
+    if len(onlyfiles) == 0:
+        logger.critical('No bacterial networks in ' + bacteria_dir)
+        sys.exit(1)
+
     for bacteria_file in onlyfiles:
         name = os.path.splitext(bacteria_file)[0]
         try:

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import re
+import sys
 import xml.etree.ElementTree as etree
 from xml.etree.ElementTree import XML, fromstring, tostring
 from clyngor.as_pyasp import TermSet, Atom
@@ -489,13 +490,16 @@ def readSBMLspecies_clyngor(filename, speciestype) :
     model = get_model(sbml)
 
     listOfSpecies = get_listOfSpecies(model)
-    for e in listOfSpecies:
-        if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
-        else:
-            tag = e.tag
-        if tag == "species":
-            all_atoms.add(Atom(speciestype, ["\""+e.attrib.get("id")+"\""]))
+    if listOfSpecies:
+        for e in listOfSpecies:
+            if e.tag[0] == "{":
+                uri, tag = e.tag[1:].split("}")
+            else:
+                tag = e.tag
+            if tag == "species":
+                all_atoms.add(Atom(speciestype, ["\""+e.attrib.get("id")+"\""]))
+    else:
+        sys.exit("Invalid SBML (missing species or listOfSpecies) " + filename)
 
     lpfacts = TermSet(all_atoms)
 

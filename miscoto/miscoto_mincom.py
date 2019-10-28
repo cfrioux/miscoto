@@ -240,6 +240,11 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
         bactfacts = TermSet()
         onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
+
+        if len(onlyfiles) == 0:
+            logger.critical('No bacterial networks in ' + bacteria_dir)
+            sys.exit(1)
+
         for bacteria_file in onlyfiles:
             name = os.path.splitext(bacteria_file)[0]
             try:
