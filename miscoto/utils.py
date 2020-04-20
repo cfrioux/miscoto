@@ -15,7 +15,7 @@ def clean_up() :
 
 
 def to_file(termset, outputfile=None):
-    """write the content of the TermSet into a file
+    """Append the content of the TermSet into a file
     
     Args:
         termset (TermSet): ASP termset
@@ -40,8 +40,48 @@ def to_json(input_dictionary, output_json):
         input_dictionary (dict): MiSCoTo dictionary results
         outputfile (str): name of the output file
     """
+    def remap_keys(k,v):
+        return {'what':v, 'from_to': k}
+    
+    def alter_dict_enum(input_d, k):
+        # save the keys/values
+        temp = input_dictionary[k]
+        # del the old dict
+        del input_dictionary[k]
+        # prepare new data structure:
+        input_dictionary[k] = {}
+        # remap the information
+        for solnumber in temp:
+            input_dictionary[k][solnumber] = []
+            for elem in temp[solnumber]:
+                input_dictionary[k][solnumber].append(remap_keys(elem, temp[solnumber][elem]))
+    
+    def alter_dict(input_d, k):
+        # save the keys/values
+        temp = input_dictionary[k]
+        # del the old dict
+        del input_dictionary[k]
+        # prepare new data structure:
+        input_dictionary[k] = {}
+        # remap the information
+        input_dictionary[k] = []
+        for elem in temp:
+            input_dictionary[k].append(remap_keys(elem, temp[elem]))
+
     if 'one_model' in input_dictionary:
         del input_dictionary['one_model']
 
+    if 'enum_exchanged' in input_dictionary:
+        alter_dict_enum(input_dictionary, 'enum_exchanged')
+
+    if 'union_exchanged' in input_dictionary:
+        alter_dict(input_dictionary, 'union_exchanged')
+    
+    if 'inter_exchanged' in input_dictionary:
+        alter_dict(input_dictionary, 'inter_exchanged')
+    
+    if 'exchanged' in input_dictionary:
+        alter_dict(input_dictionary, 'exchanged')
+
     with open(output_json, 'w') as outfile:
-        outfile.write(json.dumps(input_dictionary))
+        outfile.write(json.dumps(input_dictionary, indent=4))

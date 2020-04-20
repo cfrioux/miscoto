@@ -44,10 +44,10 @@ all minimal solutions
 
 pusage = """
 **1** from SBML files
-python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol]
+python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output]
 \n
 **2** from a pre-computed instance with possibly (additional) seeds or targets
-python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol]
+python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--output]
 \n
 Option -o is either 'soup' or 'minexch' depending on the wanted modeling method
 \n
@@ -238,7 +238,6 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         lp_instance_file = utils.to_file(lp_instance)
 
         logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
-        bactfacts = TermSet()
         onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
 
         if len(onlyfiles) == 0:
@@ -441,17 +440,19 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                                 fromto[1] + " = " +
                                 ','.join(enum_exchanged_this_sol[fromto]))
             results['enum_exchanged'][count] = enum_exchanged_this_sol
-            results['enum_bacteria'] [count] = enum_bacteria_this_sol
+            results['enum_bacteria'][count] = enum_bacteria_this_sol
             count+=1
 
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)
 
+    if output_json:
+        # print(results)
+        utils.to_json(results, output_json)
+        logger.info(f"Export of results in {output_json}.")
+
     logger.info("--- %s seconds ---" % (time.time() - start_time))
     utils.clean_up()
-
-    if output_json:
-        utils.to_json(results, output_json)
 
     return results
 

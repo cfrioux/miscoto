@@ -18,10 +18,11 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
+import miscoto
 
 setup(
     name             = 'Miscoto',
-    version          = '2.0.6',
+    version          = miscoto.__version__,
     url              = 'https://github.com/cfrioux/miscoto',
     license          = 'GPLv3+',
     description      = 'Microbiome Screening and COmmunity selection using TOpology',
@@ -30,7 +31,15 @@ Inputs: metabolic models, seeds (growth medium) and metabolic targets. \
 Computations can be performed with a set of symbionts or a set of symbionts and a host. In the latter case, targets will be produced by the host, whereas in the former they will be produced by any member of the microbiome. \
 More information on usage and troubleshooting on Github: https://github.com/cfrioux/miscoto',
     author           = 'Clemence Frioux',
-    author_email     = 'clemence.frioux@gmail.com',
+    author_email     = 'clemence.frioux@inria.fr',
+    classifiers      =[
+                            'Programming Language :: Python :: 3.6',
+                            'Programming Language :: Python :: 3.6',
+                            'Programming Language :: Python :: 3.7',
+                            'Programming Language :: Python :: 3.8',
+                            'Operating System :: MacOS :: MacOS X',
+                            'Operating System :: Unix',
+                        ],
     packages         = ['miscoto'],
     package_dir      = {'miscoto' : 'miscoto'},
     package_data     = {'miscoto' : ['encodings/*.lp']},
