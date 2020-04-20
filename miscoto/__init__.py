@@ -3,6 +3,6 @@ from miscoto.miscoto_mincom import run_mincom
 from miscoto.miscoto_scopes import run_scopes
 
 
-__version__="2.0.6"
+__version__="2.0.7"
 """Define the version of the package.
 """
