@@ -1,3 +1,5 @@
+[![PyPI version](https://img.shields.io/pypi/v/miscoto.svg)](https://pypi.org/project/Miscoto/) [![GitHub license](https://img.shields.io/github/license/cfrioux/miscoto.svg)](https://github.com/miscoto/miscoto/blob/master/LICENSE) [![Actions Status](https://github.com/cfrioux/miscoto/workflows/Python%20package/badge.svg)](https://github.com/cfrioux/miscoto/actions) [![](https://img.shields.io/badge/doi-10.1093/bioinformatics/bty588-blueviolet.svg)](https://academic.oup.com/bioinformatics/article/34/17/i934/5093211)
+
 # MiSCoTo
 ## Description
 **Microbiome Screening and COmmunity selection using TOpology**
