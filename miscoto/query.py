@@ -23,23 +23,6 @@ def get_scopes(instance_f, encoding):
     return best_model
 
 
-def get_grounded_communities(instance, encoding):
-    """Ground the model, from a TermSet
-    
-    Args:
-        instance (TermSet): model
-        encoding (str): ASP model encoding
-    
-    Returns:
-        bytes: grounded model
-    """
-    instance_f = utils.to_file(instance)
-    prg = [encoding, instance_f]
-    grounder = Gringo4()
-    grounding = grounder.run(prg)
-    os.unlink(instance_f)
-
-    return grounding
 
 def get_grounded_communities_from_file(instance_f, encoding):
     """Ground the model, from a file

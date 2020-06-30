@@ -1,10 +1,5 @@
 % what is producible if merging both metabolisms (regardless of transport reactions, just from seeds)
-    organism(O) :- draft(O).
     organism(O) :- chosen_bacteria(O).
-
-    htarget(M,O) :- target(M), draft(O).
-
-    target_name(M,N,C,O) :- htarget(M,O), species(M,N,C,O).
 
 % metabolites likely to be exchanged
     %not_external(M,N,C,O) :- species(M,N,C,O), not external(C).
@@ -24,10 +19,10 @@ escope(M,N,C,O) :- species(M,N,C,O), reactant(M,R,O), reaction(R,O), reversible(
 
 
 % still unproducible targets despite the exchanged_metabolites
-unproducible_target(M) :- htarget(M,O), species(M,N,C,O), not escope(M,N,C,O).
+unproducible_target(M) :- target(M); not escope(M,_,_,_).
 
 % newly producible targets
-newly_producible_target(M) :- htarget(M,O), escope(M,_,_,O).
+newly_producible_target(M) :- target(M);escope(M,_,_,_).
 
 #minimize { 1@3,M : unproducible_target(M) ; 0@3 }.
 #minimize { 1@2,B : chosen_bacteria(B) ; 0@2 }.

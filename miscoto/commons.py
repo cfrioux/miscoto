@@ -27,6 +27,7 @@ ASP_SRC_SCOPES = __asp_file('scopes')
 # Topological subcommunities
 ASP_SRC_TOPO_SOUP   = __asp_file('community_soup')
 ASP_SRC_TOPO_RXN_MIN_EXCH = __asp_file('community_minexch')
+ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST = __asp_file('community_minexch_nohost')
 # Topological exchanges
 # ASP_SRC_TRANSP   = __asp_file('transported_metabolites')
 

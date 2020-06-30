@@ -140,7 +140,9 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     # checking option
     if option == "soup":
         encoding = commons.ASP_SRC_TOPO_SOUP
-    elif option == "minexch":
+    elif option == "minexch" and host_file == None:
+        encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST
+    elif option == "minexch" and host_file != None:
         encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
     else:
         logger.critical("invalid option choice")
