@@ -207,18 +207,15 @@ def test_create_json_mincom_soup():
                         'still_unprod': [],
                         'newly_prod': ['f'],
                         'enum_exchanged': {'1': {}, '2': {}, '3': {}},
-                        'enum_bacteria': {'1': ['orgB3'], '2': ['orgB1'], '3': ['orgB2']},
-                        'one_model': {'newly_producible_target': ['f'], 'chosen_bacteria': ['orgB3']}}
-    bact_1 = ['orgB1']
-    bact_2 = ['orgB2']
-    bact_3 = ['orgB3']
+                        'enum_bacteria': {'1': ['orgB3'], '2': ['orgB1'], '3': ['orgB2']}}
+    bacts = {'orgB1', 'orgB2', 'orgB3'}
 
-    assert dict_results['one_model']['newly_producible_target'] == expected_results['one_model']['newly_producible_target']
-    assert dict_results['one_model']['chosen_bacteria'] == expected_results['one_model']['chosen_bacteria']
+    assert dict_results['one_model']['newly_producible_target'] == ['f']
+    assert set(dict_results['one_model']['chosen_bacteria']).issubset(bacts)
     assert dict_results['exchanged'] == expected_results['exchanged']
-    assert dict_results['bacteria'] == bact_1 or dict_results['bacteria'] == bact_2 or dict_results['bacteria'] == bact_3
+    assert set(dict_results['bacteria']).issubset(bacts)
     assert dict_results['still_unprod'] == expected_results['still_unprod']
     assert dict_results['newly_prod'] == expected_results['newly_prod']
-    assert set(bact_1 + bact_2 + bact_3) == set([y for x in list(dict_results['enum_bacteria'].values()) for y in x])
+    assert bacts == set([y for x in list(dict_results['enum_bacteria'].values()) for y in x])
     assert len(dict_results['enum_exchanged']) == len(expected_results['enum_exchanged'])
     os.remove('test.json')
