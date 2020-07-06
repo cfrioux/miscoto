@@ -174,9 +174,9 @@ def test_create_json_mincom_minexch():
                         "still_unprod": [],
                         "newly_prod": ["f"],
                         "union_bacteria": ["orgB3"],
-                        "optimum_union": "0,1,1",
+                        "score_optimum_union": "0,1,1",
                         "inter_bacteria": ["orgB3"],
-                        "optimum_inter": "0,1,1",
+                        "score_optimum_inter": "0,1,1",
                         "enum_bacteria": {"1": ["orgB3"]},
                         "enum_exchanged": {"1": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}]},
                         "union_exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}],
@@ -187,8 +187,9 @@ def test_create_json_mincom_minexch():
     assert dict_results['still_unprod'] == expected_results['still_unprod']
     assert dict_results['newly_prod'] == expected_results['newly_prod']
     assert dict_results['union_bacteria'] == expected_results['union_bacteria']
-    assert dict_results['optimum_union'] == expected_results['optimum_union']
+    assert dict_results['score_optimum_union'] == expected_results['score_optimum_union']
     assert dict_results['inter_bacteria'] == expected_results['inter_bacteria']
+    assert dict_results['score_optimum_inter'] == expected_results['score_optimum_inter']
     assert dict_results['enum_bacteria'] == expected_results['enum_bacteria']
     assert dict_results['enum_exchanged'] == expected_results['enum_exchanged']
     assert dict_results['union_exchanged'] == expected_results['union_exchanged']
@@ -197,7 +198,7 @@ def test_create_json_mincom_minexch():
     os.remove('test.json')
 
 def test_create_json_mincom_soup():
-    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
+    run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
                         seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml',
                         option='soup', enumeration=True, optsol=True, output_json='test.json')
     dict_results = json.loads(open('test.json', 'r').read())
@@ -206,11 +207,14 @@ def test_create_json_mincom_soup():
                         'still_unprod': [],
                         'newly_prod': ['f'],
                         'enum_exchanged': {'1': {}, '2': {}, '3': {}},
-                        'enum_bacteria': {'1': ['orgB3'], '2': ['orgB1'], '3': ['orgB2']}}
+                        'enum_bacteria': {'1': ['orgB3'], '2': ['orgB1'], '3': ['orgB2']},
+                        'one_model': {'newly_producible_target': ['f'], 'chosen_bacteria': ['orgB3']}}
     bact_1 = ['orgB1']
     bact_2 = ['orgB2']
     bact_3 = ['orgB3']
 
+    assert dict_results['one_model']['newly_producible_target'] == expected_results['one_model']['newly_producible_target']
+    assert dict_results['one_model']['chosen_bacteria'] == expected_results['one_model']['chosen_bacteria']
     assert dict_results['exchanged'] == expected_results['exchanged']
     assert dict_results['bacteria'] == bact_1 or dict_results['bacteria'] == bact_2 or dict_results['bacteria'] == bact_3
     assert dict_results['still_unprod'] == expected_results['still_unprod']

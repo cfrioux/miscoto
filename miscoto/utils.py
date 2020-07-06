@@ -42,7 +42,21 @@ def to_json(input_dictionary, output_json):
     """
     def remap_keys(k,v):
         return {'what':v, 'from_to': k}
-    
+
+    def alter_dict_optsol(input_d, k):
+        # save the keys/values
+        temp = input_dictionary[k]
+        # del the old dict
+        del input_dictionary[k]
+        # prepare new data structure:
+        input_dictionary[k] = {}
+        # remap the information
+        for frozenset_key in temp:
+            if isinstance(frozenset_key, str) and '/' not in frozenset_key:
+                input_dictionary[k][frozenset_key] = []
+                for frozenset_elements in temp[frozenset_key]:
+                    input_dictionary[k][frozenset_key].extend([frozenset_element for frozenset_element in frozenset_elements])
+
     def alter_dict_enum(input_d, k):
         # save the keys/values
         temp = input_dictionary[k]
@@ -69,7 +83,7 @@ def to_json(input_dictionary, output_json):
             input_dictionary[k].append(remap_keys(elem, temp[elem]))
 
     if 'one_model' in input_dictionary:
-        del input_dictionary['one_model']
+        alter_dict_optsol(input_dictionary, 'one_model')
 
     if 'enum_exchanged' in input_dictionary:
         alter_dict_enum(input_dictionary, 'enum_exchanged')
@@ -82,6 +96,11 @@ def to_json(input_dictionary, output_json):
     
     if 'exchanged' in input_dictionary:
         alter_dict(input_dictionary, 'exchanged')
+
+    if 'union_bacteria' in input_dictionary and 'inter_bacteria' in input_dictionary:
+        input_dictionary['keystone_species'] = input_dictionary['union_bacteria']
+        input_dictionary['essential_symbionts'] = input_dictionary['inter_bacteria']
+        input_dictionary['alternative_symbionts'] = list(set(input_dictionary['union_bacteria']) - set(input_dictionary['inter_bacteria']))
 
     with open(output_json, 'w') as outfile:
         outfile.write(json.dumps(input_dictionary, indent=4))

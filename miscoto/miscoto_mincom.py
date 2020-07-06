@@ -363,7 +363,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                             ','.join(union_exchanged[fromto]))
         results['union_exchanged'] = union_exchanged
         results['union_bacteria'] = union_bacteria
-        results['optimum_union'] = optimum_union
+        results['score_optimum_union'] = optimum_union
 
 # intersection of solutions
     if intersection:
@@ -401,7 +401,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                             ','.join(inter_exchanged[fromto]))
         results['inter_exchanged'] = inter_exchanged
         results['inter_bacteria'] = inter_bacteria
-        results['optimum_inter'] = optimum_inter
+        results['score_optimum_inter'] = optimum_inter
 
 # enumeration of all solutions
     if enumeration:
@@ -449,7 +449,6 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         os.unlink(lp_instance_file)
 
     if output_json:
-        # print(results)
         utils.to_json(results, output_json)
         logger.info(f"Export of results in {output_json}.")
 
