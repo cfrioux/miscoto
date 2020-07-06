@@ -137,6 +137,20 @@ minimal solutions
                 output_json=xxx)
     ```
 
+Using the `output_json` option, it is possible to create a json output file with these keys:
+
+    * bacteria: bacteria in the optimal solution
+    * still_unprod: unproducible compounds by the community
+    * newly_prod: newly producible compounds by the community
+    * union_bacteria: bacteria from all the minimal communities
+    * inter_bacteria: bacteria from the intersection of all the minimal communities
+    * one_model: results of the optimal solution
+    * union_exchanged: all the exchanged compounds
+    * inter_exchanged: intersection of the exchanged compounds
+    * exchanged: exchanged compounds in the optimal solution
+    * keystone_species: bacteria from all the minimal communities
+    * essential_symbionts: bacteria from the intersection of all the minimal communities
+    * alternative_symbionts: bacteria appearing in at least one minimal community but not in all (if intersection and union options are used)
 
 ## Benchmark tips
 
