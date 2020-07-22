@@ -21,109 +21,135 @@ def test_instance():
 def test_mincom_minexch():
     expected_newly_productible = set(['f'])
     expected_bacteria = set(['orgB3'])
-    expected_exchande = {('orgB3', 'host_metab_mod'): ['e']}
+    expected_exchange = {('orgB3', 'host_metab_mod'): ['e']}
+    expected_producer = {"f": ["host_metab_mod"]}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch')
 
     assert set(results['newly_prod']) == expected_newly_productible
     assert set(results['bacteria']) == expected_bacteria
-    assert results['exchanged'] == expected_exchande
+    assert results['exchanged'] == expected_exchange
+    assert expected_producer == results['one_model_targetsproducers']
 
 
 def test_mincom_minexch_optsol():
     expected_newly_productible = set(['f'])
     expected_bacteria = set(['orgB3'])
     expected_exchanges = {('orgB3', 'host_metab_mod'): ['e']}
+    expected_producer = {"f": ["host_metab_mod"]}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', optsol=True)
 
     assert set(results['newly_prod']) == expected_newly_productible
     assert set(results['bacteria']) == expected_bacteria
     assert results['exchanged'] == expected_exchanges
+    assert expected_producer == results['one_model_targetsproducers']
 
 
 def test_mincom_minexch_optsol_nohost():
     expected_newly_productible = set(['f'])
     expected_bacteria = set(['orgB3','orgA'])
     expected_exchanges = {('orgB3', 'orgA'): ['e']}
+    expected_producer = {"f": ["orgA"]}
 
     results = run_mincom(bacteria_dir='../toy/symbionts_nohost/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', optsol=True)
 
     assert set(results['newly_prod']) == expected_newly_productible
     assert set(results['bacteria']) == expected_bacteria
     assert results['exchanged'] == expected_exchanges
+    assert expected_producer == results['one_model_targetsproducers']
 
 
 def test_mincom_minexch_intersection():
     inter_bacteria = set(['orgB3'])
     inter_exchanged = {('orgB3', 'host_metab_mod'): ['e']}
+    inter_producer = {"f": ["host_metab_mod"]}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', intersection=True)
 
     assert set(results['inter_bacteria']) == inter_bacteria
     assert results['inter_exchanged'] == inter_exchanged
+    assert inter_producer == results['inter_targetsproducers']
 
 def test_mincom_minexch_enumeration():
     enum_bacteria = {1: ['orgB3']}
     enum_exchanged = {1:{('orgB3', 'host_metab_mod'): ['e']}}
+    enum_producer = {1:{"f": ["host_metab_mod"]}}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', enumeration=True)
 
     assert results['enum_bacteria'] == enum_bacteria
     assert results['enum_exchanged'] == enum_exchanged
+    assert results['enum_targetsproducers'] == enum_producer
 
 def test_mincom_minexch_enumeration_optsol():
     enum_bacteria = {1: ['orgB3']}
     enum_exchanged = {1:{('orgB3', 'host_metab_mod'): ['e']}}
+    enum_producer = {1:{"f": ["host_metab_mod"]}}
+    expected_producer = {"f": ["host_metab_mod"]}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='minexch', enumeration=True, optsol=True)
 
     assert results['enum_bacteria'] == enum_bacteria
     assert results['enum_exchanged'] == enum_exchanged
+    assert expected_producer == results['one_model_targetsproducers']
+    assert results['enum_targetsproducers'] == enum_producer
 
 def test_mincom_soup():
     expected_newly_productible = set(['f'])
     expected_bacteria = set(['orgB1','orgB2','orgB3']) #solution is one org among the 3
+    expected_producer = {"f": ["host_metab_mod"]}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup')
 
     assert set(results['newly_prod']) == expected_newly_productible
     assert set(results['bacteria']).issubset(expected_bacteria) and len(set(results['bacteria'])) ==1
+    assert expected_producer == results['one_model_targetsproducers']
 
 def test_mincom_soup_optsol():
     expected_newly_productible = set(['f'])
     expected_bacteria = set(['orgB1','orgB2','orgB3']) #solution is one org among the 3
+    expected_producer = {"f": ["host_metab_mod"]}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', optsol=True)
 
     assert set(results['newly_prod']) == expected_newly_productible
     assert set(results['bacteria']).issubset(expected_bacteria) and len(set(results['bacteria'])) ==1
+    assert expected_producer == results['one_model_targetsproducers']
 
 def test_mincom_soup_optsol_no_host():
     expected_newly_productible = set(['f'])
     expected_bacteria = set(['orgB1','orgB2','orgB3','orgA']) #solution is one org among the 3
+    expected_producer = {"f": ["orgA"]}
 
     results = run_mincom(bacteria_dir='../toy/symbionts_nohost/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', optsol=True)
 
     assert set(results['newly_prod']) == expected_newly_productible
     assert set(results['bacteria']).issubset(expected_bacteria) and len(set(results['bacteria'])) ==2
+    assert expected_producer == results['one_model_targetsproducers']
 
 def test_mincom_soup_enumeration():
     enum_bacteria = {1: ['orgB3'], 2: ['orgB1'], 3: ['orgB2']}
+    enum_producer = {1:{"f": ["host_metab_mod"]}, 2:{"f": ["host_metab_mod"]}, 3:{"f": ["host_metab_mod"]}}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True)
 
     assert sorted(enum_bacteria.values()) == sorted(results['enum_bacteria'].values())
     assert sorted(enum_bacteria.keys()) == sorted(results['enum_bacteria'].keys())
+    assert results['enum_targetsproducers'] == enum_producer
 
 
 def test_mincom_soup_enumeration_optsol():
     enum_bacteria = {1: ['orgB3'], 2: ['orgB1'], 3: ['orgB2']}
+    enum_producer = {1:{"f": ["host_metab_mod"]}, 2:{"f": ["host_metab_mod"]}, 3:{"f": ["host_metab_mod"]}}
+    expected_producer = {"f": ["host_metab_mod"]}
 
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup', enumeration=True, optsol=True)
 
     assert sorted(enum_bacteria.values()) == sorted(results['enum_bacteria'].values())
     assert sorted(enum_bacteria.keys()) == sorted(results['enum_bacteria'].keys())
+    assert expected_producer == results['one_model_targetsproducers']
+    assert results['enum_targetsproducers'] == enum_producer
 
 def test_scopes():
     producible_targets = set()
@@ -132,6 +158,7 @@ def test_scopes():
     microbiome_producible_targets = set(['f'])
     microbiome_unproducible_targets = set()
     microbiome_only = set(['f', 'e'])
+    expected_producer = {"f": ["host_metab_mod"]}
 
     results = run_scopes(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml')
 
@@ -141,12 +168,18 @@ def test_scopes():
     assert set(results['com_prodtargets']) == microbiome_producible_targets
     assert set(results['com_unprodtargets']) == microbiome_unproducible_targets
     assert set(results['comhost_scope']) == microbiome_only
+    assert results['targets_producers'] == expected_producer
 
 if __name__ == "__main__":
     print("** testing scope **")
     test_scopes()
     print("** testing mincom **")
-    test_mincom()
+    test_mincom_soup_enumeration_optsol()
+    test_mincom_soup_enumeration()
+    test_mincom_soup_optsol_no_host()
+    test_mincom_soup_optsol()
+    test_mincom_soup()
+    test_mincom_minexch_enumeration_optsol()
     print("** testing instance creation")
     test_instance()
 
