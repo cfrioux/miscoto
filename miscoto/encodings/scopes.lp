@@ -36,6 +36,25 @@ newscope_microbiome(M) :- allscope(M), not dscope(M).
 
 newlyproducible(M) :- aproducible(M), not dproducible(M).
 
+% identify who is able to produce the targets (final producers)
+
+% % what is producible by each org
+% oscope(M,O) :- seed(M), organism(O).
+% oscope(M,O) :- organism(O), product(M,R,O), reaction(R,O),
+%            oscope(M2,O) : reactant(M2,R,D).
+% oscope(M,O) :- organism(O), reactant(M,R,O), reaction(R,O), reversible(R,O),
+%            oscope(M2,O) : product(M2,R,O).
+
+% activated_solo_initcom(R,O) :- reaction(R,O) ; organism(O); oscope(M2,O) : reactant(M2,R,O).
+% activated_solo_initcom(R,O) :- reaction(R,O) ; organism(O); reversible(R,O); oscope(M2,O) : product(M2,R,O).
+
+activated_coop_initcom(R,O) :- reaction(R,O) ; organism(O); allscope(M2) : reactant(M2,R,O).
+activated_coop_initcom(R,O) :- reaction(R,O) ; organism(O); reversible(R,O); allscope(M2) : product(M2,R,O).
+
+% target_producer_solo_initcom(O,T) :- organism(O), target(T), activated_solo_initcom(R,O), product(T,R,O).
+
+target_producer_coop_initcom(O,T) :- organism(O), target(T), activated_coop_initcom(R,O), product(T,R,O).
+
 #show dscope/1.
 #show newscope_with_host/1.
 #show newscope_microbiome/1.
@@ -43,3 +62,5 @@ newlyproducible(M) :- aproducible(M), not dproducible(M).
 #show dproducible/1.
 #show aunproducible/1.
 #show newlyproducible/1.
+#show target_producer_coop_initcom/2.
+% #show target_producer_solo_initcom/2.
