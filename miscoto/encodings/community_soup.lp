@@ -47,9 +47,32 @@ unproducible_target(M) :- target(M), not all_scope(M).
 % newly producible targets
 newly_producible_target(M) :- target(M), selescope(M), not dscope(M).
 
+% find final producers in initial or selected community with or without cooperation
+% activated reactions
+activated_solo_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); dscope(M2) : reactant(M2,R,O).
+activated_solo_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); reversible(R,O); dscope(M2) : product(M2,R,O).
+
+activated_solo_initcom(R,O) :- reaction(R,O) ; organism(O); dscope(M2) : reactant(M2,R,O).
+activated_solo_initcom(R,O) :- reaction(R,O) ; organism(O); reversible(R,O); dscope(M2) : product(M2,R,O).
+
+activated_coop_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); selescope(M2) : reactant(M2,R,O).
+activated_coop_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); reversible(R,O); selescope(M2) : product(M2,R,O).
+
+activated_coop_initcom(R,O) :- reaction(R,O) ; organism(O); all_scope(M2) : reactant(M2,R,O).
+activated_coop_initcom(R,O) :- reaction(R,O) ; organism(O); reversible(R,O); all_scope(M2) : product(M2,R,O).
+
+% find final producers of targets
+target_producer_solo_selectedcom(O,T) :- chosen_org(O), target(T), activated_solo_selectedcom(R,O), product(T,R,O).
+target_producer_solo_initcom(O,T) :- organism(O), target(T), activated_solo_initcom(R,O), product(T,R,O).
+target_producer_coop_selectedcom(O,T) :- chosen_org(O), target(T), activated_coop_selectedcom(R,O), product(T,R,O).
+target_producer_coop_initcom(O,T) :- organism(O), target(T), activated_coop_initcom(R,O), product(T,R,O).
 
 #minimize { 1@1,B : chosen_bacteria(B)}.
 
 #show unproducible_target/1.
 #show chosen_bacteria/1.
 #show newly_producible_target/1.
+#show target_producer_solo_selectedcom/2.
+#show target_producer_solo_initcom/2.
+#show target_producer_coop_selectedcom/2.
+#show target_producer_coop_initcom/2.
