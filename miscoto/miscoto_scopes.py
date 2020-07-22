@@ -46,14 +46,14 @@ requires clyngor package: "pip install clyngor"
 """
 
 pusage="""
-**1** from SBML2 files \n
-python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml
+**1** from SBML files \n
+python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml [-t targets.sbml] [--output outputfile.json]
 \n
-**2** from SBML2 files \n
-python miscoto_scopes.py -b symbiont_directory -s seeds.sbml -t targets.sbml
+**2** from SBML files \n
+python miscoto_scopes.py -b symbiont_directory -s seeds.sbml [-t targets.sbml] [--output outputfile.json]
 \n
 **3** from a pre-computed instance with possibly (additional) seeds or targets \n
-python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml]
+python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml] [--output outputfile.json]
 """
 #
 ###############################################################################
@@ -237,6 +237,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     comhost_scope = []
     com_prodtargets = []
     com_unprodtargets = []
+    target_producers = {}
     for pred in model:
         if pred == 'dscope':
             for a in model[pred, 1]:
@@ -259,6 +260,12 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         elif pred == 'aunproducible':
             for a in model[pred, 1]:
                 com_unprodtargets.append(a[0])
+        elif pred == 'target_producer_coop_initcom':
+            for a in model[pred, 2]:
+                if not a[1] in target_producers:
+                    target_producers[a[1]] = [a[0]]
+                else:
+                    target_producers[a[1]].append(a[0])
 
     if host_file or input_instance:
         logger.info('*** HOST model producibility check ***')
@@ -299,6 +306,8 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
             + str(len(com_scope)))
         logger.info("\n".join(com_scope))
         results['com_scope'] = com_scope
+    
+    results["targets_producers"] = target_producers
 
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)

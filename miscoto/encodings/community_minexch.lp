@@ -29,6 +29,14 @@ unproducible_target(M) :- htarget(M,O), species(M,N,C,O), not escope(M,N,C,O).
 % newly producible targets
 newly_producible_target(M) :- htarget(M,O), escope(M,_,_,O).
 
+% find final producers in initial or selected community with or without cooperation
+% activated reactions
+activated_coop_selectedcom(R,O) :- reaction(R,O) ; organism(O); escope(M2,_,_,O) : reactant(M2,R,O).
+activated_coop_selectedcom(R,O) :- reaction(R,O) ; organism(O); reversible(R,O); escope(M2,_,_,O) : product(M2,R,O).
+
+% find final producers of targets
+target_producer_coop_selectedcom(O,T) :- organism(O), target(T), activated_coop_selectedcom(R,O), product(T,R,O).
+
 #minimize { 1@3,M : unproducible_target(M) ; 0@3 }.
 #minimize { 1@2,B : chosen_bacteria(B) ; 0@2 }.
 #minimize { 1@1,N,C,O1,O : exchanged(N,C,O1,O) ; 0@1 }.
@@ -37,3 +45,4 @@ newly_producible_target(M) :- htarget(M,O), escope(M,_,_,O).
 #show unproducible_target/1.
 #show chosen_bacteria/1.
 #show newly_producible_target/1.
+#show target_producer_coop_selectedcom/2.

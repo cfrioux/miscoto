@@ -103,4 +103,4 @@ def to_json(input_dictionary, output_json):
         input_dictionary['alternative_symbionts'] = list(set(input_dictionary['union_bacteria']) - set(input_dictionary['inter_bacteria']))
 
     with open(output_json, 'w') as outfile:
-        outfile.write(json.dumps(input_dictionary, indent=4))
+        outfile.write(json.dumps(input_dictionary, indent=4, sort_keys=True))

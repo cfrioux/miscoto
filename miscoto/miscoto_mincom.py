@@ -286,6 +286,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         bacteria = []
         newly_prod = []
         exchanged = {}
+        target_producers = {}
         for pred in one_model:
             if pred == 'unproducible_target':
                 for a in one_model[pred, 1]:
@@ -303,6 +304,12 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                     else:
                         exchanged[(a[2], a[3])] = []
                         exchanged[(a[2], a[3])].append(a[0])
+            elif pred == 'target_producer_coop_selectedcom':
+                for a in one_model[pred, 2]:
+                    if not a[1] in target_producers:
+                        target_producers[a[1]] = [a[0]]
+                    else:
+                        target_producers[a[1]].append(a[0])
         logger.info(str(len(newly_prod)) + ' newly producible target(s):')
         logger.info("\n".join(newly_prod))
         logger.info('Still ' + str(len(still_unprod)) + ' unproducible target(s):')
@@ -315,6 +322,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             for fromto in exchanged:
                 logger.info("\texchange(s) from " + fromto[0] + ' to ' +
                             fromto[1] + " = " + ','.join(exchanged[fromto]))
+        results['one_model_targetsproducers'] = target_producers
         results['one_model'] = one_model
         results['exchanged'] = exchanged
         results['bacteria'] = bacteria
@@ -339,6 +347,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         union_m = union_m[0]
         union_bacteria = []
         union_exchanged = {}
+        union_target_producers = {}
         for pred in union_m :
             if pred == 'chosen_bacteria':
                 for a in union_m[pred, 1]:
@@ -350,6 +359,12 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                     else:
                         union_exchanged[(a[2], a[3])] = []
                         union_exchanged[(a[2], a[3])].append( a[0])
+            elif pred == 'target_producer_coop_selectedcom':
+                for a in union_m[pred, 2]:
+                    if not a[1] in union_target_producers:
+                        union_target_producers[a[1]] = [a[0]]
+                    else:
+                        union_target_producers[a[1]].append(a[0])
         logger.info('Union of minimal sets of bacteria, with optimum = ' +
                     optimum_union + ' comprises ' + str(len(union_bacteria)) +
                     ' bacteria')
@@ -364,6 +379,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         results['union_exchanged'] = union_exchanged
         results['union_bacteria'] = union_bacteria
         results['score_optimum_union'] = optimum_union
+        results['union_targetsproducers'] = union_target_producers
 
 # intersection of solutions
     if intersection:
@@ -377,6 +393,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         intersection_m = intersection_m[0]
         inter_bacteria = []
         inter_exchanged = {}
+        inter_target_producers = {}
         for pred in intersection_m :
             if pred == 'chosen_bacteria':
                 for a in intersection_m[pred, 1]:
@@ -388,6 +405,12 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                     else:
                         inter_exchanged[(a[2], a[3])] = []
                         inter_exchanged[(a[2], a[3])].append(a[0])
+            elif pred == 'target_producer_coop_selectedcom':
+                for a in intersection_m[pred, 2]:
+                    if not a[1] in inter_target_producers:
+                        inter_target_producers[a[1]] = [a[0]]
+                    else:
+                        inter_target_producers[a[1]].append(a[0])
         logger.info('Intersection of minimal sets of bacteria, with optimum = '
                     + optimum_inter + ' comprises ' +
                     str(len(inter_bacteria)) + ' bacteria')
@@ -402,6 +425,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         results['inter_exchanged'] = inter_exchanged
         results['inter_bacteria'] = inter_bacteria
         results['score_optimum_inter'] = optimum_inter
+        results['inter_targetsproducers'] = inter_target_producers
 
 # enumeration of all solutions
     if enumeration:
@@ -414,9 +438,11 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
         results['enum_bacteria']  = {}
         results['enum_exchanged'] = {}
+        results['enum_targetsproducers'] = {}
         for model in all_models:
             enum_bacteria_this_sol = []
             enum_exchanged_this_sol = {}
+            target_producers_this_sol = {}
             logger.info('\nSolution ' + str(count))
             for pred in model:
                 if pred == 'chosen_bacteria':
@@ -429,6 +455,12 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                         else:
                             enum_exchanged_this_sol[(a[2], a[3])] = []
                             enum_exchanged_this_sol[(a[2], a[3])].append(a[0])
+                elif pred == 'target_producer_coop_selectedcom':
+                    for a in model[pred, 2]:
+                        if not a[1] in target_producers_this_sol:
+                            target_producers_this_sol[a[1]] = [a[0]]
+                        else:
+                            target_producers_this_sol[a[1]].append(a[0])
             logger.info("\t" + str(len(enum_bacteria_this_sol)) +
                         " bacterium(ia) in solution " + str(count))
             for elem in enum_bacteria_this_sol:
@@ -443,6 +475,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                                 ','.join(enum_exchanged_this_sol[fromto]))
             results['enum_exchanged'][count] = enum_exchanged_this_sol
             results['enum_bacteria'][count] = enum_bacteria_this_sol
+            results['enum_targetsproducers'][count] = target_producers_this_sol
             count+=1
 
     if delete_lp_instance == True:
