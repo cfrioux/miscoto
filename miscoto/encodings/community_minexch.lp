@@ -36,6 +36,7 @@ activated_coop_selectedcom(R,O) :- reaction(R,O) ; organism(O); reversible(R,O);
 
 % find final producers of targets
 target_producer_coop_selectedcom(O,T) :- organism(O), target(T), activated_coop_selectedcom(R,O), product(T,R,O).
+target_producer_coop_selectedcom(O,T) :- organism(O), target(T), activated_coop_selectedcom(R,O), reactant(T,R,O), reversible(R,O).
 
 #minimize { 1@3,M : unproducible_target(M) ; 0@3 }.
 #minimize { 1@2,B : chosen_bacteria(B) ; 0@2 }.
