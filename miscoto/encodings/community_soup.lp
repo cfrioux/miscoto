@@ -8,6 +8,17 @@ dscope(M) :- draft(D), product(M,R,D), reaction(R,D),
 dscope(M) :- draft(D), reactant(M,R,D), reaction(R,D), reversible(R,D),
            dscope(M2) : product(M2,R,D).
 
+
+% what is producible by each org
+
+oscope(M,O) :- seed(M), organism(O).
+
+oscope(M,O) :- organism(O), product(M,R,O), reaction(R,O),
+           oscope(M2,O) : reactant(M2,R,D).
+
+oscope(M,O) :- organism(O), reactant(M,R,O), reaction(R,O), reversible(R,O),
+           oscope(M2,O) : product(M2,R,O).
+
 % dproducible(M) :- target(M), dscope(M).
 
 organism(O) :- draft(O).
@@ -49,11 +60,11 @@ newly_producible_target(M) :- target(M), selescope(M), not dscope(M).
 
 % find final producers in initial or selected community with or without cooperation
 % activated reactions
-activated_solo_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); dscope(M2) : reactant(M2,R,O).
-activated_solo_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); reversible(R,O); dscope(M2) : product(M2,R,O).
+activated_solo_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); oscope(M2,O) : reactant(M2,R,O).
+activated_solo_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); reversible(R,O); oscope(M2,O) : product(M2,R,O).
 
-activated_solo_initcom(R,O) :- reaction(R,O) ; organism(O); dscope(M2) : reactant(M2,R,O).
-activated_solo_initcom(R,O) :- reaction(R,O) ; organism(O); reversible(R,O); dscope(M2) : product(M2,R,O).
+activated_solo_initcom(R,O) :- reaction(R,O) ; organism(O); oscope(M2,O) : reactant(M2,R,O).
+activated_solo_initcom(R,O) :- reaction(R,O) ; organism(O); reversible(R,O); oscope(M2,O) : product(M2,R,O).
 
 activated_coop_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); selescope(M2) : reactant(M2,R,O).
 activated_coop_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); reversible(R,O); selescope(M2) : product(M2,R,O).
