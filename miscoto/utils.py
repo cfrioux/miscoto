@@ -43,7 +43,7 @@ def to_json(input_dictionary, output_json):
     def remap_keys(k,v):
         return {'what':v, 'from_to': k}
 
-    def alter_dict_optsol(input_d, k):
+    def alter_dict_optsol(input_dictionary, k):
         # save the keys/values
         temp = input_dictionary[k]
         # del the old dict
@@ -53,11 +53,20 @@ def to_json(input_dictionary, output_json):
         # remap the information
         for frozenset_key in temp:
             if isinstance(frozenset_key, str) and '/' not in frozenset_key:
-                input_dictionary[k][frozenset_key] = []
-                for frozenset_elements in temp[frozenset_key]:
-                    input_dictionary[k][frozenset_key].extend([frozenset_element for frozenset_element in frozenset_elements])
+                if frozenset_key == "target_producer_coop_selectedcom":
+                    target_producers = {}
+                    for element in temp[frozenset_key]:
+                        if element[1] not in target_producers:
+                            target_producers[element[1]] = [element[0]]
+                        else:
+                            target_producers[element[1]].append(element[0])
+                    input_dictionary[k][frozenset_key] = target_producers
+                else:
+                    input_dictionary[k][frozenset_key] = []
+                    for frozenset_elements in temp[frozenset_key]:
+                        input_dictionary[k][frozenset_key].extend([frozenset_element for frozenset_element in frozenset_elements])
 
-    def alter_dict_enum(input_d, k):
+    def alter_dict_enum(input_dictionary, k):
         # save the keys/values
         temp = input_dictionary[k]
         # del the old dict
@@ -70,7 +79,7 @@ def to_json(input_dictionary, output_json):
             for elem in temp[solnumber]:
                 input_dictionary[k][solnumber].append(remap_keys(elem, temp[solnumber][elem]))
     
-    def alter_dict(input_d, k):
+    def alter_dict(input_dictionary, k):
         # save the keys/values
         temp = input_dictionary[k]
         # del the old dict
