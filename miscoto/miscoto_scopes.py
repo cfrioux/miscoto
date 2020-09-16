@@ -92,7 +92,7 @@ def cmd_scopes():
     run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml, output_json)
 
 def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacteria_dir=None, host_file=None, output_json=None):
-    """[summary]
+    """Computes community scopes
         lp_instance_file ([str], optional): Defaults to None. [ASP facts instance of the problem]
         targets_file ([str], optional): Defaults to None. [targets file]
         seeds_file ([str], optional): Defaults to None. [seeds file]

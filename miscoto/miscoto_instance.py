@@ -74,6 +74,16 @@ def cmd_instance():
     run_instance(bacterium_met, seeds_sbml, model_host, targets_sbml, output)
 
 def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_file=None, output=None):
+    """Creates ASP facts instance to give as input to mincom or scopes
+        bacteria_dir ([str], optional): Defaults to None. [directory of bacterial metabolic networks]
+        seeds_file ([str], optional): Defaults to None. [seeds file]
+        host_file ([str], optional): Defaults to None. [host metabolic network]
+        targets_file ([str], optional): Defaults to None. [targets file]
+        output ([str], optional): Defaults to None. [output file]
+
+    Returns:
+        [str]: [output file]
+    """
     start_time = time.time()
     if not bacteria_dir or not seeds_file:
         logger.critical("Symbionts and seeds are required minimal inputs")
