@@ -43,7 +43,6 @@ def test_mincom_minexch_optsol():
     assert set(results['newly_prod']) == expected_newly_productible
     assert set(results['bacteria']) == expected_bacteria
     assert results['exchanged'] == expected_exchanges
-    assert expected_producer == results['one_model_targetsproducers']
 
 
 def test_mincom_minexch_optsol_nohost():
@@ -97,14 +96,19 @@ def test_mincom_minexch_enumeration_optsol():
 
 def test_mincom_soup():
     expected_newly_productible = set(['f'])
+    expected_producible = set(['f', 'c'])
     expected_bacteria = set(['orgB1','orgB2','orgB3']) #solution is one org among the 3
-    expected_producer = {"f": ["host_metab_mod"]}
+    expected_producer_b3 = {"f": ["host_metab_mod"], "c": ["host_metab_mod", "orgB3"]}
+    expected_producer_b2 = {"f": ["host_metab_mod"], "c": ["host_metab_mod", "orgB2"]}
+    expected_producer_b1 = {"f": ["host_metab_mod"], "c": ["host_metab_mod"]}
 
-    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', option='soup')
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets.xml', option='soup')
 
     assert set(results['newly_prod']) == expected_newly_productible
+    assert set(results['producible']) == expected_producible
     assert set(results['bacteria']).issubset(expected_bacteria) and len(set(results['bacteria'])) ==1
-    assert expected_producer == results['one_model_targetsproducers']
+    for target in expected_producible:
+        assert set(expected_producer_b1[target]) == set(results['one_model_targetsproducers'][target]) or set(expected_producer_b2[target]) == set(results['one_model_targetsproducers'][target]) or set(expected_producer_b3[target]) == set(results['one_model_targetsproducers'][target])
 
 def test_mincom_soup_optsol():
     expected_newly_productible = set(['f'])
