@@ -226,9 +226,18 @@ def readSBMLnetwork_symbionts_clyngor(filename, name) :
             uri, tag = e.tag[1:].split("}")
         else: tag = e.tag
         if tag == "species":
-            speciesId = e.attrib.get("id").replace('"','')
-            speciesNm = e.attrib.get("name").replace('"','')
-            compartment = e.attrib.get("compartment")
+            try:
+                speciesId = e.attrib.get("id").replace('"','')
+            except AttributeError:
+                sys.exit("Empty ID field for species in the following SBML: " + filename)
+            try:
+                speciesNm = e.attrib.get("name").replace('"','')
+            except AttributeError:
+                sys.exit("Empty name field for species in the following SBML: " + filename)
+            try:
+                compartment = e.attrib.get("compartment")
+            except AttributeError:
+                sys.exit("Empty compartment field for species in the following SBML: " + filename)
             all_atoms.add(Atom('species', ["\""+speciesId+"\"", "\""+speciesNm+"\"", "\""+compartment+"\"", "\""+name+"\""]))
 
     lpfacts = TermSet(all_atoms)
@@ -497,7 +506,10 @@ def readSBMLspecies_clyngor(filename, speciestype) :
             else:
                 tag = e.tag
             if tag == "species":
-                all_atoms.add(Atom(speciestype, ["\""+e.attrib.get("id")+"\""]))
+                try:
+                    all_atoms.add(Atom(speciestype, ["\""+e.attrib.get("id")+"\""]))
+                except TypeError:
+                    sys.exit("Empty ID field for species in the following SBML: " + filename)
     else:
         sys.exit("Invalid SBML (missing species or listOfSpecies) " + filename)
 
