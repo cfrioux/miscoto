@@ -53,8 +53,11 @@ selescope(M) :- chosen_org(O), reactant(M,R,O), reaction(R,O), reversible(R,O),
 % unproducible targets
 unproducible_target(M) :- target(M), not all_scope(M).
 
-% newly producible targets
+% newly producible targets through cooperation
 newly_producible_target(M) :- target(M), selescope(M), not dscope(M).
+
+% all producible targets whether individually or collectively
+producible_target(M) :- target(M), selescope(M).
 
 % find final producers in initial or selected community with or without cooperation
 % activated reactions
@@ -72,6 +75,7 @@ target_producer_coop_selectedcom(O,T) :- chosen_org(O), target(T), activated_coo
 #minimize { 1@1,B : chosen_bacteria(B)}.
 
 #show unproducible_target/1.
+#show producible_target/1.
 #show chosen_bacteria/1.
 #show newly_producible_target/1.
 % #show target_producer_solo_selectedcom/2.

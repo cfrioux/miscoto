@@ -285,6 +285,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         still_unprod = []
         bacteria = []
         newly_prod = []
+        prod_targets = []
         exchanged = {}
         target_producers = {}
         for pred in one_model:
@@ -294,6 +295,9 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             elif pred == 'newly_producible_target':
                 for a in one_model[pred, 1]:
                     newly_prod.append(a[0])
+            elif pred == 'producible_target':
+                for a in one_model[pred, 1]:
+                    prod_targets.append(a[0])
             elif pred == 'chosen_bacteria':
                 for a in one_model[pred, 1]:
                     bacteria.append(a[0])
@@ -328,6 +332,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         results['bacteria'] = bacteria
         results['still_unprod'] = still_unprod
         results['newly_prod'] = newly_prod
+        results['producible'] = prod_targets
 
 # union of solutions
     if union:
