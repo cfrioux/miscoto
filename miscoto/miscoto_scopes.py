@@ -296,14 +296,14 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
 
     if host_file or input_instance:
         logger.info(
-            'Microbiome only (host + symbionts) scope (host metabolites only producible with the microbiome) => '
-            + str(len(comhost_scope)))
+            '\nHost metabolites becoming producible through cooperation with symbionts (excluding metabolites that were producible by the host alone) => '
+            + str(len(comhost_scope)) + "\n")
         logger.info("\n".join(comhost_scope))
         results['comhost_scope'] = comhost_scope
     if input_instance or not host_file:
         logger.info(
-            'Microbiome only (symbionts) scope (metabolites only producible with the microbiome) => '
-            + str(len(com_scope)))
+            '\nMicrobiome (host and symbionts) metabolites that become producible through cooperation (excluding metabolites that were producible by the host alone) => '
+            + str(len(com_scope)) + "\n")
         logger.info("\n".join(com_scope))
         results['com_scope'] = com_scope
     
