@@ -30,66 +30,6 @@ from clyngor.as_pyasp import TermSet, Atom
 
 logger = logging.getLogger(__name__)
 
-###############################################################################
-#
-message = """
-Compute the scope and target produciblity of a host (optional) and the added-value
-of a microbiome regarding scope and target producibility. The microbiome result part
-gives the targets and compounds that are producible providing cooperation occurs
-within the community of host + all symbionts and that were not producible with
-the host alone.
-Computation from SBML models or an instance pre-created with miscoto_instance.py
-"""
-
-requires = """
-requires clyngor package: "pip install clyngor"
-"""
-
-pusage="""
-**1** from SBML files \n
-python miscoto_scopes.py -m host.sbml -b symbiont_directory -s seeds.sbml [-t targets.sbml] [--output outputfile.json]
-\n
-**2** from SBML files \n
-python miscoto_scopes.py -b symbiont_directory -s seeds.sbml [-t targets.sbml] [--output outputfile.json]
-\n
-**3** from a pre-computed instance with possibly (additional) seeds or targets \n
-python miscoto_scopes.py -a instance.lp [-s seeds.sbml] [-t targets.sbml] [--output outputfile.json]
-"""
-#
-###############################################################################
-
-
-def cmd_scopes():
-    """run directly miscoto_scopes from the shell
-    """
-    parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
-    parser.add_argument("-a", "--asp",
-                        help="instance if already created with miscoto_instance", required=False)
-    parser.add_argument("-m", "--modelhost",
-                        help="host model in SBML format, ignored if -a instance is provided",
-                        required=False)
-    parser.add_argument("-b", "--bactsymbionts",
-                        help="directory of symbionts models, all in sbml format, ignored if -a instance is provided",
-                        required=False)
-    parser.add_argument("-s", "--seeds",
-                        help="seeds in SBML format",
-                        required=False)
-    parser.add_argument("-t", "--targets",
-                        help="targets in SBML format",
-                        required=False)
-    parser.add_argument("--output",
-                        help="output file name for json",
-                        required=False)
-
-    args = parser.parse_args()
-    lp_instance_file_arg = args.asp
-    targets_sbml = args.targets
-    seeds_sbml = args.seeds
-    bacterium_met =  args.bactsymbionts
-    draft_sbml = args.modelhost
-    output_json = args.output
-
-    run_scopes(lp_instance_file_arg, targets_sbml, seeds_sbml, bacterium_met, draft_sbml, output_json)
 
 def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacteria_dir=None, host_file=None, output_json=None):
     """Computes community scopes
@@ -319,6 +259,3 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     utils.clean_up()
 
     return results
-
-if __name__ == '__main__':
-    cmd_scopes()

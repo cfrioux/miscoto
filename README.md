@@ -58,7 +58,27 @@ pip install miscoto
 
 ## Usage
 
-* ``miscoto_scopes`` compute the scope and target produciblity of a host (optional) and the added-
+    usage: miscoto [-h] [-v] {instance,mincom,scopes} ...
+
+    Explore microbiomes and select minimal communities within them. For specific
+    help on each subcommand use: miscoto {cmd} --help
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    -v, --version         show program's version number and exit
+
+    subcommands:
+    valid subcommands:
+
+    {instance,mincom,scopes}
+        instance            Prepares instance for miscoto.
+        mincom              Compute a community from a microbiome.
+        scopes              Compute the scope and target produciblity of a host.
+
+    Requires Clingo and clyngor package: "pip install clyngor clyngor-with-clingo"
+
+
+* ``miscoto scopes`` compute the scope and target produciblity of a host (optional) and the added-
 value of a microbiome regarding scope and target producibility. The microbiome
 result part gives the targets and compounds that are producible providing
 cooperation occurs within the community of host + all symbionts and that were
@@ -68,19 +88,19 @@ instance pre-created with miscoto_instance.py
 
         * usage 1: host, symbionts, seeds, [targets]
         ```
-        miscoto_scopes -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml [--output output_file]
+        miscoto scopes -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml [--output output_file]
         ```
         * usage 2: symbionts, seeds, [targets]
         ```
-        miscoto_scopes -b symbiont_directory -s seeds.sbml -t targets.sbml [--output output_file]
+        miscoto scopes -b symbiont_directory -s seeds.sbml -t targets.sbml [--output output_file]
         ```
     * from a pre-computed instance with possibly (additional) seeds or targets
         * usage 3: instance, [seeds], [targets]    
         ```
-        miscoto_scopes -a instance.lp [-s seeds.sbml] [-t targets.sbml] [--output output_file]
+        miscoto scopes -a instance.lp [-s seeds.sbml] [-t targets.sbml] [--output output_file]
         ```
 
-    ```miscoto_scopes``` can be called directly in Python
+    ```miscoto scopes``` can be called directly in Python
     ```python
     from miscoto import run_scopes
 
@@ -90,7 +110,7 @@ instance pre-created with miscoto_instance.py
     ```
 
 
-* ``miscoto_mincom`` computes a community from a microbiome Inputs: SBML models (symbionts and
+* ``miscoto mincom`` computes a community from a microbiome Inputs: SBML models (symbionts and
 optionally host) + seeds + targets or an instance pre-created with
 miscoto_instance.py, option: soup = minimal size community in a mixed-bag
 framework or minexch = minimal size and minimal exchange community. Can
@@ -99,19 +119,19 @@ minimal solutions
     * from SBML files 
         * usage 1: host, symbionts, seeds, targets  
         ```
-        miscoto_mincom -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output output_file]
+        miscoto mincom -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output output_file]
         ```
         * usage 2: symbionts, seeds, targets
         ```
-        miscoto_mincom -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output output_file]
+        miscoto mincom -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output output_file]
         ```
 
     * from a pre-computed instance with possibly (additional) seeds or targets 
         * usage 3: instance, [seeds], [targets]   
         ```
-        miscoto_mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--output output_file]
+        miscoto mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--output output_file]
         ```
-    ```miscoto_mincom``` can be called directly in Python
+    ```miscoto mincom``` can be called directly in Python
     ```python
     from miscoto import run_mincom
 
@@ -161,7 +181,7 @@ The instance can be modified (usable bacteria with the predicate ``bacteria("xxx
 ``miscoto_instance.py`` creates such instance:
 
 ```
-miscoto_instance [-h] [-m MODELHOST] -s SEEDS [-t TARGETS] -b BACTSYMBIONTS [-o OUTPUT]
+miscoto instance [-h] [-m MODELHOST] -s SEEDS [-t TARGETS] -b BACTSYMBIONTS [-o OUTPUT]
 ```
 
 ```python

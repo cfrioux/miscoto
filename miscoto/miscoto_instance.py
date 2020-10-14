@@ -30,48 +30,6 @@ from clyngor.as_pyasp import TermSet, Atom
 
 logger = logging.getLogger(__name__)
 
-###############################################################################
-#
-message = """
-Prepares instance for miscoto. Useful in a benchmark context: pre-calculating
-the instance ensures that SBML files do not have to be read again.
-Instances are text files that can be modified between runs through multiple
-ways, including the use of bash tools
-"""
-
-requires = """
-requires clyngor package: "pip install clyngor"
-"""
-#
-###############################################################################
-
-
-
-def cmd_instance():
-    """run miscoto_instance from the shell
-    """
-    parser = argparse.ArgumentParser(description=message, epilog=requires)
-    #parser.add_argument("-h", "--help",
-    #                    help="display this message and exit", required=False)
-    parser.add_argument("-b", "--bactsymbionts",
-                        help="directory of symbionts models, all in sbml format", required=True)
-    parser.add_argument("-s", "--seeds",
-                        help="seeds in SBML format", required=True)
-    parser.add_argument("-m", "--modelhost",
-                        help="host metabolic network in SBML format", required=False)
-    parser.add_argument("-t", "--targets",
-                        help="targets in SBML format", required=False)
-    parser.add_argument("-o", "--output",
-                        help="output file for instance", required=False)
-
-    args = parser.parse_args()
-    bacterium_met =  args.bactsymbionts
-    seeds_sbml = args.seeds
-    model_host = args.modelhost
-    targets_sbml = args.targets
-    output = args.output
-
-    run_instance(bacterium_met, seeds_sbml, model_host, targets_sbml, output)
 
 def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_file=None, output=None):
     """Creates ASP facts instance to give as input to mincom or scopes
@@ -163,7 +121,3 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
     utils.clean_up()
 
     return all_networks_file
-
-
-if __name__ == '__main__':
-    cmd_instance()

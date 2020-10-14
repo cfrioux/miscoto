@@ -31,95 +31,18 @@ from xml.etree.ElementTree import ParseError
 logger = logging.getLogger(__name__)
 
 ###############################################################################
-#
-message = """
-Compute a community from a microbiome
-Inputs: SBML models (symbionts and optionally host) + seeds + targets or an
-instance pre-created with miscoto_instance.py,
-option: soup = minimal size community in a mixed-bag
-framework or minexch = minimal size and minimal exchange community.
-Can compute one minimal solution and or union, intersection, enumeration of
-all minimal solutions
-"""
-
 pusage = """
 **1** from SBML files
-python miscoto_mincom.py -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output]
+miscoto mincom -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output]
 \n
 **2** from a pre-computed instance with possibly (additional) seeds or targets
-python miscoto_mincom.py -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--output]
+miscoto mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--output]
 \n
 Option -o is either 'soup' or 'minexch' depending on the wanted modeling method
 \n
 """
-
-requires = """
-requires clyngor package: "pip install clyngor"
-"""
-#
 ###############################################################################
 
-
-def cmd_mincom():
-    """run directly miscoto_mincom from the shell
-    """
-    parser = argparse.ArgumentParser(description=message, usage=pusage, epilog=requires)
-    parser.add_argument("-o", "--option",
-                        help="subcom option: soup, minexch", required=True)
-    parser.add_argument("-a", "--asp",
-                        help="instance if already created with miscoto_instance", required=False)
-    parser.add_argument("--enumeration",
-                        help="enumeration of optimal solutions", required=False, action="store_true")
-    parser.add_argument("--intersection",
-                        help="intersection of optimal solutions", required=False, action="store_true")
-    parser.add_argument("--optsol",
-                        help="one optimal solutions", required=False, action="store_true")
-    parser.add_argument("--union",
-                        help="union of optimal solutions", required=False, action="store_true")
-    parser.add_argument("-m", "--modelhost",
-                        help="host model in SBML format, ignored if -a instance is provided",
-                        required=False)
-    parser.add_argument("-b", "--bactsymbionts",
-                        help="directory of symbionts models, all in sbml format, ignored if -a instance is provided",
-                        required=False)
-    parser.add_argument("-s", "--seeds",
-                        help="seeds in SBML format",
-                        required=False)
-    parser.add_argument("-t", "--targets",
-                        help="targets in SBML format",
-                        required=False)
-    parser.add_argument("--output",
-                        help="output file name for json",
-                        required=False)
-
-    args = parser.parse_args()
-    bacterium_met =  args.bactsymbionts
-    option = args.option
-    lp_instance_file = args.asp
-    targets_sbml = args.targets
-    seeds_sbml = args.seeds
-    draft_sbml = args.modelhost
-    if args.intersection:
-        intersection_arg = True
-    else:
-        intersection_arg = False
-    if args.enumeration:
-        enumeration_arg = True
-    else:
-        enumeration_arg = False
-    if args.union:
-        union_arg = True
-    else:
-        union_arg = False
-    if args.optsol:
-        optsol = True
-    else:
-        optsol = False
-
-    output_json = args.output
-
-    run_mincom(option, bacterium_met, lp_instance_file, targets_sbml, seeds_sbml, draft_sbml,
-                intersection_arg, enumeration_arg, union_arg, optsol, output_json)
 
 def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_file=None, seeds_file=None, host_file=None,
                 intersection=False, enumeration=False, union=False, optsol=False, output_json=None):
@@ -141,7 +64,20 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     if option == "soup":
         encoding = commons.ASP_SRC_TOPO_SOUP
     elif option == "minexch" and host_file == None:
-        encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST
+        # Check if there is an ASP instance file.
+        if lp_instance_file:
+            if not os.path.isfile(lp_instance_file) :
+                logger.critical('Instance file not found')
+                sys.exit(1)
+            with open(lp_instance_file, "r") as f:
+                draft_in_file = [line for line in f if line if 'draft' in line]
+            # Check if there is an host in the ASP instance file.
+            if len(draft_in_file) == 0:
+                encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST
+            else:
+                encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
+        else:
+            encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST
     elif option == "minexch" and host_file != None:
         encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
     else:
@@ -270,9 +206,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
     logger.info('\nFinding optimal communities for target production...')
     #ground the instance
-
+    print(encoding)
     grounded_instance = query.get_grounded_communities_from_file(lp_instance_file, encoding)
-
 
 
 # one solution
@@ -494,6 +429,3 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     utils.clean_up()
 
     return results
-
-if __name__ == '__main__':
-    cmd_mincom()

@@ -70,6 +70,7 @@ def test_mincom_minexch_intersection():
     assert results['inter_exchanged'] == inter_exchanged
     assert inter_producer == results['inter_targetsproducers']
 
+
 def test_mincom_minexch_enumeration():
     enum_bacteria = {1: ['orgB3']}
     enum_exchanged = {1:{('orgB3', 'host_metab_mod'): ['e']}}
@@ -80,6 +81,7 @@ def test_mincom_minexch_enumeration():
     assert results['enum_bacteria'] == enum_bacteria
     assert results['enum_exchanged'] == enum_exchanged
     assert results['enum_targetsproducers'] == enum_producer
+
 
 def test_mincom_minexch_enumeration_optsol():
     enum_bacteria = {1: ['orgB3']}
@@ -93,6 +95,7 @@ def test_mincom_minexch_enumeration_optsol():
     assert results['enum_exchanged'] == enum_exchanged
     assert expected_producer == results['one_model_targetsproducers']
     assert results['enum_targetsproducers'] == enum_producer
+
 
 def test_mincom_soup():
     expected_newly_productible = set(['f'])
@@ -110,6 +113,7 @@ def test_mincom_soup():
     for target in expected_producible:
         assert set(expected_producer_b1[target]) == set(results['one_model_targetsproducers'][target]) or set(expected_producer_b2[target]) == set(results['one_model_targetsproducers'][target]) or set(expected_producer_b3[target]) == set(results['one_model_targetsproducers'][target])
 
+
 def test_mincom_soup_optsol():
     expected_newly_productible = set(['f'])
     expected_bacteria = set(['orgB1','orgB2','orgB3']) #solution is one org among the 3
@@ -121,6 +125,7 @@ def test_mincom_soup_optsol():
     assert set(results['bacteria']).issubset(expected_bacteria) and len(set(results['bacteria'])) ==1
     assert expected_producer == results['one_model_targetsproducers']
 
+
 def test_mincom_soup_optsol_no_host():
     expected_newly_productible = set(['f'])
     expected_bacteria = set(['orgB1','orgB2','orgB3','orgA']) #solution is one org among the 3
@@ -131,6 +136,7 @@ def test_mincom_soup_optsol_no_host():
     assert set(results['newly_prod']) == expected_newly_productible
     assert set(results['bacteria']).issubset(expected_bacteria) and len(set(results['bacteria'])) ==2
     assert expected_producer == results['one_model_targetsproducers']
+
 
 def test_mincom_soup_enumeration():
     enum_bacteria = {1: ['orgB3'], 2: ['orgB1'], 3: ['orgB2']}
@@ -155,6 +161,7 @@ def test_mincom_soup_enumeration_optsol():
     assert expected_producer == results['one_model_targetsproducers']
     assert results['enum_targetsproducers'] == enum_producer
 
+
 def test_scopes():
     producible_targets = set()
     unproducible_targets = set(['f'])
@@ -174,18 +181,6 @@ def test_scopes():
     assert set(results['comhost_scope']) == microbiome_only
     assert results['targets_producers'] == expected_producer
 
-if __name__ == "__main__":
-    print("** testing scope **")
-    test_scopes()
-    print("** testing mincom **")
-    test_mincom_soup_enumeration_optsol()
-    test_mincom_soup_enumeration()
-    test_mincom_soup_optsol_no_host()
-    test_mincom_soup_optsol()
-    test_mincom_soup()
-    test_mincom_minexch_enumeration_optsol()
-    print("** testing instance creation")
-    test_instance()
 
 def test_create_json_scopes():
     results = run_scopes(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml', output_json='test.json')
@@ -200,6 +195,41 @@ def test_create_json_scopes():
     for result_key in expected_results:
         assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
     os.remove('test.json')
+
+
+def test_scopes_json_cli():
+    subprocess.call(['miscoto', 'scopes', '-b', '../toy/symbionts/', '-m', '../toy/orgA.xml',
+                    '-s', '../toy/seeds.xml', '-t', '../toy/targets_A.xml', '--output', 'test.json'])
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {'host_prodtargets': [],
+                        'host_unprodtargets': ['f'],
+                        'host_scope': ['d', 'a', 'c', 'b'],
+                        'com_prodtargets': ['f'],
+                        'com_unprodtargets': [],
+                        'comhost_scope': ['f', 'e']}
+
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('test.json')
+
+
+def test_scopes_json_instance_cli():
+    subprocess.call(['miscoto', 'instance', '-b', '../toy/symbionts/', '-m', '../toy/orgA.xml',
+                    '-s', '../toy/seeds.xml', '-t', '../toy/targets_A.xml', '--output', 'test.lp'])
+    subprocess.call(['miscoto', 'scopes', '-a', 'test.lp', '--output', 'test.json'])
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {'host_prodtargets': [],
+                        'host_unprodtargets': ['f'],
+                        'host_scope': ['d', 'a', 'c', 'b'],
+                        'com_prodtargets': ['f'],
+                        'com_unprodtargets': [],
+                        'comhost_scope': ['f', 'e']}
+
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('test.json')
+    os.remove('test.lp')
+
 
 def test_create_json_mincom_minexch():
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
@@ -220,19 +250,89 @@ def test_create_json_mincom_minexch():
                         "inter_exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}],
                         "exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}]
                     }
-    assert dict_results['bacteria'] == expected_results['bacteria']
-    assert dict_results['still_unprod'] == expected_results['still_unprod']
-    assert dict_results['newly_prod'] == expected_results['newly_prod']
-    assert dict_results['union_bacteria'] == expected_results['union_bacteria']
-    assert dict_results['score_optimum_union'] == expected_results['score_optimum_union']
-    assert dict_results['inter_bacteria'] == expected_results['inter_bacteria']
-    assert dict_results['score_optimum_inter'] == expected_results['score_optimum_inter']
-    assert dict_results['enum_bacteria'] == expected_results['enum_bacteria']
-    assert dict_results['enum_exchanged'] == expected_results['enum_exchanged']
-    assert dict_results['union_exchanged'] == expected_results['union_exchanged']
-    assert dict_results['inter_exchanged'] == expected_results['inter_exchanged']
-    assert dict_results['exchanged'] == expected_results['exchanged']
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
     os.remove('test.json')
+
+
+def test_create_json_mincom_minexch_instance():
+    run_instance(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
+                        seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml',
+                        output='test.lp')
+
+    results = run_mincom(lp_instance_file='test.lp', option='minexch', intersection=True,
+                        enumeration=True, union=True, optsol=True, output_json='test.json')
+    dict_results = json.loads(open('test.json', 'r').read())
+
+    expected_results = {"bacteria": ["orgB3"],
+                        "still_unprod": [],
+                        "newly_prod": ["f"],
+                        "union_bacteria": ["orgB3"],
+                        "score_optimum_union": "0,1,1",
+                        "inter_bacteria": ["orgB3"],
+                        "score_optimum_inter": "0,1,1",
+                        "enum_bacteria": {"1": ["orgB3"]},
+                        "enum_exchanged": {"1": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}]},
+                        "union_exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}],
+                        "inter_exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}],
+                        "exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}]
+                    }
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('test.json')
+    os.remove('test.lp')
+
+
+def test_create_json_mincom_minexch_cli():
+    subprocess.call(['miscoto', 'mincom', '-b', '../toy/symbionts/', '-m', '../toy/orgA.xml',
+                        '-s', '../toy/seeds.xml', '-t', '../toy/targets_A.xml', '-o', 'minexch',
+                        '--intersection', '--union', '--enumeration', '--optsol', '--output', 'test.json'])
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {"bacteria": ["orgB3"],
+                        "still_unprod": [],
+                        "newly_prod": ["f"],
+                        "union_bacteria": ["orgB3"],
+                        "score_optimum_union": "0,1,1",
+                        "inter_bacteria": ["orgB3"],
+                        "score_optimum_inter": "0,1,1",
+                        "enum_bacteria": {"1": ["orgB3"]},
+                        "enum_exchanged": {"1": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}]},
+                        "union_exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}],
+                        "inter_exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}],
+                        "exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}]
+                    }
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('test.json')
+
+
+def test_create_json_mincom_minexch_instance_cli():
+    subprocess.call(['miscoto', 'instance', '-b', '../toy/symbionts/', '-m', '../toy/orgA.xml',
+                    '-s', '../toy/seeds.xml', '-t', '../toy/targets_A.xml', '--output', 'test.lp'])
+
+    subprocess.call(['miscoto', 'mincom', '-a', 'test.lp', '-o', 'minexch',
+                        '--intersection', '--union', '--enumeration', '--optsol', '--output', 'test.json'])
+
+    dict_results = json.loads(open('test.json', 'r').read())
+
+    expected_results = {"bacteria": ["orgB3"],
+                        "still_unprod": [],
+                        "newly_prod": ["f"],
+                        "union_bacteria": ["orgB3"],
+                        "score_optimum_union": "0,1,1",
+                        "inter_bacteria": ["orgB3"],
+                        "score_optimum_inter": "0,1,1",
+                        "enum_bacteria": {"1": ["orgB3"]},
+                        "enum_exchanged": {"1": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}]},
+                        "union_exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}],
+                        "inter_exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}],
+                        "exchanged": [{"what": ["e"],"from_to": ["orgB3","host_metab_mod"]}]
+                    }
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('test.json')
+    os.remove('test.lp')
+
 
 def test_create_json_mincom_soup():
     run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
@@ -256,3 +356,68 @@ def test_create_json_mincom_soup():
     assert bacts == set([y for x in list(dict_results['enum_bacteria'].values()) for y in x])
     assert len(dict_results['enum_exchanged']) == len(expected_results['enum_exchanged'])
     os.remove('test.json')
+
+
+def test_create_json_mincom_soup_cli():
+    subprocess.call(['miscoto', 'mincom', '-b', '../toy/symbionts/', '-m', '../toy/orgA.xml',
+                        '-s', '../toy/seeds.xml', '-t', '../toy/targets_A.xml', '-o', 'soup',
+                        '--enumeration', '--optsol', '--output', 'test.json'])
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {'exchanged': [],
+                        'bacteria': ['orgB3'],
+                        'still_unprod': [],
+                        'newly_prod': ['f'],
+                        'enum_exchanged': {'1': {}, '2': {}, '3': {}},
+                        'enum_bacteria': {'1': ['orgB3'], '2': ['orgB1'], '3': ['orgB2']}}
+    bacts = {'orgB1', 'orgB2', 'orgB3'}
+
+    assert dict_results['one_model']['newly_producible_target'] == ['f']
+    assert set(dict_results['one_model']['chosen_bacteria']).issubset(bacts)
+    assert dict_results['exchanged'] == expected_results['exchanged']
+    assert set(dict_results['bacteria']).issubset(bacts)
+    assert dict_results['still_unprod'] == expected_results['still_unprod']
+    assert dict_results['newly_prod'] == expected_results['newly_prod']
+    assert bacts == set([y for x in list(dict_results['enum_bacteria'].values()) for y in x])
+    assert len(dict_results['enum_exchanged']) == len(expected_results['enum_exchanged'])
+    os.remove('test.json')
+
+
+def test_create_json_mincom_soup_instance_cli():
+    subprocess.call(['miscoto', 'instance', '-b', '../toy/symbionts/', '-m', '../toy/orgA.xml',
+                    '-s', '../toy/seeds.xml', '-t', '../toy/targets_A.xml', '--output', 'test.lp'])
+
+    subprocess.call(['miscoto', 'mincom', '-a', 'test.lp', '-o', 'soup',
+                        '--enumeration', '--optsol', '--output', 'test.json'])
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {'exchanged': [],
+                        'bacteria': ['orgB3'],
+                        'still_unprod': [],
+                        'newly_prod': ['f'],
+                        'enum_exchanged': {'1': {}, '2': {}, '3': {}},
+                        'enum_bacteria': {'1': ['orgB3'], '2': ['orgB1'], '3': ['orgB2']}}
+    bacts = {'orgB1', 'orgB2', 'orgB3'}
+
+    assert dict_results['one_model']['newly_producible_target'] == ['f']
+    assert set(dict_results['one_model']['chosen_bacteria']).issubset(bacts)
+    assert dict_results['exchanged'] == expected_results['exchanged']
+    assert set(dict_results['bacteria']).issubset(bacts)
+    assert dict_results['still_unprod'] == expected_results['still_unprod']
+    assert dict_results['newly_prod'] == expected_results['newly_prod']
+    assert bacts == set([y for x in list(dict_results['enum_bacteria'].values()) for y in x])
+    assert len(dict_results['enum_exchanged']) == len(expected_results['enum_exchanged'])
+    os.remove('test.json')
+    os.remove('test.lp')
+
+
+if __name__ == "__main__":
+    print("** testing scope **")
+    test_scopes()
+    print("** testing mincom **")
+    test_mincom_soup_enumeration_optsol()
+    test_mincom_soup_enumeration()
+    test_mincom_soup_optsol_no_host()
+    test_mincom_soup_optsol()
+    test_mincom_soup()
+    test_mincom_minexch_enumeration_optsol()
+    print("** testing instance creation")
+    test_instance()

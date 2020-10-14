@@ -44,7 +44,6 @@ More information on usage and troubleshooting on Github: https://github.com/cfri
     package_dir      = {'miscoto' : 'miscoto'},
     package_data     = {'miscoto' : ['encodings/*.lp']},
     #scripts          = ['miscoto/miscoto_instance.py','miscoto/miscoto_mincom.py','miscoto/miscoto_scopes.py'],
-    entry_points     = {'console_scripts': ['miscoto_instance = miscoto.__main__:main_instance', 'miscoto_mincom = miscoto.__main__:main_mincom',
-                                            'miscoto_scopes = miscoto.__main__:main_scopes']},
+    entry_points     = {'console_scripts': ['miscoto = miscoto.__main__:main']},
     install_requires = ['clyngor_with_clingo', 'clyngor']
 )
