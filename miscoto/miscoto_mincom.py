@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 pusage = """
 **1** from SBML files
-miscoto mincom -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output]
+miscoto mincom [-m host.sbml] -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output]
 \n
 **2** from a pre-computed instance with possibly (additional) seeds or targets
 miscoto mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--output]

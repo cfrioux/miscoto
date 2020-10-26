@@ -194,17 +194,17 @@ def main():
         ],
         description=
         """
-        Compute a community from a microbiome
+        Computes a community from a microbiome
         Inputs: SBML models (symbionts and optionally host) + seeds + targets or an
         instance pre-created with miscoto_instance.py,
         option: soup = minimal size community in a mixed-bag
-        framework or minexch = minimal size and minimal exchange community.
+        framework. minexch = minimal size and minimal exchange community.
         Can compute one minimal solution and or union, intersection, enumeration of
         all minimal solutions
         """,
         usage = """
-        **1** from SBML files
-        miscoto mincom -m host.sbml -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output]
+        **1** from SBML files with or without a host metabolic model
+        miscoto mincom [-m host.sbml] -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output]
         \n
         **2** from a pre-computed instance with possibly (additional) seeds or targets
         miscoto mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--output]
@@ -223,18 +223,18 @@ def main():
         ],
         description=
         """
-        Compute the scope and target produciblity of a host (optional) and the added-value
-        of a microbiome regarding scope and target producibility. The microbiome result part
+        Computes the scope and target produciblity of a host (optional) and the added-value
+        of microbiome cooperation regarding scope and target producibility. The microbiome result part
         gives the targets and compounds that are producible providing cooperation occurs
         within the community of host + all symbionts and that were not producible with
-        the host alone.
+        the host alone (if any host provided).
         Computation from SBML models or an instance pre-created with miscoto_instance.py
         """,
         usage="""
-        **1** from SBML files \n
+        **1** from SBML files with a host metabolic model \n
         miscoto scopes -m host.sbml -b symbiont_directory -s seeds.sbml [-t targets.sbml] [--output outputfile.json]
         \n
-        **2** from SBML files \n
+        **2** from SBML files of symbionts without host \n
         miscoto scopes -b symbiont_directory -s seeds.sbml [-t targets.sbml] [--output outputfile.json]
         \n
         **3** from a pre-computed instance with possibly (additional) seeds or targets \n
