@@ -143,7 +143,8 @@ def readSBMLnetwork_symbionts(filename, name) :
 
     listOfReactions = get_listOfReactions(model)
     if listOfReactions is None:
-        sys.exit('No reaction in SBML '+filename)
+        logger.critical('No reaction in SBML '+filename)
+        sys.exit(1)
     for e in listOfReactions:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
@@ -199,7 +200,8 @@ def readSBMLnetwork_symbionts_clyngor(filename, name) :
 
     listOfReactions = get_listOfReactions(model)
     if listOfReactions is None:
-        sys.exit('No reaction in SBML '+filename)
+        logger.critical('No reaction in SBML '+filename)
+        sys.exit(1)
     for e in listOfReactions:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
@@ -266,7 +268,8 @@ def readSBMLnetwork_symbionts_noemptyrctprd(filename, name) :
 
     listOfReactions = get_listOfReactions(model)
     if listOfReactions is None:
-        sys.exit('No reaction in SBML '+filename)
+        logger.critical('No reaction in SBML '+filename)
+        sys.exit(1)
     for e in listOfReactions:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
@@ -324,7 +327,8 @@ def readSBMLnetwork_em(filename, externalcomp="e") :
 
     listOfReactions = get_listOfReactions(model)
     if listOfReactions is None:
-        sys.exit('No reaction in SBML '+filename)
+        logger.critical('No reaction in SBML '+filename)
+        sys.exit(1)
     for e in listOfReactions:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
@@ -395,7 +399,8 @@ def readSBMLnetwork_em_noemptyrctprd(filename, externalcomp="e") :
 
     listOfReactions = get_listOfReactions(model)
     if listOfReactions is None:
-        sys.exit('No reaction in SBML '+filename)
+        logger.critical('No reaction in SBML '+filename)
+        sys.exit(1)
     for e in listOfReactions:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
