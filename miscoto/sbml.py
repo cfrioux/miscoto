@@ -142,6 +142,8 @@ def readSBMLnetwork_symbionts(filename, name) :
     model = get_model(sbml)
 
     listOfReactions = get_listOfReactions(model)
+    if listOfReactions is None:
+        sys.exit('No reaction in SBML '+filename)
     for e in listOfReactions:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
@@ -196,6 +198,8 @@ def readSBMLnetwork_symbionts_clyngor(filename, name) :
     model = get_model(sbml)
 
     listOfReactions = get_listOfReactions(model)
+    if listOfReactions is None:
+        sys.exit('No reaction in SBML '+filename)
     for e in listOfReactions:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
@@ -261,6 +265,8 @@ def readSBMLnetwork_symbionts_noemptyrctprd(filename, name) :
     model = get_model(sbml)
 
     listOfReactions = get_listOfReactions(model)
+    if listOfReactions is None:
+        sys.exit('No reaction in SBML '+filename)
     for e in listOfReactions:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
@@ -317,6 +323,8 @@ def readSBMLnetwork_em(filename, externalcomp="e") :
         quit()
 
     listOfReactions = get_listOfReactions(model)
+    if listOfReactions is None:
+        sys.exit('No reaction in SBML '+filename)
     for e in listOfReactions:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
@@ -386,6 +394,8 @@ def readSBMLnetwork_em_noemptyrctprd(filename, externalcomp="e") :
         quit()
 
     listOfReactions = get_listOfReactions(model)
+    if listOfReactions is None:
+        sys.exit('No reaction in SBML '+filename)
     for e in listOfReactions:
         if e.tag[0] == "{":
             uri, tag = e.tag[1:].split("}")
