@@ -184,8 +184,9 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
         for bacteria_file in onlyfiles:
             name = os.path.splitext(bacteria_file)[0]
+            bacteria_path = os.path.join(bacteria_dir, bacteria_file)
             try:
-                one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_dir+'/'+bacteria_file, name)
+                one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_path, name)
                 one_bact_model.add(Atom('bacteria', ["\"" + name + "\""]))
                 utils.to_file(one_bact_model, lp_instance_file)
                 logger.info('Done for ' + name)

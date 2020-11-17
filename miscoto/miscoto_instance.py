@@ -107,8 +107,9 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
 
     for bacteria_file in onlyfiles:
         name = os.path.splitext(bacteria_file)[0]
+        bacteria_path = os.path.join(bacteria_dir, bacteria_file)
         try:
-            one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_dir+'/'+bacteria_file, name)
+            one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_path, name)
             one_bact_model.add(Atom('bacteria', ["\"" + name + "\""]))
             utils.to_file(one_bact_model, all_networks_file)
             logger.info('Done for ' + name)

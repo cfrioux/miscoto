@@ -7,21 +7,21 @@ import sys
 import os
 
 # Root
-ROOT = __file__.rsplit('/', 1)[0]
-
+ROOT = os.path.dirname(__file__)
 
 # Constants
 ASP_FILE_EXTENSION = '.lp'
 
 # Directories (starting from here)
 DIR_SOURCES     = ''  # sources are inside the package
-DIR_ASP_SOURCES = '/encodings/'
-DIR_DATA     = ROOT + '/../data/'  # sources are inside the package
+DIR_ASP_SOURCES = 'encodings'
+DIR_DATA     = os.path.join(*[ROOT , '..', 'data'])  # sources are inside the package
 
 # ASP SOURCES
 def __asp_file(name):
     "path to given asp source file name"
-    return ROOT + DIR_ASP_SOURCES + name + ASP_FILE_EXTENSION
+    return os.path.join(*[ROOT, DIR_ASP_SOURCES, name + ASP_FILE_EXTENSION])
+
 # Routine
 ASP_SRC_SCOPES = __asp_file('scopes')
 # Topological subcommunities
