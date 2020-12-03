@@ -162,6 +162,20 @@ def test_mincom_soup_enumeration_optsol():
     assert results['enum_targetsproducers'] == enum_producer
 
 
+def test_mincom_key_stones():
+    results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/', seeds_file='../toy/seeds.xml',
+                        targets_file='../toy/targets.xml', union=True, intersection=True,
+                        option='soup', output_json='test.json')
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {'alternative_symbionts':['orgB3', 'orgB2', 'orgB1'],
+                        'essential_symbionts':[],
+                        'key_species':['orgB2', 'orgB1', 'orgB3']}
+
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('test.json')
+
+
 def test_scopes():
     producible_targets = set()
     unproducible_targets = set(['f'])

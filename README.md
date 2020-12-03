@@ -168,7 +168,7 @@ Using the `output_json` option, it is possible to create a json output file with
     * union_exchanged: all the exchanged compounds
     * inter_exchanged: intersection of the exchanged compounds
     * exchanged: exchanged compounds in the optimal solution
-    * keystone_species: bacteria from all the minimal communities
+    * key_species: bacteria from all the minimal communities
     * essential_symbionts: bacteria from the intersection of all the minimal communities
     * alternative_symbionts: bacteria appearing in at least one minimal community but not in all (if intersection and union options are used)
     * targets_producers: for each target, the list of organisms able to produce this target in the full community with `miscoto_scopes` and in the selected minimal communities with `miscoto_mincom`

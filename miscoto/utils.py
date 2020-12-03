@@ -107,7 +107,7 @@ def to_json(input_dictionary, output_json):
         alter_dict(input_dictionary, 'exchanged')
 
     if 'union_bacteria' in input_dictionary and 'inter_bacteria' in input_dictionary:
-        input_dictionary['keystone_species'] = input_dictionary['union_bacteria']
+        input_dictionary['key_species'] = input_dictionary['union_bacteria']
         input_dictionary['essential_symbionts'] = input_dictionary['inter_bacteria']
         input_dictionary['alternative_symbionts'] = list(set(input_dictionary['union_bacteria']) - set(input_dictionary['inter_bacteria']))
 
