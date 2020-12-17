@@ -55,6 +55,8 @@ activated_coop_initcom(R,O) :- reaction(R,O) ; organism(O); reversible(R,O); all
 
 target_producer_coop_initcom(O,T) :- organism(O), target(T), activated_coop_initcom(R,O), product(T,R,O).
 
+target_producer_coop_initcom(O,T) :- organism(O), target(T), activated_coop_initcom(R,O), reactant(T,R,O), reversible(R,O).
+
 #show dscope/1.
 #show newscope_with_host/1.
 #show newscope_microbiome/1.
