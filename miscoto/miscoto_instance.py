@@ -60,8 +60,6 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
     else:
         logger.warning('No host provided')
         draftnet = TermSet()
-        draftnet.add(Atom('draft', ["\"" + 'host_metab_mod' + "\""]))
-
     logger.info('Reading seeds from ' + seeds_file)
     try:
         seeds = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')

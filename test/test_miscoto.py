@@ -244,6 +244,33 @@ def test_scopes_json_instance_cli():
     os.remove('test.json')
     os.remove('test.lp')
 
+def test_scopes_json_instance_no_host_cli():
+    subprocess.call(['miscoto', 'instance', '-b', '../toy/symbionts/',
+                    '-s', '../toy/seeds.xml', '-t', '../toy/targets.xml', '--output', 'instance_nohost_test.lp'])
+    subprocess.call(['miscoto', 'mincom', '-a', 'instance_nohost_test.lp', '--output', 'instance_nohost_test.json', '--optsol', '--intersection', '--union', '--enumeration', '--option', 'minexch'])
+    dict_results = json.loads(open('instance_nohost_test.json', 'r').read())
+    expected_results = {"exchanged": [],
+                        "inter_bacteria": [],
+                        "inter_exchanged": [],
+                        "inter_targetsproducers": {},
+                        "key_species": ["orgB3", "orgB2"],
+                        "inter_bacteria": [],
+                        "inter_exchanged": [],
+                        "inter_targetsproducers": {},
+                        "newly_prod": ["c"],
+                        "producible": [],
+                        "score_optimum_inter": "1,1,0",
+                        "score_optimum_union": "1,1,0",
+                        "still_unprod": ["f"],
+                        "union_bacteria": ["orgB3","orgB2"],
+                        "union_exchanged": [],
+                        'alternative_symbionts': ['orgB3', 'orgB2']}
+
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('instance_nohost_test.json')
+    os.remove('instance_nohost_test.lp')
+
 
 def test_create_json_mincom_minexch():
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
