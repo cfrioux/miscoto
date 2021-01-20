@@ -38,7 +38,8 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         seeds_file ([str], optional): Defaults to None. [seeds file]
         bacteria_dir ([str], optional): Defaults to None. [directory of bacterial metabolic networks]
         host_file ([str], optional): Defaults to None. [host metabolic network]
-    
+        output_json ([str], optional): Defaults to None. [json file for output]
+
     Returns:
         [dic]: [all information related to scope computation]
     """
@@ -71,7 +72,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
             targetsfacts = TermSet()
 
         if seeds_file:
-            logger.info('Reading targets from ' + seeds_file)
+            logger.info('Reading seeds from ' + seeds_file)
             try:
                 seedsfacts = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')
             except FileNotFoundError:
