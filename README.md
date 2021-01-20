@@ -32,7 +32,7 @@ Important notice: be sure that two identical metabolites have the same name in a
 ### Microbiome exploration
 Computation of the added value of the microbiota over a individual host with respect to targets or the whole scope of producible compounds.
 
-Tool = miscoto_scope.py
+Tool = `miscoto_scope.py`
 
 ### Community selection
 Community selection uses parsimonious criteria:
@@ -44,7 +44,7 @@ Community selection uses parsimonious criteria:
     * computation of one, all, union or intersection of all communities and their associated exchanges
     * more computationnally demanding: a first step of size minimization is preferred. Use one selected minimal-size community or their union (if not too large i.e. around 50 symbionts or less on personal computers) as symbiont inputs
 
-Tool = miscoto_mincom.py
+Tool = `miscoto_mincom.py`
 
 ## Install
 
