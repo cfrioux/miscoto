@@ -43,8 +43,9 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
     """
     start_time = time.time()
     results = {}
-    # case 1: instance is provided, just read targets and seeds if given
-    input_instance = False
+
+    # delete putative repetitions in the focus_bact list
+    focus_bact = list(set(focus_bact))
 
     # read seeds
     logger.info('Reading seeds from ' + seeds_file)
@@ -91,19 +92,20 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
         except:
             logger.info('Could not read file ' + name + ', will ignore it')
 
-    focus_bact2 = focus_bact
+    focus_bact2 = []
     for ts in focus_bact:
         if not ts in all_bacteria_names:
-            logger.warning(f"{ts} is not the basename of a symbiont from {bacteria_dir}. If the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`. {ts} will be ignored.")
-            focus_bact2.remove(ts)
+            logger.warning(f"\nWARNING - {ts} is not the basename of a symbiont from {bacteria_dir}. If the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`. {ts} will be ignored.")
+        else:
+            focus_bact2.append(ts)
     if len(focus_bact2) == 0:
-        logger.critical(f"No element from {focus_bact} could be found in {bacteria_dir}. Please check the input having in mind that if the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`.")
+        logger.critical(f"\nERROR - No element from {focus_bact} could be found in {bacteria_dir}. Please check the input having in mind that if the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`.")
         sys.exit(1)
-        
+       
     # logger.info(os.path.abspath(lp_instance_file))
 
 
-    logger.info(f"Computing producible metabolites for {focus_bact}...")
+    logger.info(f"\nComputing producible metabolites for {focus_bact2}...")
 
     model = query.get_scopes(lp_instance_file, commons.ASP_SRC_FOCUS)
 
@@ -124,7 +126,7 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
                 else:
                     produced_in_com[a[1]].append(a[0])
 
-    for ts in focus_bact:
+    for ts in focus_bact2:
         logger.info(f"\n############ {ts}")
         results[ts] = {}
         
