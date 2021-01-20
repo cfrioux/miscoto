@@ -32,7 +32,7 @@ Important notice: be sure that two identical metabolites have the same name in a
 ### Microbiome exploration
 Computation of the added value of the microbiota over a individual host with respect to targets or the whole scope of producible compounds.
 
-Tool = miscoto_scope.py
+Tool = `miscoto_scope.py`
 
 ### Community selection
 Community selection uses parsimonious criteria:
@@ -44,7 +44,7 @@ Community selection uses parsimonious criteria:
     * computation of one, all, union or intersection of all communities and their associated exchanges
     * more computationnally demanding: a first step of size minimization is preferred. Use one selected minimal-size community or their union (if not too large i.e. around 50 symbionts or less on personal computers) as symbiont inputs
 
-Tool = miscoto_mincom.py
+Tool = `miscoto_mincom.py`
 
 ## Install
 
@@ -58,7 +58,7 @@ pip install miscoto
 
 ## Usage
 
-    usage: miscoto [-h] [-v] {instance,mincom,scopes} ...
+    usage: miscoto [-h] [-v] {instance,focus,mincom,scopes} ...
 
     Explore microbiomes and select minimal communities within them. For specific
     help on each subcommand use: miscoto {cmd} --help
@@ -70,13 +70,14 @@ pip install miscoto
     subcommands:
     valid subcommands:
 
-    {instance,mincom,scopes}
+    {instance,focus,mincom,scopes}
         instance            Prepares instance for miscoto.
+        focus               Focus on one species and determine what it can produce
+                            alone or in its community.
         mincom              Compute a community from a microbiome.
         scopes              Compute the scope and target produciblity of a host.
 
     Requires Clingo and clyngor package: "pip install clyngor clyngor-with-clingo"
-
 
 * ``miscoto scopes`` compute the scope and target produciblity of a host (optional) and the added-
 value of a microbiome regarding scope and target producibility. The microbiome
@@ -107,6 +108,34 @@ instance pre-created with miscoto_instance.py
     run_scopes(lp_instance_file=xxx, targets_file=xxx, \
                 seeds_file=xxx, bacteria_dir=xxx, \
                 host_file=xxx, output_json=xxx)
+    ```
+
+* ``miscoto focus`` calculates the producible metabolites for one metabolic network of interest in
+two conditions. First when considered alone in the given nutritional
+conditions. Secondly, among its community, in the same nutritional conditions
+but those are necesarily altered by what other species are likely to produce.
+
+    Please note that the name of the microbe of interest corresponds to the basename of its corresponding file in the symbionts input directory, e.g. for a file named
+    `ecoli.sbml`, the given basename must be `ecoli`.
+
+        -h, --help            show this help message and exit
+        -b BACTSYMBIONTS, --bactsymbionts BACTSYMBIONTS
+                                directory of symbionts models, all in sbml format
+        -s SEEDS, --seeds SEEDS
+                                seeds in SBML format
+        -f FOCUS, --focus FOCUS
+                                basename of the metabolic network to be analysed in
+                                the community
+        --output OUTPUT       output file in json
+
+
+    ```miscoto focus``` can be called directly in Python
+    ```python
+    from miscoto import run_focus
+
+    run_focus(bacteria_dir=xxx, \
+                seeds_file=xxx, focus_bact=xxx, \
+                output_json=xxx)
     ```
 
 
