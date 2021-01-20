@@ -31,17 +31,16 @@ from clyngor.as_pyasp import TermSet, Atom
 logger = logging.getLogger(__name__)
 
 
-def run_focus(seeds_file, bacteria_dir, focus_bact, output_json=None):
+def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str=None):
     """Computes community scopes
         seeds_file [str]: seeds file
         bacteria_dir [str]: directory of bacterial metabolic networks
-        focus_bact [str]): basename of microbe of interest
+        focus_bact [list]: basename of microbe of interest
         output_json ([str], optional): Defaults to None. [json file for output]
     
     Returns:
         [dic]: [all information related to focus computation]
     """
-
     start_time = time.time()
     results = {}
     # case 1: instance is provided, just read targets and seeds if given
@@ -62,7 +61,8 @@ def run_focus(seeds_file, bacteria_dir, focus_bact, output_json=None):
 
     # add the name of microbe of interest in the instance file
     with open(lp_instance_file, "a") as f:
-        f.write(f'target_species("{focus_bact}").\n')
+        for ts in focus_bact:
+            f.write(f'target_species("{ts}").\n')
 
     # read bacterial metabolic networks from SBML files
     if not os.path.isdir(bacteria_dir):
@@ -91,38 +91,60 @@ def run_focus(seeds_file, bacteria_dir, focus_bact, output_json=None):
         except:
             logger.info('Could not read file ' + name + ', will ignore it')
 
-    if not focus_bact in all_bacteria_names:
-        logger.fatal(f"{focus_bact} is not the basename of a symbiont from {bacteria_dir}. If the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`.")
-        sys.exit(1)
+    for ts in focus_bact:
+        if not ts in all_bacteria_names:
+            logger.fatal(f"{ts} is not the basename of a symbiont from {bacteria_dir}. If the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`.")
+            sys.exit(1)
         
-    logger.info(os.path.abspath(lp_instance_file))
+    # logger.info(os.path.abspath(lp_instance_file))
+
 
     logger.info(f"Computing producible metabolites for {focus_bact}...")
 
     model = query.get_scopes(lp_instance_file, commons.ASP_SRC_FOCUS)
 
-    indiv_produced = []
-    produced_in_com = []
+    indiv_produced = {}
+    produced_in_com = {}
+    newly_prod = {}
     for pred in model:
         if pred == 'iproduced':
             for a in model[pred, 2]:
-                indiv_produced.append(a[0])
+                if not a[1] in indiv_produced:
+                    indiv_produced[a[1]] = [a[0]]
+                else:
+                    indiv_produced[a[1]].append(a[0])
         elif pred == 'cproduced':
             for a in model[pred, 2]:
-                produced_in_com.append(a[0])
-    
-    logger.info(f"\n{len(indiv_produced)} metabolites producible by {focus_bact} when alone:")
-    logger.info("\n".join(indiv_produced))
+                if not a[1] in produced_in_com:
+                    produced_in_com[a[1]] = [a[0]]
+                else:
+                    produced_in_com[a[1]].append(a[0])
 
-    newly_prod = list(set(produced_in_com) - set(indiv_produced))
-    logger.info(f"\n{len(produced_in_com)} metabolites producible by {focus_bact} in the community: the {len(indiv_produced)} metabolites above + the following {len(newly_prod)} metabolites:")
-    logger.info("\n".join(newly_prod))
+    for ts in focus_bact:
+        logger.info(f"\n############ {ts}")
+        results[ts] = {}
+        
+        if ts in indiv_produced:
+            logger.info(f"* {len(indiv_produced[ts])} metabolites producible by {ts} when alone:")
+            logger.info("\n".join(indiv_produced[ts]))
+        else:
+            logger.info(f"\n* No metabolite producible by {ts} when alone:")
+            indiv_produced[ts] = []
 
-    results["produced_alone"] = indiv_produced
-    results["produced_in_community"] = produced_in_com
-    results["community_metabolic_gain"] = newly_prod
+        if ts in produced_in_com:
+            newly_prod[ts] = list(set(produced_in_com[ts]) - set(indiv_produced[ts]))
+            logger.info(f"\n* {len(produced_in_com[ts])} metabolites producible by {ts} in the community: the {len(indiv_produced[ts])} metabolites above + the following {len(newly_prod[ts])} metabolites:")
+            logger.info("\n".join(newly_prod[ts]))
+        else:
+            logger.info(f"\n* No metabolite producible by {ts} in the community")
+            produced_in_com[ts] = []
+            newly_prod[ts] = []
 
-    delete_lp_instance = False
+        results[ts]["produced_alone"] = indiv_produced[ts]
+        results[ts]["produced_in_community"] = produced_in_com[ts]
+        results[ts]["community_metabolic_gain"] = newly_prod[ts]
+
+    delete_lp_instance = True
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)
 

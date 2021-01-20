@@ -275,26 +275,42 @@ def test_focus_json():
     subprocess.call(['miscoto', 'focus', '-b', '../toy/symbionts_nohost/', '-s', '../toy/seeds.xml',
                     '-f', 'orgA', '--output', 'focus_res_test.json'])
     dict_results = json.loads(open('focus_res_test.json', 'r').read())
-    expected_results = {"produced_alone": ["c", "d"],
+    expected_results = {"orgA": {"produced_alone": ["c", "d"],
                         "produced_in_community": ["c", "d", "f"],
                         "community_metabolic_gain": ["f"],
-                        }
+                        }}
     for result_key in expected_results:
         assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
     os.remove('focus_res_test.json')
 
 def test_focus_cli():
-    subprocess.call(['miscoto', 'focus', '-b', '../toy/symbionts_no_host/', '-s', '../toy/seeds.xml',
-                    '-f', 'orgA', '--output', 'focus_res_test.json'])
-    dict_results = run_focus(bacteria_dir='../toy/symbionts_nohost/', seeds_file='../toy/seeds.xml', focus_bact='orgA')
+    dict_results = run_focus(bacteria_dir='../toy/symbionts_nohost/', seeds_file='../toy/seeds.xml', focus_bact=['orgA'])
 
-    expected_results = {"produced_alone": ["c", "d"],
+    expected_results = {"orgA": {"produced_alone": ["c", "d"],
                         "produced_in_community": ["c", "d", "f"],
                         "community_metabolic_gain": ["f"],
-                        }
+                        }}
     for result_key in expected_results:
         assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
 
+def test_focus_list():
+    dict_results = run_focus(bacteria_dir='../toy/symbionts_nohost/', seeds_file='../toy/seeds.xml', focus_bact=['orgA', 'orgB1', 'orgB2'])
+
+    expected_results = {"orgA": {
+                            "community_metabolic_gain": ["f"],
+                            "produced_alone": ["c","d"],
+                            "produced_in_community": ["c","d","f"]},
+                        "orgB1": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": [],
+                            "produced_in_community": ["e"]}, 
+                        "orgB2": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": ["c"],
+                            "produced_in_community": ["e","c"]}}
+    for org in expected_results:
+        for result_key in expected_results[org]:
+            assert sorted(dict_results[org][result_key]) == sorted(expected_results[org][result_key])
 
 
 def test_create_json_mincom_minexch():

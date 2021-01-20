@@ -168,6 +168,7 @@ def main():
     parent_parser_f.add_argument(
         "-f",
         "--focus",
+        nargs="+",
         dest="focus",
         help="basename of the metabolic network to be analysed in the community",
         required=True,
