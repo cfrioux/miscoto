@@ -24,6 +24,7 @@ def __asp_file(name):
 
 # Routine
 ASP_SRC_SCOPES = __asp_file('scopes')
+ASP_SRC_FOCUS = __asp_file('iscope_in_community')
 # Topological subcommunities
 ASP_SRC_TOPO_SOUP   = __asp_file('community_soup')
 ASP_SRC_TOPO_RXN_MIN_EXCH = __asp_file('community_minexch')

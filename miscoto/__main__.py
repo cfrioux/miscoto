@@ -7,6 +7,7 @@ import time
 from miscoto.miscoto_instance import run_instance
 from miscoto.miscoto_mincom import run_mincom
 from miscoto.miscoto_scopes import run_scopes
+from miscoto.miscoto_focus import run_focus
 from shutil import which
 
 VERSION = pkg_resources.get_distribution("miscoto").version
@@ -162,6 +163,16 @@ def main():
         action="store_true"
     )
 
+    # Miscoto focus specific argument.
+    parent_parser_f = argparse.ArgumentParser(add_help=False)
+    parent_parser_f.add_argument(
+        "-f",
+        "--focus",
+        dest="focus",
+        help="basename of the metabolic network to be analysed in the community",
+        required=True,
+    )
+
     # subparsers
     subparsers = parser.add_subparsers(
         title='subcommands',
@@ -180,6 +191,26 @@ def main():
         the instance ensures that SBML files do not have to be read again.
         Instances are text files that can be modified between runs through multiple
         ways, including the use of bash tools
+        """
+    )
+
+    focus_parser = subparsers.add_parser(
+        "focus",
+        help="Focus on one species and determine what it can produce alone or in its community.",
+        parents=[
+            parent_parser_b, parent_parser_s, parent_parser_f,
+            parent_parser_o
+        ],
+        description=
+        """
+        Calculates the producible metabolites for one metabolic network 
+        of interest in two conditions. First when considered alone
+        in the given nutritional conditions. Secondly, among its community,
+        in the same nutritional conditions but those are necesarily
+        altered by what other species are likely to produce.
+        The name of the microbe of interest corresponds to the basename of
+        its corresponding file in the symbionts input directory, e.g.
+        for a file named `ecoli.sbml`, the given basename must be `ecoli`
         """
     )
 
@@ -272,6 +303,8 @@ def main():
                     intersection_arg, enumeration_arg, union_arg, optsol, args.output)
     elif args.cmd == "instance":
         run_instance(args.bactsymbionts, args.seeds, args.modelhost, args.targets, args.output)
+    elif args.cmd == "focus":
+        run_focus(args.seeds, args.bactsymbionts, args.focus, args.output)
     else:
         logger.critical("Invalid commands for miscoto.")
         parser.print_help()
