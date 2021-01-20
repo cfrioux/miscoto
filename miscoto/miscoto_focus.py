@@ -91,10 +91,14 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
         except:
             logger.info('Could not read file ' + name + ', will ignore it')
 
+    focus_bact2 = focus_bact
     for ts in focus_bact:
         if not ts in all_bacteria_names:
-            logger.fatal(f"{ts} is not the basename of a symbiont from {bacteria_dir}. If the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`.")
-            sys.exit(1)
+            logger.warning(f"{ts} is not the basename of a symbiont from {bacteria_dir}. If the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`. {ts} will be ignored.")
+            focus_bact2.remove(ts)
+    if len(focus_bact2) == 0:
+        logger.critical(f"No element from {focus_bact} could be found in {bacteria_dir}. Please check the input having in mind that if the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`.")
+        sys.exit(1)
         
     # logger.info(os.path.abspath(lp_instance_file))
 
