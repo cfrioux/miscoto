@@ -1,0 +1,6 @@
+miscoto/__pycache__/
+test/__pycache__/
+./*/.DS_Store
+.DS_Store
+./venv/*
+__pycache__/*
