@@ -163,7 +163,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
 
     else:
         logger.critical("ERROR missing input")
-        logger.info(pusage)
+        #logger.info(pusage)
         quit()
 
     logger.info("Computing scopes...")
