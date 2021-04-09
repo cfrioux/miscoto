@@ -185,7 +185,17 @@ def main():
         nargs="+",
         dest="focus",
         help="basename of the metabolic network to be analysed in the community",
-        required=True,
+        required=False,
+        default=[]
+    )
+
+    parent_parser_all = argparse.ArgumentParser(add_help=False)
+    parent_parser_all.add_argument(
+        "--all",
+        dest="all",
+        help="focus on all bacteria of the community",
+        required=False,
+        action="store_true"
     )
 
     # subparsers
@@ -211,14 +221,14 @@ def main():
 
     focus_parser = subparsers.add_parser(
         "focus",
-        help="Focus on one species and determine what it can produce alone or in its community.",
+        help="Focus on one, several or all species and determine what they can produce alone or in its community.",
         parents=[
             parent_parser_b, parent_parser_s, parent_parser_f,
-            parent_parser_o
+            parent_parser_o, parent_parser_all
         ],
         description=
         """
-        Calculates the producible metabolites for one metabolic network 
+        Calculates the producible metabolites for one (or several or all) metabolic network 
         of interest in two conditions. First when considered alone
         in the given nutritional conditions. Secondly, among its community,
         in the same nutritional conditions but those are necesarily
@@ -319,7 +329,13 @@ def main():
     elif args.cmd == "instance":
         run_instance(args.bactsymbionts, args.seeds, args.modelhost, args.targets, args.output)
     elif args.cmd == "focus":
-        run_focus(args.seeds, args.bactsymbionts, args.focus, args.output)
+        if not args.all and not args.focus:
+            logger.error("ERROR - Either a list of networks with -f/--focus or the --all flag must be given as arguments.")
+            sys.exit(1)
+        if args.all and args.focus:
+            logger.warning("WARNING - The --focus/-f argument was given along with the --all flag. All metabolic networks will be considered for analysis.")
+
+        run_focus(args.seeds, args.bactsymbionts, args.focus, args.output, args.all)
     else:
         logger.critical("Invalid commands for miscoto.")
         parser.print_help()

@@ -312,6 +312,28 @@ def test_focus_list():
         for result_key in expected_results[org]:
             assert sorted(dict_results[org][result_key]) == sorted(expected_results[org][result_key])
 
+def test_focus_all():
+    dict_results = run_focus(bacteria_dir='../toy/symbionts_nohost/', seeds_file='../toy/seeds.xml', focus_bact=[], all_networks=True)
+
+    expected_results = {"orgA": {
+                            "community_metabolic_gain": ["f"],
+                            "produced_alone": ["c","d"],
+                            "produced_in_community": ["c","d","f"]},
+                        "orgB1": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": [],
+                            "produced_in_community": ["e"]}, 
+                        "orgB2": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": ["c"],
+                            "produced_in_community": ["e","c"]},
+                        "orgB3": {
+                            "community_metabolic_gain": [],
+                            "produced_alone": ["e", "d", "c"],
+                            "produced_in_community": ["e", "d", "c"]}}
+    for org in expected_results:
+        for result_key in expected_results[org]:
+            assert sorted(dict_results[org][result_key]) == sorted(expected_results[org][result_key])
 
 def test_create_json_mincom_minexch():
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',

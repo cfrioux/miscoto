@@ -29,12 +29,13 @@ from clyngor.as_pyasp import TermSet, Atom
 logger = logging.getLogger(__name__)
 
 
-def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str=None):
-    """Computes community scopes
+def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str=None, all_networks:bool=False):
+    """Computes individual and community scopes for chosen symbionts
         seeds_file [str]: seeds file
         bacteria_dir [str]: directory of bacterial metabolic networks
         focus_bact [list]: basename of microbe of interest
         output_json ([str], optional): Defaults to None. [json file for output]
+        all_networks (bool, optional): Defaults to False. [all metabolic networrks should be considered for focus analysis]
     
     Returns:
         [dic]: [all information related to focus computation]
@@ -57,11 +58,6 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
         sys.exit(1)
         
     lp_instance_file = utils.to_file(seedsfacts)
-
-    # add the name of microbe of interest in the instance file
-    with open(lp_instance_file, "a") as f:
-        for ts in focus_bact:
-            f.write(f'target_species("{ts}").\n')
 
     # read bacterial metabolic networks from SBML files
     if not os.path.isdir(bacteria_dir):
@@ -89,6 +85,9 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
             logger.info('Done for ' + name)
         except:
             logger.info('Could not read file ' + name + ', will ignore it')
+    
+    if all_networks: 
+        focus_bact = all_bacteria_names
 
     focus_bact2 = []
     for ts in focus_bact:
@@ -99,7 +98,12 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
     if len(focus_bact2) == 0:
         logger.critical(f"\nERROR - No element from {focus_bact} could be found in {bacteria_dir}. Please check the input having in mind that if the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`.")
         sys.exit(1)
-       
+    
+    # add the name of microbe of interest in the instance file
+    with open(lp_instance_file, "a") as f:
+        for ts in focus_bact2:
+            f.write(f'target_species("{ts}").\n')
+
     # logger.info(os.path.abspath(lp_instance_file))
 
 
