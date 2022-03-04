@@ -30,7 +30,7 @@ def get_scopes(instance_f, encoding):
     prg = [encoding, instance_f]
     options = ''
     best_model = None
-    models = clyngor.solve(prg, options=options)
+    models = clyngor.solve(prg, options=options, use_clingo_module=False)
     for model in models.discard_quotes.by_arity:
         best_model = model
 
@@ -64,7 +64,7 @@ def get_communities_from_g(grounding):
     """
     options = '--configuration jumpy --opt-strategy=usc,oll'
     best_model = None
-    models = clyngor.solve_from_grounded(grounding, options=options)
+    models = clyngor.solve_from_grounded(grounding, options=options, use_clingo_module=False)
     for model in models.discard_quotes.by_arity.with_optimization:
         best_model = model
     return best_model
@@ -83,7 +83,7 @@ def get_communities(lp_instance, encoding):
     options = '--configuration jumpy --opt-strategy=usc,5'
     prg = [encoding, lp_instance]
     best_model = None
-    models = clyngor.solve(prg, options=options)
+    models = clyngor.solve(prg, options=options, use_clingo_module=False)
     for model in models.discard_quotes.by_arity.with_optimization:
         best_model = model
 
@@ -100,7 +100,7 @@ def get_intersection_communities_from_g(grounding, optimum):
         TermSet: intersection
     """
     options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN,' +str(optimum)
-    models = clyngor.solve_from_grounded(grounding, options=options)
+    models = clyngor.solve_from_grounded(grounding, options=options, use_clingo_module=False)
     for model in models.discard_quotes.by_arity.with_optimization:
         best_model = model
 
@@ -116,7 +116,7 @@ def get_intersection_communities_from_g_noopti(grounding):
         TermSet: intersection
     """
     options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN'
-    models = clyngor.solve_from_grounded(grounding, options=options)
+    models = clyngor.solve_from_grounded(grounding, options=options, use_clingo_module=False)
     for model in models.discard_quotes.by_arity.with_optimization:
         best_model = model
 
@@ -136,7 +136,7 @@ def get_intersection_communities_opti(lp_instance, optimum, encoding):
     options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN,' + str(optimum)
     prg = [encoding, lp_instance]
     best_model = None
-    models = clyngor.solve(prg, options=options)
+    models = clyngor.solve(prg, options=options, use_clingo_module=False)
     for model in models.discard_quotes.by_arity.with_optimization:
         best_model = model
 
@@ -156,7 +156,7 @@ def get_intersection_communities(lp_instance, encoding):
     options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode cautious --opt-mode=optN'
     prg = [encoding, lp_instance]
     best_model = None
-    models = clyngor.solve(prg, options=options)
+    models = clyngor.solve(prg, options=options, use_clingo_module=False)
     for model in models.discard_quotes.by_arity.with_optimization:
         best_model = model
 
@@ -174,7 +174,7 @@ def get_all_communities_from_g(grounding, optimum, nmodels=0):
         list: list of Termsets
     """
     options = '--configuration handy --opt-strategy=usc,5 --opt-mode=optN,' +str(optimum)
-    models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels).by_arity.discard_quotes
+    models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels, use_clingo_module=False).by_arity.discard_quotes
     opt_models = clyngor.opt_models_from_clyngor_answers(models)
 
     return opt_models
@@ -190,7 +190,7 @@ def get_all_communities_from_g_noopti(grounding, nmodels=0):
         list: list of TermSets
     """
     options = '--configuration handy --opt-strategy=usc,5 --opt-mode=optN'
-    models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels).by_arity.discard_quotes
+    models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels, use_clingo_module=False).by_arity.discard_quotes
     opt_models = clyngor.opt_models_from_clyngor_answers(models)
 
     return opt_models
@@ -209,7 +209,7 @@ def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     """
     options = '--configuration handy --opt-strategy=usc,0 --opt-mode=optN,' + str(optimum)
     prg = [encoding, lp_instance]
-    models = clyngor.solve(prg, options=options, nb_model=nmodels).by_arity.discard_quotes
+    models = clyngor.solve(prg, options=options, nb_model=nmodels, use_clingo_module=False).by_arity.discard_quotes
     opt_models = clyngor.opt_models_from_clyngor_answers(models)
 
     return opt_models
@@ -228,7 +228,7 @@ def get_all_communities(lp_instance, encoding, nmodels=0):
     """
     options = '--configuration handy --opt-strategy=usc,0 --opt-mode=optN'
     prg = [encoding, lp_instance]
-    opt_models = clyngor.opt_models_from_clyngor_answers(clyngor.solve(prg, options=options, nb_model=nmodels).by_arity.discard_quotes)
+    opt_models = clyngor.opt_models_from_clyngor_answers(clyngor.solve(prg, options=options, nb_model=nmodels, use_clingo_module=False).by_arity.discard_quotes)
 
     return opt_models
 
@@ -243,7 +243,7 @@ def get_union_communities_from_g(grounding, optimum):
         TermSet: union
     """
     options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode=brave --opt-mode=optN,' + str(optimum)
-    models = clyngor.solve_from_grounded(grounding, options=options)
+    models = clyngor.solve_from_grounded(grounding, options=options, use_clingo_module=False)
     best_model = None
     for model in models.by_arity.discard_quotes.with_optimization:
         best_model = model
@@ -260,7 +260,7 @@ def get_union_communities_from_g_noopti(grounding):
         TermSet: union
     """
     options = '--configuration jumpy --opt-strategy=usc,5 --enum-mode brave --opt-mode=optN'
-    models = clyngor.solve_from_grounded(grounding, options=options)
+    models = clyngor.solve_from_grounded(grounding, options=options, use_clingo_module=False)
     best_model = None
     for model in models.by_arity.discard_quotes.with_optimization:
         best_model = model
@@ -281,7 +281,7 @@ def get_union_communities_optimum(lp_instance, optimum, encoding):
     options ='--configuration jumpy --opt-strategy=usc,5 --enum-mode=brave --opt-mode=optN --opt-bound='+str(optimum)
     prg = [encoding, lp_instance]
     best_model = None
-    models = clyngor.solve(prg, options=options)
+    models = clyngor.solve(prg, options=options, use_clingo_module=False)
     for model in models.discard_quotes.by_arity.with_optimization:
         best_model = model
 
@@ -301,7 +301,7 @@ def get_union_communities(lp_instance, encoding):
     options ='--configuration jumpy --opt-strategy=usc,5 --enum-mode=brave --opt-mode=optN'
     prg = [encoding, lp_instance]
     best_model = None
-    models = clyngor.solve(prg, options=options)
+    models = clyngor.solve(prg, options=options, use_clingo_module=False)
     for model in models.discard_quotes.by_arity.with_optimization:
         best_model = model
 
