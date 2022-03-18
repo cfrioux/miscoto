@@ -127,6 +127,7 @@ but those are necesarily altered by what other species are likely to produce.
                                 basename of the metabolic network to be analysed in
                                 the community
         --output OUTPUT       output file in json
+        --all                 focus on all bacteria of the community
 
 
     ```miscoto focus``` can be called directly in Python
@@ -135,7 +136,7 @@ but those are necesarily altered by what other species are likely to produce.
 
     run_focus(bacteria_dir=xxx, \
                 seeds_file=xxx, focus_bact=xxx, \
-                output_json=xxx)
+                output_json=xxx, all_networks=False)
     ```
 
 
