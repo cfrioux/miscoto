@@ -15,7 +15,7 @@ Mainly, two rules are followed:
 A metabolite that is producible from a set of nutrients is described as being "in the scope of the seeds".
 The computation is made using logic solvers (Answer Set Programming). The present modelling ignores the stoichiometry of reactions (2A + B --> C is considered equivalent to A + B --> C), and is therefore suited to non-curated or draft metabolic networks.
 
-MiSCoTo computes the set of metabolites that are producible by a community (with or without a host). It can also compute minimal communities starting from a large community under a defined objective (production of targets by the community of by the host). 
+MiSCoTo computes the set of metabolites that are producible by a community (with or without a host) and the orphan and deadend metabolites in the community. It can also compute minimal communities starting from a large community under a defined objective (production of targets by the community of by the host).
 
 **If you use MiSCoTo, please cite:** 
 
@@ -139,6 +139,28 @@ but those are necesarily altered by what other species are likely to produce.
                 output_json=xxx, all_networks=False)
     ```
 
+* ``miscoto deadends`` calculates the orphan (metabolites consumed but not produced) and deadend
+(metabolites produced but not consumed) metabolites by the all community.
+nputs: SBML models (symbionts and optionally host).
+    ```
+    optional arguments:
+    -h, --help            show this help message and exit
+    -b BACTSYMBIONTS, --bactsymbionts BACTSYMBIONTS
+                            directory of symbionts models, all in sbml format
+    -m MODELHOST, --modelhost MODELHOST
+                            host metabolic network in SBML format
+    --output OUTPUT       output file
+    -a ASP, --asp ASP     instance if already created with miscoto_instance
+    ```
+
+    ```miscoto deadends``` can be called directly in Python
+
+    ```python
+    from miscoto import run_deadends
+
+    run_deadends(bacteria_dir=xxx, host_file=xxx,\
+                output_json=xxx)
+    ```
 
 * ``miscoto mincom`` computes a community from a microbiome Inputs: SBML models (symbionts and
 optionally host) + seeds + targets or an instance pre-created with
