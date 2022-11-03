@@ -22,6 +22,7 @@ from miscoto.miscoto_instance import run_instance
 from miscoto.miscoto_mincom import run_mincom
 from miscoto.miscoto_scopes import run_scopes
 from miscoto.miscoto_focus import run_focus
+from miscoto.miscoto_deadends import run_deadends
 from shutil import which
 
 VERSION = pkg_resources.get_distribution("miscoto").version
@@ -298,6 +299,30 @@ def main():
         """
     )
 
+    deadends_parser = subparsers.add_parser(
+        "deadends",
+        help="""Compute the deadend (metabolites produced but not consumed)
+         and orphan (metabolites consumed but not produced) metabolites in community.""",
+        parents=[
+            parent_parser_opt_b, parent_parser_m, parent_parser_o, parent_parser_a
+        ],
+        description=
+        """
+        Computes the deadend and orphan metabolites of a host (optional) and its microbiome.
+        Computation from SBML models or an instance pre-created with miscoto_instance.py
+        """,
+        usage="""
+        **1** from SBML files with a host metabolic model \n
+        miscoto deadends -m host.sbml -b symbiont_directory  [--output outputfile.json]
+        \n
+        **2** from SBML files of symbionts without host \n
+        miscoto deadends -b symbiont_directory [--output outputfile.json]
+        \n
+        **3** from a pre-computed instance \n
+        miscoto deadends -a instance.lp [--output outputfile.json]
+        """
+    )
+
     args = parser.parse_args()
 
     # If no argument print the help.
@@ -307,6 +332,8 @@ def main():
 
     if args.cmd == "scopes":
         run_scopes(args.asp, args.targets, args.seeds, args.bactsymbionts, args.modelhost, args.output)
+    elif args.cmd == "deadends":
+        run_deadends(args.asp, args.bactsymbionts, args.modelhost, args.output)
     elif args.cmd == "mincom":
         if args.intersection:
             intersection_arg = True

@@ -5,7 +5,7 @@ import json
 import os
 import subprocess
 
-from miscoto import run_instance, run_mincom, run_scopes, run_focus
+from miscoto import run_instance, run_mincom, run_scopes, run_focus, run_deadends
 
 
 def test_instance():
@@ -511,6 +511,29 @@ def test_create_json_mincom_soup_instance_cli():
     assert len(dict_results['enum_exchanged']) == len(expected_results['enum_exchanged'])
     os.remove('test.json')
     os.remove('test.lp')
+
+
+def test_deadends():
+    deadend_np = ['a', 'b']
+    deadend_nc = ['f']
+
+    results = run_deadends(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/')
+
+    assert set(results['deadend_np']) == set(deadend_np)
+    assert set(results['deadend_nc']) == set(deadend_nc)
+
+
+def test_deadends_cli():
+    subprocess.call(['miscoto', 'deadends', '-b', '../toy/symbionts/', '-m', '../toy/orgA.xml',
+                    '--output', 'test.json'])
+
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {'deadend_np':  ['a', 'b'],
+                        'deadend_nc': ['f']}
+
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('test.json')
 
 
 if __name__ == "__main__":

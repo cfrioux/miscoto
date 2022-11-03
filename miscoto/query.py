@@ -19,11 +19,11 @@ from miscoto import utils
 
 def get_scopes(instance_f, encoding):
     """Get metabolic scope of a microbiota
-    
+
     Args:
         instance_f (str): ASP instance file
         encoding (str): ASP model encoding
-    
+
     Returns:
         TermSet: ASP model
     """
@@ -36,6 +36,25 @@ def get_scopes(instance_f, encoding):
 
     return best_model
 
+
+def get_deadends(instance_f, encoding):
+    """Get deadend and orphan metabolites of a microbiota
+
+    Args:
+        instance_f (str): ASP instance file
+        encoding (str): ASP model encoding
+
+    Returns:
+        TermSet: ASP model
+    """
+    prg = [encoding, instance_f]
+    options = ''
+    best_model = None
+    models = clyngor.solve(prg, options=options, use_clingo_module=False)
+    for model in models.discard_quotes.by_arity:
+        best_model = model
+
+    return best_model
 
 
 def get_grounded_communities_from_file(instance_f, encoding):
