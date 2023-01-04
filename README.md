@@ -140,8 +140,8 @@ but those are necesarily altered by what other species are likely to produce.
     ```
 
 * ``miscoto deadends`` calculates the orphan (metabolites consumed but not produced) and deadend
-(metabolites produced but not consumed) metabolites by the all community.
-nputs: SBML models (symbionts and optionally host).
+(metabolites produced but not consumed) metabolites by the community.
+Inputs: SBML models (symbionts and optionally host).
     ```
     optional arguments:
     -h, --help            show this help message and exit
