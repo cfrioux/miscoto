@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 
-import argparse
 import sys
 import os
 import time
@@ -86,7 +85,6 @@ def run_deadends(lp_instance_file=None, bacteria_dir=None, host_file=None, outpu
         lp_instance_file = utils.to_file(lp_instance)
 
         logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
-        bactfacts = TermSet()
         onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
 
         if len(onlyfiles) == 0:
@@ -122,8 +120,10 @@ def run_deadends(lp_instance_file=None, bacteria_dir=None, host_file=None, outpu
             for a in model[pred, 1]:
                 deadend_nc.append(a[0])
 
-    logger.info('{0} orphan metabolites (metabolites consumed but not produced) in community.'.format(len(deadend_np)))
-    logger.info('{0} deadend metabolites (metabolites produced but not consumed) in community.'.format(len(deadend_nc)))
+    logger.info('{0} orphan metabolites (metabolites consumed but not produced) in community:'.format(len(deadend_np)))
+    logger.info("\n".join(deadend_np))
+    logger.info('{0} deadend metabolites (metabolites produced but not consumed) in community:'.format(len(deadend_nc)))
+    logger.info("\n".join(deadend_nc))
 
     if delete_lp_instance == True:
         os.unlink(lp_instance_file)

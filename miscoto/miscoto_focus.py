@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 
-import argparse
 import sys
 import os
 import time
@@ -24,7 +23,7 @@ from miscoto import query, sbml, commons, utils
 from os import listdir
 from os.path import isfile, join
 from xml.etree.ElementTree import ParseError
-from clyngor.as_pyasp import TermSet, Atom
+from clyngor.as_pyasp import Atom
 
 logger = logging.getLogger(__name__)
 

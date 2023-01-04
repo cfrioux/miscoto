@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 
-import argparse
 import sys
 import os
 import time
@@ -143,7 +142,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         lp_instance_file = utils.to_file(lp_instance)
 
         logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
-        bactfacts = TermSet()
+
         onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
 
         if len(onlyfiles) == 0:

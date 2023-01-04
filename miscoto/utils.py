@@ -46,6 +46,20 @@ def to_file(termset, outputfile=None):
     return outputfile
 
 
+def is_valid_file(filepath):
+    """Return True if filepath exists
+    Args:
+        filepath (str): path to file
+    Returns:
+        bool: True if path exists, False otherwise
+    """
+    try:
+        open(filepath, 'r').close()
+        return True
+    except OSError:
+        return False
+
+
 def to_json(input_dictionary, output_json):
     """write the content of miscoto results into a json.
     As results of opt_sol are already in the dictionary delete one_model.

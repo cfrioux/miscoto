@@ -536,6 +536,19 @@ def test_deadends_cli():
     os.remove('test.json')
 
 
+def test_deadends_instance():
+    deadend_np = ['a', 'b']
+    deadend_nc = ['f']
+
+    run_instance(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
+                        output='test.lp')
+
+    results = run_deadends(lp_instance_file='test.lp')
+
+    assert set(results['deadend_np']) == set(deadend_np)
+    assert set(results['deadend_nc']) == set(deadend_nc)
+
+
 if __name__ == "__main__":
     print("** testing scope **")
     test_scopes()

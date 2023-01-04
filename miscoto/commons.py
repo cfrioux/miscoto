@@ -18,7 +18,6 @@
 Definition of numerous constants, for paths, names, arguments for ASP solvers.
 """
 
-import sys
 import os
 
 # Root
