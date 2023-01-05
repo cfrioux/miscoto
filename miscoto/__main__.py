@@ -302,7 +302,7 @@ def main():
     deadends_parser = subparsers.add_parser(
         "deadends",
         help="""Compute the deadend (metabolites produced but not consumed)
-         and orphan (metabolites consumed but not produced) metabolites in community.""",
+         and orphan (metabolites consumed but not produced) metabolites in the community.""",
         parents=[
             parent_parser_opt_b, parent_parser_m, parent_parser_o, parent_parser_a
         ],

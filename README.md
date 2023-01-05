@@ -143,7 +143,7 @@ but those are necesarily altered by what other species are likely to produce.
     ```
 
 * ``miscoto deadends`` identifies the orphan (metabolites consumed but not produced) and deadend
-(metabolites produced but not consumed) metabolites of the community.
+(metabolites produced but not consumed) metabolites in the community.
 Inputs: SBML models (symbionts and optionally host).
     ```
     optional arguments:
