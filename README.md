@@ -21,7 +21,7 @@ MiSCoTo computes the set of metabolites that are producible by a community (with
 
 *Frioux C, Fremy E, Trottier C, Siegel A. Scalable and exhaustive screening of metabolic functions carried out by microbial consortia. Bioinformatics 2018;34:i934–43. [https://doi.org/10.1093/bioinformatics/bty588](https://doi.org/10.1093/bioinformatics/bty588).*
 
-**If you look for a wider screening of communities, as well as metabolic network reconstruction for a large set of genomes** please look at [Metage2Metabo](https://github.com/AuReMe/metage2metabo)
+**If you look for a wider screening of communities, as well as metabolic network reconstruction for a large set of genomes** please look at [Metage2Metabo](https://github.com/AuReMe/metage2metabo).
 
 Inputs: metabolic models, seeds (growth medium) and metabolic targets as SBML files (see examples in [toy](https://github.com/cfrioux/miscoto/tree/master/toy)).
 
@@ -58,7 +58,7 @@ pip install miscoto
 
 ## Usage
 
-    usage: miscoto [-h] [-v] {instance,focus,mincom,scopes} ...
+    usage: miscoto [-h] [-v] {instance,focus,mincom,scopes,deadends} ...
 
     Explore microbiomes and select minimal communities within them. For specific
     help on each subcommand use: miscoto {cmd} --help
@@ -70,12 +70,15 @@ pip install miscoto
     subcommands:
     valid subcommands:
 
-    {instance,focus,mincom,scopes}
+    {instance,focus,mincom,scopes,deadends}
         instance            Prepares instance for miscoto.
-        focus               Focus on one species and determine what it can produce
-                            alone or in its community.
+        focus               Focus on one, several or all species and determine
+                            what they can produce alone or in its community.
         mincom              Compute a community from a microbiome.
         scopes              Compute the scope and target produciblity of a host.
+        deadends            Compute the deadend (metabolites produced but not
+                            consumed) and orphan (metabolites consumed but not
+                            produced) metabolites in community.
 
     Requires Clingo and clyngor package: "pip install clyngor clyngor-with-clingo"
 
@@ -139,8 +142,8 @@ but those are necesarily altered by what other species are likely to produce.
                 output_json=xxx, all_networks=False)
     ```
 
-* ``miscoto deadends`` calculates the orphan (metabolites consumed but not produced) and deadend
-(metabolites produced but not consumed) metabolites by the community.
+* ``miscoto deadends`` identifies the orphan (metabolites consumed but not produced) and deadend
+(metabolites produced but not consumed) metabolites of the community.
 Inputs: SBML models (symbionts and optionally host).
     ```
     optional arguments:

@@ -8,10 +8,14 @@ on:
     branches: [ master ]
     paths-ignore:
       - 'README.md'
+      - 'CHANGELOG.md'
+      - 'LICENSE'
   pull_request:
     branches: [ master ]
     paths-ignore:
       - 'README.md'
+      - 'CHANGELOG.md'
+      - 'LICENSE'
 
 jobs:
   build:
