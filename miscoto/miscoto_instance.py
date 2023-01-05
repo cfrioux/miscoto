@@ -24,32 +24,11 @@ from os import listdir
 from os.path import isfile, join
 from xml.etree.ElementTree import ParseError
 from clyngor.as_pyasp import TermSet, Atom
-from multiprocessing import Pool
 
 logger = logging.getLogger(__name__)
 
 
-def extract_symbiont_data(bacteria_file, bacteria_dir):
-    """Create ASP model from SBML file
-        bacteria_file (str): Name of the SBML file
-        bacteria_dir (str): Defaults to None. [directory of bacterial metabolic networks]
-
-    Returns:
-        [TermSet]: Clyngor TermSet containing ASP formatting of SBMl model
-    """
-    name = os.path.splitext(bacteria_file)[0]
-    bacteria_path = os.path.join(bacteria_dir, bacteria_file)
-
-    if utils.is_valid_file(bacteria_path) is True:
-        one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_path, name)
-        one_bact_model.add(Atom('bacteria', ["\"" + name + "\""]))
-        logger.info('Done for ' + name)
-        return one_bact_model
-    else:
-        logger.info('Could not read file ' + name + ' will ignore it')
-
-
-def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_file=None, output=None, cpu_number=1):
+def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_file=None, output=None):
     """Creates ASP facts instance to give as input to mincom, scopes or deadends.
     For mincom, the instance file must contain data from: bacteria_dir, seeds_file and targets_file. Optionally: host_file.
     For scopes, the instance file must contain data from: bacteria_dir and seeds_file. Optionally: host_file.
@@ -59,7 +38,6 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
         host_file ([str], optional): Defaults to None. [host metabolic network]
         targets_file ([str], optional): Defaults to None. [targets file]
         output ([str], optional): Defaults to None. [output file]
-        cpu_number (int): Number of CPU for multiprocessing (1 by default)
 
     Returns:
         [str]: [output file]
@@ -122,21 +100,22 @@ def run_instance(bacteria_dir=None, seeds_file=None, host_file=None, targets_fil
 
     logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
 
-    onlyfiles = [(f, bacteria_dir) for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
+    bacteria_files = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
 
-    if len(onlyfiles) == 0:
+    if len(bacteria_files) == 0:
         logger.critical('No bacterial networks in ' + bacteria_dir)
         sys.exit(1)
 
-    # Extract data from SBML models using multiprocessing.
-    miscoto_pool = Pool(cpu_number)
-    bact_models = miscoto_pool.starmap(extract_symbiont_data, onlyfiles)
-
-    miscoto_pool.close()
-    miscoto_pool.join()
-
-    for one_bact_model in bact_models:
-        utils.to_file(one_bact_model, output)
+    for bacteria_file in bacteria_files:
+        name = os.path.splitext(bacteria_file)[0]
+        bacteria_path = os.path.join(bacteria_dir, bacteria_file)
+        if utils.is_valid_file(bacteria_path) is True:
+            one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_path, name)
+            one_bact_model.add(Atom('bacteria', ["\"" + name + "\""]))
+            utils.to_file(one_bact_model, output)
+            logger.info('Done for ' + name)
+        else:
+            logger.info('Could not read file ' + name + ' will ignore it')
 
     logger.info("Instance created: " + os.path.abspath(output))
 

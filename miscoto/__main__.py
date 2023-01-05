@@ -108,15 +108,6 @@ def main():
         help="output file",
         required=False,
     )
-    parent_parser_cpu = argparse.ArgumentParser(add_help=False)
-    parent_parser_cpu.add_argument(
-        "--cpu",
-        dest="cpu",
-        help="number of CPU for multiprocessing the creation of instance from SBMl models",
-        required=False,
-        type=int,
-        default=1
-    )
 
     # Miscoto mincom and scopes specific arguments.
     # Need to recreate some arguments as they are optional in mincom and scopes.
@@ -218,7 +209,7 @@ def main():
         help="Prepares instance for miscoto.",
         parents=[
             parent_parser_b, parent_parser_s, parent_parser_m, parent_parser_t,
-            parent_parser_o, parent_parser_cpu
+            parent_parser_o
         ],
         description=
         """
@@ -363,7 +354,7 @@ def main():
         run_mincom(args.option, args.bactsymbionts, args.asp, args.targets, args.seeds, args.modelhost,
                     intersection_arg, enumeration_arg, union_arg, optsol, args.output)
     elif args.cmd == "instance":
-        run_instance(args.bactsymbionts, args.seeds, args.modelhost, args.targets, args.output, args.cpu)
+        run_instance(args.bactsymbionts, args.seeds, args.modelhost, args.targets, args.output)
     elif args.cmd == "focus":
         if not args.all and not args.focus:
             logger.error("ERROR - Either a list of networks with -f/--focus or the --all flag must be given as arguments.")
