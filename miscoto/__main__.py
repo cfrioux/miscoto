@@ -325,9 +325,20 @@ def main():
 
     args = parser.parse_args()
 
-    # If no argument print the help.
+    # If no argument print the help of miscoto.
     if len(sys.argv) == 1:
         parser.print_help()
+        sys.exit(1)
+
+    # If only a subcommand, print the help for this subcommand.
+    if len(sys.argv) == 2:
+        if sys.argv[1] in subparsers.choices:
+            subcommand = subparsers.choices[sys.argv[1]]
+        else:
+            subcommands = ','.join(list(subparsers.choices.keys()))
+            logger.error("ERROR - Invalide subcommand {0}, it should be one of: {1}.".format(sys.argv[1], subcommands))
+            sys.exit(1)
+        subcommand.print_help()
         sys.exit(1)
 
     if args.cmd == "scopes":
