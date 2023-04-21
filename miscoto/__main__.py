@@ -216,7 +216,11 @@ def main():
         Prepares instance for miscoto. Useful in a benchmark context: pre-calculating
         the instance ensures that SBML files do not have to be read again.
         Instances are text files that can be modified between runs through multiple
-        ways, including the use of bash tools
+        ways, including the use of bash tools.
+        Miscoto scopes: BACTSYMBIONTS (required), SEEDS (required), TARGETS (optional), MODELHOST (optional).
+        Miscoto mincom: BACTSYMBIONTS (required), SEEDS (required), TARGETS (required), MODELHOST (optional).
+        Miscoto mincom: BACTSYMBIONTS (required), SEEDS (required), TARGETS (required), MODELHOST (optional).
+        Miscoto deadends: BACTSYMBIONTS (required), MODELHOST (optional).
         """
     )
 

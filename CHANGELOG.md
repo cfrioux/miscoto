@@ -1,5 +1,28 @@
 # Changelog
 
+# MiSCoTo v3.2.0  (2023-04-20)
+
+## New
+
+- `miscoto deadends` to compute deadend and orphan metabolites for the community (issue #15).
+- `CHANGLEOG.md` showing the different versions and the associated changes.
+
+## Test
+
+- Add test for miscoto deadends.
+
+## Modify
+
+- Modify miscoto instance to work with only symbionts folder for miscoto deadends (seeds and targets are optional).
+- Giving only a subcommand to miscoto returns the associated help.
+- Remove some unused imports.
+- Update readme according to miscoto deadends.
+- Update license year.
+
+## CI
+
+-  Remove mirror to Inria Gitlab due to changes on thhe Gitlab version.
+
 # MiSCoTo v3.1.2  (2022-03-18)
 
 ## New

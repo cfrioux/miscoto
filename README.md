@@ -236,7 +236,7 @@ The instance can be modified (usable bacteria with the predicate ``bacteria("xxx
 ``miscoto_instance.py`` creates such instance:
 
 ```
-miscoto instance [-h] [-m MODELHOST] -s SEEDS [-t TARGETS] -b BACTSYMBIONTS [-o OUTPUT]
+miscoto instance [-h] -b BACTSYMBIONTS [-s SEEDS] [-m MODELHOST] [-t TARGETS] [--output OUTPUT]
 ```
 
 ```python
