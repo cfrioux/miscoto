@@ -21,7 +21,7 @@
 
 ## CI
 
--  Remove mirror to Inria Gitlab due to changes on thhe Gitlab version.
+- Deactivate mirror to Inria Gitlab due to changes on thhe Gitlab version.
 
 # MiSCoTo v3.1.2  (2022-03-18)
 
