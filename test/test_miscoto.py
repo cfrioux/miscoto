@@ -5,7 +5,7 @@ import json
 import os
 import subprocess
 
-from miscoto import run_instance, run_mincom, run_scopes, run_focus
+from miscoto import run_instance, run_mincom, run_scopes, run_focus, run_deadends
 
 
 def test_instance():
@@ -513,6 +513,94 @@ def test_create_json_mincom_soup_instance_cli():
     os.remove('test.lp')
 
 
+def test_deadends():
+    deadend_np = ['a', 'b']
+    deadend_nc = ['f']
+
+    results = run_deadends(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/')
+
+    assert set(results['deadend_np']) == set(deadend_np)
+    assert set(results['deadend_nc']) == set(deadend_nc)
+
+
+def test_deadends_seeds():
+    deadend_np = []
+    deadend_nc = ['f']
+    seeds_np = ['a', 'b']
+
+    results = run_deadends(host_file='../toy/orgA.xml', seeds_file = '../toy/seeds.xml', bacteria_dir='../toy/symbionts/')
+
+    assert set(results['deadend_np']) == set(deadend_np)
+    assert set(results['deadend_nc']) == set(deadend_nc)
+    assert set(results['seeds_np']) == set(seeds_np)
+
+def test_deadends_less_seeds():
+    deadend_np = []
+    deadend_nc = ['c']
+    seeds_np = ['a']
+
+    results = run_deadends(host_file='../toy/orgA.xml', seeds_file = '../toy/seeds_less.xml', bacteria_dir='../toy/symbionts/')
+
+    assert set(results['deadend_np']) == set(deadend_np)
+    assert set(results['deadend_nc']) == set(deadend_nc)
+    assert set(results['seeds_np']) == set(seeds_np)
+
+
+def test_deadends_cli():
+    subprocess.call(['miscoto', 'deadends', '-b', '../toy/symbionts/', '-m', '../toy/orgA.xml',
+                    '--output', 'test.json'])
+
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {'deadend_np':  ['a', 'b'],
+                        'deadend_nc': ['f']}
+
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('test.json')
+
+
+def test_deadends_seeds_cli():
+    subprocess.call(['miscoto', 'deadends', '-b', '../toy/symbionts/', '-m', '../toy/orgA.xml',
+                    '--output', 'test.json', '-s', '../toy/seeds.xml'])
+
+    dict_results = json.loads(open('test.json', 'r').read())
+    expected_results = {'deadend_np':  [],
+                        'deadend_nc': ['f'],
+                        'seeds_np': ['a', 'b']}
+
+    for result_key in expected_results:
+        assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
+    os.remove('test.json')
+
+
+def test_deadends_instance():
+    deadend_np = ['a', 'b']
+    deadend_nc = ['f']
+
+    run_instance(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
+                        output='test.lp')
+
+    results = run_deadends(lp_instance_file='test.lp')
+
+    assert set(results['deadend_np']) == set(deadend_np)
+    assert set(results['deadend_nc']) == set(deadend_nc)
+
+
+def test_deadends_instance_seeds():
+    deadend_np = []
+    deadend_nc = ['f']
+    seeds_np = ['a', 'b']
+
+    run_instance(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
+                        output='test.lp', seeds_file='../toy/seeds.xml')
+
+    results = run_deadends(lp_instance_file='test.lp')
+
+    assert set(results['deadend_np']) == set(deadend_np)
+    assert set(results['deadend_nc']) == set(deadend_nc)
+    assert set(results['seeds_np']) == set(seeds_np)
+
+
 if __name__ == "__main__":
     print("** testing scope **")
     test_scopes()
@@ -525,3 +613,4 @@ if __name__ == "__main__":
     test_mincom_minexch_enumeration_optsol()
     print("** testing instance creation")
     test_instance()
+

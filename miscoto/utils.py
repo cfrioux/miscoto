@@ -1,7 +1,7 @@
 #!python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2018-2021 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2023 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -44,6 +44,20 @@ def to_file(termset, outputfile=None):
         f.write(str(t) + '.\n')
     f.close()
     return outputfile
+
+
+def is_valid_file(filepath):
+    """Return True if filepath exists
+    Args:
+        filepath (str): path to file
+    Returns:
+        bool: True if path exists, False otherwise
+    """
+    try:
+        open(filepath, 'r').close()
+        return True
+    except OSError:
+        return False
 
 
 def to_json(input_dictionary, output_json):

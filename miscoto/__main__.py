@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2021 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2023 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -22,6 +22,7 @@ from miscoto.miscoto_instance import run_instance
 from miscoto.miscoto_mincom import run_mincom
 from miscoto.miscoto_scopes import run_scopes
 from miscoto.miscoto_focus import run_focus
+from miscoto.miscoto_deadends import run_deadends
 from shutil import which
 
 VERSION = pkg_resources.get_distribution("miscoto").version
@@ -82,7 +83,7 @@ def main():
         "--seeds",
         dest="seeds",
         help="seeds in SBML format",
-        required=True,
+        required=False,
     )
     parent_parser_m = argparse.ArgumentParser(add_help=False)
     parent_parser_m.add_argument(
@@ -215,8 +216,12 @@ def main():
         Prepares instance for miscoto. Useful in a benchmark context: pre-calculating
         the instance ensures that SBML files do not have to be read again.
         Instances are text files that can be modified between runs through multiple
-        ways, including the use of bash tools
-        """
+        ways, including the use of bash tools.
+        Miscoto scopes: BACTSYMBIONTS (required), SEEDS (required), TARGETS (optional), MODELHOST (optional).
+        Miscoto mincom: BACTSYMBIONTS (required), SEEDS (required), TARGETS (required), MODELHOST (optional).
+        Miscoto mincom: BACTSYMBIONTS (required), SEEDS (required), TARGETS (required), MODELHOST (optional).
+        Miscoto deadends: BACTSYMBIONTS (required), MODELHOST (optional).
+        """,
     )
 
     focus_parser = subparsers.add_parser(
@@ -236,7 +241,7 @@ def main():
         The name of the microbe of interest corresponds to the basename of
         its corresponding file in the symbionts input directory, e.g.
         for a file named `ecoli.sbml`, the given basename must be `ecoli`
-        """
+        """,
     )
 
     mincom_parser = subparsers.add_parser(
@@ -298,15 +303,60 @@ def main():
         """
     )
 
-    args = parser.parse_args()
+    deadends_parser = subparsers.add_parser(
+        "deadends",
+        help="""Compute the deadend (metabolites produced but not consumed)
+         and orphan (metabolites consumed but not produced) metabolites in the community.""",
+        parents=[
+            parent_parser_a, parent_parser_opt_b, parent_parser_opt_s, parent_parser_m, parent_parser_o
+        ],
+        description=
+        """
+        Computes the deadend and orphan metabolites of a host (optional) and its microbiome.
+        Computation from SBML models or an instance pre-created with miscoto_instance.py
+        """,
+        usage="""
+        **1** from SBML files with a host metabolic model and a seed file\n
+        miscoto deadends -m host.sbml -b symbiont_directory  -s seeds_file.xml [--output outputfile.json]
+        \n
+        **2** from SBML files of symbionts without host \n
+        miscoto deadends -b symbiont_directory [--output outputfile.json]
+        \n
+        **3** from a pre-computed instance \n
+        miscoto deadends -a instance.lp [--output outputfile.json]
+        """
+    )
 
-    # If no argument print the help.
+    # If no argument to a command, print the help of miscoto subcommand, when having no required parameters.
+    # It is the case for mincom, instance, focus.
+    try:
+        args = parser.parse_args()
+    except:
+        if len(sys.argv) == 2:
+            subcommand = subparsers.choices[sys.argv[1]]
+            subcommand.print_help()
+            sys.exit(1)
+
+    # If no argument print the help of miscoto.
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
 
+    # If only a subcommand, print the help for this subcommand.
+    if len(sys.argv) == 2:
+        if sys.argv[1] in subparsers.choices:
+            subcommand = subparsers.choices[sys.argv[1]]
+        else:
+            subcommands = ','.join(list(subparsers.choices.keys()))
+            logger.error("ERROR - Invalide subcommand {0}, it should be one of: {1}.".format(sys.argv[1], subcommands))
+            sys.exit(1)
+        subcommand.print_help()
+        sys.exit(1)
+
     if args.cmd == "scopes":
         run_scopes(args.asp, args.targets, args.seeds, args.bactsymbionts, args.modelhost, args.output)
+    elif args.cmd == "deadends":
+        run_deadends(args.asp, args.bactsymbionts, args.seeds, args.modelhost, args.output)
     elif args.cmd == "mincom":
         if args.intersection:
             intersection_arg = True

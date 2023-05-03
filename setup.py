@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2018-2021 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2023 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -16,11 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 
 from setuptools import setup
-import miscoto
 
 setup(
     name             = 'Miscoto',
-    version          = miscoto.__version__,
     url              = 'https://github.com/cfrioux/miscoto',
     license          = 'GPLv3+',
     description      = 'Microbiome Screening and COmmunity selection using TOpology',
@@ -41,7 +39,6 @@ More information on usage and troubleshooting on Github: https://github.com/cfri
     packages         = ['miscoto'],
     package_dir      = {'miscoto' : 'miscoto'},
     package_data     = {'miscoto' : ['encodings/*.lp']},
-    #scripts          = ['miscoto/miscoto_instance.py','miscoto/miscoto_mincom.py','miscoto/miscoto_scopes.py'],
     entry_points     = {'console_scripts': ['miscoto = miscoto.__main__:main']},
     install_requires = ['clyngor_with_clingo', 'clyngor']
 )

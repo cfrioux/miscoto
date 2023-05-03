@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2021 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2023 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -16,8 +16,8 @@ from miscoto.miscoto_instance import run_instance
 from miscoto.miscoto_mincom import run_mincom
 from miscoto.miscoto_scopes import run_scopes
 from miscoto.miscoto_focus import run_focus
+from miscoto.miscoto_deadends import run_deadends
 
-
-__version__="3.1.2"
+__version__="3.2.0"
 """Define the version of the package.
 """

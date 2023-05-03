@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2018-2021 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2023 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -18,7 +18,6 @@
 Definition of numerous constants, for paths, names, arguments for ASP solvers.
 """
 
-import sys
 import os
 
 # Root
@@ -40,6 +39,7 @@ def __asp_file(name):
 # Routine
 ASP_SRC_SCOPES = __asp_file('scopes')
 ASP_SRC_FOCUS = __asp_file('iscope_in_community')
+ASP_SRC_DEADENDS = __asp_file('deadends')
 # Topological subcommunities
 ASP_SRC_TOPO_SOUP   = __asp_file('community_soup')
 ASP_SRC_TOPO_RXN_MIN_EXCH = __asp_file('community_minexch')

@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2021 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2023 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -13,17 +13,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 
 import os
-import tempfile
 import clyngor
 from miscoto import utils
 
 def get_scopes(instance_f, encoding):
     """Get metabolic scope of a microbiota
-    
+
     Args:
         instance_f (str): ASP instance file
         encoding (str): ASP model encoding
-    
+
     Returns:
         TermSet: ASP model
     """
@@ -36,6 +35,25 @@ def get_scopes(instance_f, encoding):
 
     return best_model
 
+
+def get_deadends(instance_f, encoding):
+    """Get deadend and orphan metabolites of a microbiota
+
+    Args:
+        instance_f (str): ASP instance file
+        encoding (str): ASP model encoding
+
+    Returns:
+        TermSet: ASP model
+    """
+    prg = [encoding, instance_f]
+    options = ''
+    best_model = None
+    models = clyngor.solve(prg, options=options, use_clingo_module=False)
+    for model in models.discard_quotes.by_arity:
+        best_model = model
+
+    return best_model
 
 
 def get_grounded_communities_from_file(instance_f, encoding):
