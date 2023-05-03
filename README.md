@@ -56,6 +56,20 @@ Required package (starting from version 2.0 of the package):
 pip install miscoto
 ```
 
+If you encounter the following error while trying to install MiSCoTo with pip:
+
+```
+      File "/tmp/pip-req-build-1d99vvu6/miscoto/__init__.py", line 15, in <module>
+        from miscoto.miscoto_instance import run_instance
+      File "/tmp/pip-req-build-1d99vvu6/miscoto/miscoto_instance.py", line 22, in <module>
+        from miscoto import utils, sbml
+      File "/tmp/pip-req-build-1d99vvu6/miscoto/sbml.py", line 21, in <module>
+        from clyngor.as_pyasp import TermSet, Atom
+    ModuleNotFoundError: No module named 'clyngor'
+```
+
+Try updating pip to a version superior or equal to 23.1 with `pip install --upgrade pip`.  
+
 ## Usage
 
     usage: miscoto [-h] [-v] {instance,focus,mincom,scopes,deadends} ...
@@ -142,18 +156,23 @@ but those are necesarily altered by what other species are likely to produce.
                 output_json=xxx, all_networks=False)
     ```
 
-* ``miscoto deadends`` identifies the orphan (metabolites consumed but not produced) and deadend
-(metabolites produced but not consumed) metabolites in the community.
-Inputs: SBML models (symbionts and optionally host).
+* ``miscoto deadends`` miscoto deadends identifies the orphan (metabolites consumed but not produced) and deadend (metabolites produced but not consumed) metabolites in the community. Inputs: SBML models (symbionts and optionally host) and optionaly a seeds file.
+
+This analysis is entirely _graph_based_ and considers only the topology of the metabolic networks, taking into account that a metabolite output of a reaction in species _A_ and input to a reaction in species _B_ will not not be a deadend. Likewise, a metabolite that is solely a reactant in _A_ but is the product of a reaction in _B_ will not be an orphan compound.
+
+With the seeds option, it is possible to compute the dead and orphan metabolites associated with the activated reactions from these seeds. In this way, only a subgraph of the graph made by all the metabolic networks is used.
+
     ```
     optional arguments:
     -h, --help            show this help message and exit
+    -a ASP, --asp ASP     instance if already created with miscoto_instance
     -b BACTSYMBIONTS, --bactsymbionts BACTSYMBIONTS
                             directory of symbionts models, all in sbml format
+    -s SEEDS, --seeds SEEDS
+                            seeds in SBML format
     -m MODELHOST, --modelhost MODELHOST
                             host metabolic network in SBML format
     --output OUTPUT       output file
-    -a ASP, --asp ASP     instance if already created with miscoto_instance
     ```
 
     ```miscoto deadends``` can be called directly in Python
@@ -161,8 +180,8 @@ Inputs: SBML models (symbionts and optionally host).
     ```python
     from miscoto import run_deadends
 
-    run_deadends(bacteria_dir=xxx, host_file=xxx,\
-                output_json=xxx)
+    run_deadends(lp_instance_file=xxx, bacteria_dir=xxx, seeds_file=xxx, \
+                host_file=xxx, output_json=xxx)
     ```
 
 * ``miscoto mincom`` computes a community from a microbiome Inputs: SBML models (symbionts and

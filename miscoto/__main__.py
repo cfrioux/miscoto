@@ -221,7 +221,7 @@ def main():
         Miscoto mincom: BACTSYMBIONTS (required), SEEDS (required), TARGETS (required), MODELHOST (optional).
         Miscoto mincom: BACTSYMBIONTS (required), SEEDS (required), TARGETS (required), MODELHOST (optional).
         Miscoto deadends: BACTSYMBIONTS (required), MODELHOST (optional).
-        """
+        """,
     )
 
     focus_parser = subparsers.add_parser(
@@ -241,7 +241,7 @@ def main():
         The name of the microbe of interest corresponds to the basename of
         its corresponding file in the symbionts input directory, e.g.
         for a file named `ecoli.sbml`, the given basename must be `ecoli`
-        """
+        """,
     )
 
     mincom_parser = subparsers.add_parser(
@@ -308,7 +308,7 @@ def main():
         help="""Compute the deadend (metabolites produced but not consumed)
          and orphan (metabolites consumed but not produced) metabolites in the community.""",
         parents=[
-            parent_parser_opt_b, parent_parser_m, parent_parser_o, parent_parser_a
+            parent_parser_a, parent_parser_opt_b, parent_parser_opt_s, parent_parser_m, parent_parser_o
         ],
         description=
         """
@@ -316,8 +316,8 @@ def main():
         Computation from SBML models or an instance pre-created with miscoto_instance.py
         """,
         usage="""
-        **1** from SBML files with a host metabolic model \n
-        miscoto deadends -m host.sbml -b symbiont_directory  [--output outputfile.json]
+        **1** from SBML files with a host metabolic model and a seed file\n
+        miscoto deadends -m host.sbml -b symbiont_directory  -s seeds_file.xml [--output outputfile.json]
         \n
         **2** from SBML files of symbionts without host \n
         miscoto deadends -b symbiont_directory [--output outputfile.json]
@@ -348,7 +348,7 @@ def main():
     if args.cmd == "scopes":
         run_scopes(args.asp, args.targets, args.seeds, args.bactsymbionts, args.modelhost, args.output)
     elif args.cmd == "deadends":
-        run_deadends(args.asp, args.bactsymbionts, args.modelhost, args.output)
+        run_deadends(args.asp, args.bactsymbionts, args.seeds, args.modelhost, args.output)
     elif args.cmd == "mincom":
         if args.intersection:
             intersection_arg = True

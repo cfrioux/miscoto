@@ -28,10 +28,11 @@ from clyngor.as_pyasp import TermSet, Atom
 logger = logging.getLogger(__name__)
 
 
-def run_deadends(lp_instance_file=None, bacteria_dir=None, host_file=None, output_json=None):
+def run_deadends(lp_instance_file=None, bacteria_dir=None, seeds_file=None, host_file=None, output_json=None):
     """Computes community scopes
         lp_instance_file ([str], optional): Defaults to None. [ASP facts instance of the problem]
         bacteria_dir ([str], optional): Defaults to None. [directory of bacterial metabolic networks]
+        seeds_file (str, optional): Defaults to None. seeds file
         host_file ([str], optional): Defaults to None. [host metabolic network]
         output_json ([str], optional): Defaults to None. [json file for output]
 
@@ -41,14 +42,22 @@ def run_deadends(lp_instance_file=None, bacteria_dir=None, host_file=None, outpu
 
     start_time = time.time()
     results = {}
-    # case 1: instance is provided, just read targets and seeds if given
-    input_instance = False
+    # case 1: instance is provided
     if lp_instance_file:
         if not os.path.isfile(lp_instance_file) :
             logger.info('Instance file not found')
             sys.exit(1)
 
-        input_instance = True
+        # Check if seeds are in instance, to decide which methods use.
+        seeds = []
+        with open(lp_instance_file, 'r') as instance_file:
+            for line in instance_file.readlines():
+                if 'seed' in line:
+                    predicate = line.strip().split('"')[0]
+                    atom = line.strip().split('"')[1]
+                    seeds.append(Atom(predicate, ["\"" + atom + "\""]))
+                    seeds_file = True
+
         delete_lp_instance = False
         logger.info(
             "Instance provided, only seeds and targets will be added if given")
@@ -77,6 +86,17 @@ def run_deadends(lp_instance_file=None, bacteria_dir=None, host_file=None, outpu
             draftnet = TermSet()
 
         lp_instance = TermSet(draftnet)
+
+        if seeds_file is not None:
+            try:
+                seeds = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')
+            except FileNotFoundError:
+                logger.critical('Seeds file not found')
+                sys.exit(1)
+            except ParseError:
+                logger.critical("Invalid syntax in SBML file: "+seeds_file)
+                sys.exit(1)
+            lp_instance = TermSet(lp_instance.union(seeds))
 
         if not os.path.isdir(bacteria_dir):
             logger.critical("Symbiont directory not found")
@@ -114,12 +134,25 @@ def run_deadends(lp_instance_file=None, bacteria_dir=None, host_file=None, outpu
     deadend_nc = []
     for pred in model:
         if pred == 'deadend_np':
-            for a in model[pred, 1]:
-                deadend_np.append(a[0])
+            for a in model[pred, 2]:
+                if seeds_file is not None and a[1] == 'seeds':
+                    deadend_np.append(a[0])
+                if seeds_file is None and a[1] == 'withoutSeeds':
+                    deadend_np.append(a[0])
         elif pred == 'deadend_nc':
-            for a in model[pred, 1]:
-                deadend_nc.append(a[0])
+            for a in model[pred, 2]:
+                if seeds_file is not None and a[1] == 'seeds':
+                    deadend_nc.append(a[0])
+                if seeds_file is None and a[1] == 'withoutSeeds':
+                    deadend_nc.append(a[0])
 
+    if seeds_file is not None:
+        seed_ids = set([seed.arg(0).strip('"') for seed in seeds])
+        seeds_np = set(deadend_np).intersection(seed_ids)
+        if len(seeds_np) > 0:
+            logger.info('{0} seed metabolites are not produced in community:'.format(len(seeds_np)))
+            logger.info("\n".join(seeds_np))
+        deadend_np = list(set(deadend_np) - seed_ids)
     logger.info('{0} orphan metabolites (metabolites consumed but not produced) in community:'.format(len(deadend_np)))
     logger.info("\n".join(deadend_np))
     logger.info('{0} deadend metabolites (metabolites produced but not consumed) in community:'.format(len(deadend_nc)))
@@ -130,6 +163,8 @@ def run_deadends(lp_instance_file=None, bacteria_dir=None, host_file=None, outpu
 
     results['deadend_np'] = deadend_np
     results['deadend_nc'] = deadend_nc
+    if seeds_file is not None:
+        results['seeds_np'] = list(seeds_np)
 
     if output_json:
         utils.to_json(results, output_json)
