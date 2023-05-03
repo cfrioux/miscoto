@@ -158,9 +158,9 @@ but those are necesarily altered by what other species are likely to produce.
 
 * ``miscoto deadends`` miscoto deadends identifies the orphan (metabolites consumed but not produced) and deadend (metabolites produced but not consumed) metabolites in the community. Inputs: SBML models (symbionts and optionally host) and optionaly a seeds file.
 
-This analysis is entirely _graph_based_ and considers only the topology of the metabolic networks, taking into account that a metabolite output of a reaction in species _A_ and input to a reaction in species _B_ will not not be a deadend. Likewise, a metabolite that is solely a reactant in _A_ but is the product of a reaction in _B_ will not be an orphan compound.
+    This analysis is entirely _graph_based_ and considers only the topology of the metabolic networks, taking into account that a metabolite output of a reaction in species _A_ and input to a reaction in species _B_ will not not be a deadend. Likewise, a metabolite that is solely a reactant in _A_ but is the product of a reaction in _B_ will not be an orphan compound.
 
-With the seeds option, it is possible to compute the dead and orphan metabolites associated with the activated reactions from these seeds. In this way, only a subgraph of the graph made by all the metabolic networks is used.
+    With the seeds option, it is possible to compute the dead and orphan metabolites associated with the activated reactions from these seeds. In this way, only a subgraph of the graph made by all the metabolic networks is used.
 
     ```
     optional arguments:

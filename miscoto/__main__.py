@@ -327,7 +327,15 @@ def main():
         """
     )
 
-    args = parser.parse_args()
+    # If no argument to a command, print the help of miscoto subcommand, when having no required parameters.
+    # It is the case for mincom, instance, focus.
+    try:
+        args = parser.parse_args()
+    except:
+        if len(sys.argv) == 2:
+            subcommand = subparsers.choices[sys.argv[1]]
+            subcommand.print_help()
+            sys.exit(1)
 
     # If no argument print the help of miscoto.
     if len(sys.argv) == 1:

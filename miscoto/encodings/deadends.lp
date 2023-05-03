@@ -47,4 +47,3 @@ deadend_nc(M, withoutSeeds) :- reaction(R,_), allProduct(M,R,_), not allReactant
 
 #show deadend_np/2.
 #show deadend_nc/2.
-#show activatedReaction/1.
