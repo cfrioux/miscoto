@@ -6,3 +6,4 @@ test/__pycache__/
 __pycache__/*
 Miscoto.egg-info/
 build/
+dist/
