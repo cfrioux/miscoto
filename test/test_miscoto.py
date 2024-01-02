@@ -335,6 +335,113 @@ def test_focus_all():
         for result_key in expected_results[org]:
             assert sorted(dict_results[org][result_key]) == sorted(expected_results[org][result_key])
 
+def test_focus_all_instance_cli():
+    subprocess.call(['miscoto', 'instance', '-b', '../toy/symbionts_nohost/',
+                    '-s', '../toy/seeds.xml', '--output', 'instance_nohost_test.lp'])
+
+    dict_results = run_focus(bacteria_dir=None, seeds_file=None, focus_bact=[], all_networks=True,lp_instance_file='instance_nohost_test.lp')
+
+    expected_results = {"orgA": {
+                            "community_metabolic_gain": ["f"],
+                            "produced_alone": ["c","d"],
+                            "produced_in_community": ["c","d","f"]},
+                        "orgB1": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": [],
+                            "produced_in_community": ["e"]}, 
+                        "orgB2": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": ["c"],
+                            "produced_in_community": ["e","c"]},
+                        "orgB3": {
+                            "community_metabolic_gain": [],
+                            "produced_alone": ["e", "d", "c"],
+                            "produced_in_community": ["e", "d", "c"]}}
+    for org in expected_results:
+        for result_key in expected_results[org]:
+            assert sorted(dict_results[org][result_key]) == sorted(expected_results[org][result_key])
+
+def test_focus_all_instance_json():
+    subprocess.call(['miscoto', 'instance', '-b', '../toy/symbionts_nohost/',
+                    '-s', '../toy/seeds.xml', '--output', 'instance_nohost_test.lp'])
+    subprocess.call(['miscoto', 'focus', '-a', 'instance_nohost_test.lp', '--all',
+                    '--output', 'focus_res_test.json'])
+    dict_results = json.loads(open('focus_res_test.json', 'r').read())
+
+    expected_results = {"orgA": {
+                            "community_metabolic_gain": ["f"],
+                            "produced_alone": ["c","d"],
+                            "produced_in_community": ["c","d","f"]},
+                        "orgB1": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": [],
+                            "produced_in_community": ["e"]}, 
+                        "orgB2": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": ["c"],
+                            "produced_in_community": ["e","c"]},
+                        "orgB3": {
+                            "community_metabolic_gain": [],
+                            "produced_alone": ["e", "d", "c"],
+                            "produced_in_community": ["e", "d", "c"]}}
+    for org in expected_results:
+        for result_key in expected_results[org]:
+            assert sorted(dict_results[org][result_key]) == sorted(expected_results[org][result_key])
+
+def test_focus_all_instance_and_seeds():
+    subprocess.call(['miscoto', 'instance', '-b', '../toy/symbionts_nohost/',
+                    '--output', 'instance_nohost_test.lp'])
+
+    dict_results = run_focus(bacteria_dir=None, seeds_file="../toy/seeds.xml", focus_bact=[], all_networks=True,lp_instance_file='instance_nohost_test.lp')
+
+    expected_results = {"orgA": {
+                            "community_metabolic_gain": ["f"],
+                            "produced_alone": ["c","d"],
+                            "produced_in_community": ["c","d","f"]},
+                        "orgB1": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": [],
+                            "produced_in_community": ["e"]}, 
+                        "orgB2": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": ["c"],
+                            "produced_in_community": ["e","c"]},
+                        "orgB3": {
+                            "community_metabolic_gain": [],
+                            "produced_alone": ["e", "d", "c"],
+                            "produced_in_community": ["e", "d", "c"]}}
+    for org in expected_results:
+        for result_key in expected_results[org]:
+            assert sorted(dict_results[org][result_key]) == sorted(expected_results[org][result_key])
+
+def test_focus_all_instance_and_seeds_json():
+    subprocess.call(['miscoto', 'instance', '-b', '../toy/symbionts_nohost/',
+                    '--output', 'instance_nohost_test.lp'])
+    subprocess.call(['miscoto', 'focus', '-a', 'instance_nohost_test.lp', '--all',
+                    '--output', 'focus_res_test.json', '-s', '../toy/seeds.xml'])
+    dict_results = json.loads(open('focus_res_test.json', 'r').read())
+
+    expected_results = {"orgA": {
+                            "community_metabolic_gain": ["f"],
+                            "produced_alone": ["c","d"],
+                            "produced_in_community": ["c","d","f"]},
+                        "orgB1": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": [],
+                            "produced_in_community": ["e"]}, 
+                        "orgB2": {
+                            "community_metabolic_gain": ["e"],
+                            "produced_alone": ["c"],
+                            "produced_in_community": ["e","c"]},
+                        "orgB3": {
+                            "community_metabolic_gain": [],
+                            "produced_alone": ["e", "d", "c"],
+                            "produced_in_community": ["e", "d", "c"]}}
+    for org in expected_results:
+        for result_key in expected_results[org]:
+            assert sorted(dict_results[org][result_key]) == sorted(expected_results[org][result_key])
+
+
 def test_create_json_mincom_minexch():
     results = run_mincom(host_file='../toy/orgA.xml', bacteria_dir='../toy/symbionts/',
                         seeds_file='../toy/seeds.xml', targets_file='../toy/targets_A.xml',
