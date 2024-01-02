@@ -108,8 +108,8 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
 
 
     logger.info(f"\nComputing producible metabolites for {focus_bact2}...")
-
-    model = query.get_scopes(lp_instance_file, commons.ASP_SRC_FOCUS)
+    instances = [lp_instance_file]
+    model = query.get_scopes(instances, commons.ASP_SRC_FOCUS)
 
     indiv_produced = {}
     produced_in_com = {}
