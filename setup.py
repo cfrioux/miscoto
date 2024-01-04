@@ -16,11 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 
 from setuptools import setup
-import miscoto
 
 setup(
     name             = 'Miscoto',
-    version          = miscoto.__version__,
     url              = 'https://github.com/cfrioux/miscoto',
     license          = 'GPLv3+',
     description      = 'Microbiome Screening and COmmunity selection using TOpology',
