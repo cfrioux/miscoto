@@ -271,7 +271,7 @@ def test_scopes_json_instance_no_host_cli():
     os.remove('instance_nohost_test.json')
     os.remove('instance_nohost_test.lp')
 
-def test_focus_json():
+def test_focus_cli_json():
     subprocess.call(['miscoto', 'focus', '-b', '../toy/symbionts_nohost/', '-s', '../toy/seeds.xml',
                     '-f', 'orgA', '--output', 'focus_res_test.json'])
     dict_results = json.loads(open('focus_res_test.json', 'r').read())
@@ -283,7 +283,7 @@ def test_focus_json():
         assert sorted(dict_results[result_key]) == sorted(expected_results[result_key])
     os.remove('focus_res_test.json')
 
-def test_focus_cli():
+def test_focus_call():
     dict_results = run_focus(bacteria_dir='../toy/symbionts_nohost/', seeds_file='../toy/seeds.xml', focus_bact=['orgA'])
 
     expected_results = {"orgA": {"produced_alone": ["c", "d"],

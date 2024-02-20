@@ -139,24 +139,24 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
                 logger.info('Done for ' + name)
             except:
                 logger.info('Could not read file ' + name + ', will ignore it')
-    
-            if all_networks: 
-                focus_bact = all_bacteria_names
 
-            focus_bact2 = []
-            for ts in focus_bact:
-                if not ts in all_bacteria_names:
-                    logger.warning(f"\nWARNING - {ts} is not the basename of a symbiont from {bacteria_dir}. If the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`. {ts} will be ignored.")
-                else:
-                    focus_bact2.append(ts)
-            if len(focus_bact2) == 0:
-                logger.critical(f"\nERROR - No element from {focus_bact} could be found in {bacteria_dir}. Please check the input having in mind that if the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`.")
-                sys.exit(1)
-            
-            # add the name of microbe of interest in the instance file
-            with open(lp_instance_file, "a") as f:
-                for ts in focus_bact2:
-                    f.write(f'target_species("{ts}").\n')
+        if all_networks:
+            focus_bact = all_bacteria_names
+
+        focus_bact2 = []
+        for ts in focus_bact:
+            if not ts in all_bacteria_names:
+                logger.warning(f"\nWARNING - {ts} is not the basename of a symbiont from {bacteria_dir}. If the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`. {ts} will be ignored.")
+            else:
+                focus_bact2.append(ts)
+        if len(focus_bact2) == 0:
+            logger.critical(f"\nERROR - No element from {focus_bact} could be found in {bacteria_dir}. Please check the input having in mind that if the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`.")
+            sys.exit(1)
+
+        # add the name of microbe of interest in the instance file
+        with open(lp_instance_file, "a") as f:
+            for ts in focus_bact2:
+                f.write(f'target_species("{ts}").\n')
 
     # logger.info(os.path.abspath(lp_instance_file))
 
