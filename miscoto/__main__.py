@@ -14,17 +14,16 @@
 
 import argparse
 import logging
-import pkg_resources
 import sys
 import time
 
+from miscoto import __version__ as VERSION
 from miscoto.miscoto_instance import run_instance
 from miscoto.miscoto_mincom import run_mincom
 from miscoto.miscoto_scopes import run_scopes
 from miscoto.miscoto_focus import run_focus
 from shutil import which
 
-VERSION = pkg_resources.get_distribution("miscoto").version
 LICENSE = """Copyright (C) Dyliss
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 miscoto is free software: you are free to change and redistribute it.
