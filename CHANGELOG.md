@@ -1,6 +1,6 @@
 # Changelog
 
-# MiSCoTo v3.2.0  (2024-01-08)
+# MiSCoTo v3.2.0 (2024-02-28)
 
 ## New
 
@@ -14,7 +14,6 @@
 - Update license year.
 - Modify if statement that will be deprecated in the future.
 - Move from `setup.py`/`setup.cfg` to `pyproject.toml`.
-- Remove miscoto import in setup.py that leads to install error.
 
 # MiSCoTo v3.1.2  (2022-03-18)
 
