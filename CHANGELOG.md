@@ -10,6 +10,7 @@
 
 - Miscoto focus can be run from a LP instance (issue #17).
 - Copy but do not modify given instance in miscoto scopes and mincom (issue #8).
+- Replace use of pkg_resources that will become deprecated.
 - Update license year.
 - Modify if statement that will be deprecated in the future.
 - Move from `setup.py`/`setup.cfg` to `pyproject.toml`.
