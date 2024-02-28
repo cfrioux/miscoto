@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2018-2021 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -46,6 +46,9 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     results = {}
     # case 1: instance is provided, just read targets and seeds if given
     input_instance = False
+    seed_instance = False
+    target_instance = False
+
     if lp_instance_file:
         if not os.path.isfile(lp_instance_file) :
             logger.info('Instance file not found')
@@ -66,8 +69,8 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
             except ParseError:
                 logger.critical("Invalid syntax in SBML file: "+targets_file)
                 sys.exit(1)
-        else:
-            targetsfacts = TermSet()
+            lp_instance_targets = utils.to_file(targetsfacts)
+            target_instance = True
 
         if seeds_file:
             logger.info('Reading seeds from ' + seeds_file)
@@ -79,14 +82,9 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
             except ParseError:
                 logger.critical("Invalid syntax in SBML file: " + seeds_file)
                 sys.exit(1)
-        else:
-            seedsfacts = TermSet()
+            lp_instance_seeds = utils.to_file(seedsfacts)
+            seed_instance = True
 
-        with open(lp_instance_file, "a") as f:
-            for elem in targetsfacts:
-                f.write(str(elem) + '.\n')
-            for elem in seedsfacts:
-                f.write(str(elem) + '.\n')
 
     # case 2: read inputs from SBML files
     elif bacteria_dir and seeds_file:
@@ -168,7 +166,13 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
 
     logger.info("Computing scopes...")
 
-    model = query.get_scopes(lp_instance_file, commons.ASP_SRC_SCOPES)
+    instances = [lp_instance_file]
+    if target_instance:
+        instances.append(lp_instance_targets)
+    if seed_instance:
+        instances.append(lp_instance_seeds)
+    
+    model = query.get_scopes(instances, commons.ASP_SRC_SCOPES)
 
     host_scope = []
     host_prodtargets = []

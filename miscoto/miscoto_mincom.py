@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2018-2021 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -58,6 +58,10 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     """
     start_time = time.time()
     results = {}
+
+    seed_instance = False
+    target_instance = False
+
     # checking option
     if option == "soup":
         encoding = commons.ASP_SRC_TOPO_SOUP
@@ -103,8 +107,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             except ParseError:
                 logger.critical("Invalid syntax in SBML file: "+targets_file)
                 sys.exit(1)
-        else:
-            targetsfacts = TermSet()
+            lp_instance_targets = utils.to_file(targetsfacts)
+            target_instance = True
 
         if seeds_file:
             logger.info('Reading targets from ' + seeds_file)
@@ -116,14 +120,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             except ParseError:
                 logger.critical("Invalid syntax in SBML file: "+seeds_file)
                 sys.exit(1)
-        else:
-            seedsfacts = TermSet()
-
-        with open(lp_instance_file, "a") as f:
-            for elem in targetsfacts:
-                f.write(str(elem) + '.\n')
-            for elem in seedsfacts:
-                f.write(str(elem) + '.\n')
+            lp_instance_seeds = utils.to_file(seedsfacts)
+            seed_instance = True
 
     # case 2: read inputs from SBML files
     elif bacteria_dir and seeds_file and targets_file:
@@ -206,7 +204,13 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     logger.info('\nFinding optimal communities for target production...')
     #ground the instance
     print(encoding)
-    grounded_instance = query.get_grounded_communities_from_file(lp_instance_file, encoding)
+    instances = [lp_instance_file]
+    if target_instance:
+        instances.append(lp_instance_targets)
+    if seed_instance:
+        instances.append(lp_instance_seeds)
+
+    grounded_instance = query.get_grounded_communities_from_file(instances, encoding)
 
 
 # one solution

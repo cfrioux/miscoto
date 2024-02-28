@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2021 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -14,17 +14,16 @@
 
 import argparse
 import logging
-import pkg_resources
 import sys
 import time
 
+from miscoto import __version__ as VERSION
 from miscoto.miscoto_instance import run_instance
 from miscoto.miscoto_mincom import run_mincom
 from miscoto.miscoto_scopes import run_scopes
 from miscoto.miscoto_focus import run_focus
 from shutil import which
 
-VERSION = pkg_resources.get_distribution("miscoto").version
 LICENSE = """Copyright (C) Dyliss
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 miscoto is free software: you are free to change and redistribute it.
@@ -52,7 +51,7 @@ logger.setLevel(logging.DEBUG)
 
 
 def main():
-    """Run programm.
+    """Run programme.
     """
     start_time = time.time()
     parser = argparse.ArgumentParser(
@@ -223,8 +222,8 @@ def main():
         "focus",
         help="Focus on one, several or all species and determine what they can produce alone or in its community.",
         parents=[
-            parent_parser_b, parent_parser_s, parent_parser_f,
-            parent_parser_o, parent_parser_all
+            parent_parser_opt_b, parent_parser_opt_s, parent_parser_f,
+            parent_parser_o, parent_parser_all, parent_parser_a
         ],
         description=
         """
@@ -236,6 +235,17 @@ def main():
         The name of the microbe of interest corresponds to the basename of
         its corresponding file in the symbionts input directory, e.g.
         for a file named `ecoli.sbml`, the given basename must be `ecoli`
+        """,
+        usage = """
+        **1** from SBML files, with a focus on one species, whose metabolic network is located in foo/bar/ecoli.sbml
+        miscoto focus -b symbiont_directory -s seeds.sbml --output outputfile.json -f ecoli 
+        \n
+        **2** from SBML files, with a focus on all species
+        miscoto focus -b symbiont_directory -s seeds.sbml --output outputfile.json --all 
+        \n
+        **3** from a pre-computed instance with possibly (additional) seeds with a focus on 2 organisms whose metabolic networks are located in foo/bar/bact1.sbml and foo/bar/bact2.sbml
+        miscoto focus -a instance.lp -o option [-s seeds.sbml] --output outputfile.json -f bact1 bact2 
+        \n
         """
     )
 
@@ -335,7 +345,7 @@ def main():
         if args.all and args.focus:
             logger.warning("WARNING - The --focus/-f argument was given along with the --all flag. All metabolic networks will be considered for analysis.")
 
-        run_focus(args.seeds, args.bactsymbionts, args.focus, args.output, args.all)
+        run_focus(args.seeds, args.bactsymbionts, args.focus, args.output, args.all, args.asp)
     else:
         logger.critical("Invalid commands for miscoto.")
         parser.print_help()

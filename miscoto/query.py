@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2021 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -17,17 +17,19 @@ import tempfile
 import clyngor
 from miscoto import utils
 
-def get_scopes(instance_f, encoding):
+def get_scopes(instances, encoding):
     """Get metabolic scope of a microbiota
     
     Args:
-        instance_f (str): ASP instance file
+        instance_f (list): list containing ASP instance files paths
         encoding (str): ASP model encoding
     
     Returns:
         TermSet: ASP model
     """
-    prg = [encoding, instance_f]
+    # add the encoding to the list of instances
+    prg = instances
+    prg.append(encoding)
     options = ''
     best_model = None
     models = clyngor.solve(prg, options=options, use_clingo_module=False)
@@ -38,17 +40,18 @@ def get_scopes(instance_f, encoding):
 
 
 
-def get_grounded_communities_from_file(instance_f, encoding):
+def get_grounded_communities_from_file(instances, encoding):
     """Ground the model, from a file
     
     Args:
-        instance_f (str): model file
+        instances (list): list containing ASP instance files paths
         encoding (str): ASP model encoding
     
     Returns:
         bytes: grounded model
     """
-    prg = [encoding, instance_f]
+    prg = instances
+    prg.append(encoding)
     grounding = clyngor.grounded_program(prg)
 
     return grounding
