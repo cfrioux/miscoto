@@ -1,4 +1,4 @@
-[![PyPI version](https://img.shields.io/pypi/v/miscoto.svg)](https://pypi.org/project/Miscoto/) [![GitHub license](https://img.shields.io/github/license/cfrioux/miscoto.svg)](https://github.com/cfrioux/miscoto/blob/master/LICENSE) [![Actions Status](https://github.com/cfrioux/miscoto/workflows/Python%20package/badge.svg)](https://github.com/cfrioux/miscoto/actions) [![](https://img.shields.io/badge/doi-10.1093/bioinformatics/bty588-blueviolet.svg)](https://academic.oup.com/bioinformatics/article/34/17/i934/5093211)
+[![PyPI version](https://img.shields.io/pypi/v/miscoto.svg)](https://pypi.org/project/Miscoto/) [![GitHub license](https://img.shields.io/github/license/cfrioux/miscoto.svg)](https://github.com/cfrioux/miscoto/blob/main/LICENSE) [![Actions Status](https://github.com/cfrioux/miscoto/workflows/Python%20package/badge.svg)](https://github.com/cfrioux/miscoto/actions) [![](https://img.shields.io/badge/doi-10.1093/bioinformatics/bty588-blueviolet.svg)](https://academic.oup.com/bioinformatics/article/34/17/i934/5093211)
 
 # MiSCoTo
 ## Description
@@ -23,7 +23,7 @@ MiSCoTo computes the set of metabolites that are producible by a community (with
 
 **If you look for a wider screening of communities, as well as metabolic network reconstruction for a large set of genomes** please look at [Metage2Metabo](https://github.com/AuReMe/metage2metabo)
 
-Inputs: metabolic models, seeds (growth medium) and metabolic targets as SBML files (see examples in [toy](https://github.com/cfrioux/miscoto/tree/master/toy)).
+Inputs: metabolic models, seeds (growth medium) and metabolic targets as SBML files (see examples in [toy](https://github.com/cfrioux/miscoto/tree/main/toy)).
 
 Computations can be performed with a set of symbionts or a set of symbionts and a host. In the latter case, targets will be produced by the host, whereas in the former they will be produced by any member of the microbiota.
 
